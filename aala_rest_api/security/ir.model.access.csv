@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_system_master_manager,access_system_master_manager,model_system_master,,1,1,1,1
+access_division_master_manager,access_division_master_manager,model_division_master,,1,1,1,1
+access_banner_master,access_banner_master,model_banner_master,,1,1,1,1
+access_product_brand,access_product_brand,model_product_brand,,1,1,1,1
+access_project_app_status,access_project_app_status,model_project_app_status,,1,1,1,1
+access_project_app_stage,access_project_app_stage,model_project_app_stage,,1,1,1,1
+access_project_app_track,access_project_app_track,model_project_app_track,,1,1,1,1
+access_project_app_remarks,access_project_app_remarks,model_project_app_remarks,,1,1,1,1
+access_project_team,access_project_team,model_project_team,,1,1,1,1
+access_about_company,access_about_company,model_about_company,,1,1,1,1
+
+
