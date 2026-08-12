@@ -21,18 +21,36 @@
             </t>
         </xpath>
 
-        <!-- Vendor address block: add an explicit "Vendor name and address"
-             label to match the reference layout (core renders the contact
-             widget with no label by default). Margin trimmed to mt-0 so the
-             gap under the company header stays tight instead of the
-             default bootstrap mt-3 spacer. -->
+        <!-- Address block: two columns, Shipping address on the LEFT,
+             Vendor name and address on the RIGHT (swapped from the
+             previous version). Built as a single self-contained block so
+             it always shows both sides regardless of whether
+             o.dest_address_id is set (falls back to the warehouse address
+             for shipping, matching the original Odoo 16 module's logic). -->
         <xpath expr="//t[@t-set='address']" position="replace">
             <t t-set="address">
-                <strong class="d-block mt-0">Vendor name and address</strong>
-                <div t-field="o.partner_id"
-                     t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                <div style="display:inline-block;width:50%;vertical-align:top;">
+                    <strong class="d-block mt-0">Shipping address</strong>
+                    <div t-if="o.dest_address_id" t-field="o.dest_address_id"
+                         t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
+                    <div t-elif="o.picking_type_id and o.picking_type_id.warehouse_id">
+                        <span t-field="o.picking_type_id.warehouse_id.name"/>
+                        <div t-field="o.picking_type_id.warehouse_id.partner_id"
+                             t-options='{"widget": "contact", "fields": ["name", "address", "phone", "mobile", "email"], "no_marker": True, "phone_icons": True}'/>
+                    </div>
+                </div>
+                <div style="display:inline-block;width:49%;vertical-align:top;">
+                    <strong class="d-block mt-0">Vendor name and address</strong>
+                    <div t-field="o.partner_id"
+                         t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                </div>
             </t>
         </xpath>
+
+        <!-- Remove core's separate shipping-address block (information_block)
+             since it's now folded into the two-column "address" block above -
+             leaving it in would duplicate the shipping address on the page. -->
+        <xpath expr="//t[@t-if='o.dest_address_id']" position="replace"></xpath>
 
         <!-- Trim the default top margin on the title block so the gap
              between the address row above and the title/table below is
