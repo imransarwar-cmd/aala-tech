@@ -28,29 +28,34 @@
              o.dest_address_id is set (falls back to the warehouse address
              for shipping, matching the original Odoo 16 module's logic). -->
         <xpath expr="//t[@t-set='address']" position="replace">
-            <t t-set="address">
-                <div style="display:inline-block;width:49%;vertical-align:top;">
-                    <strong class="d-block mt-0">Vendor name and address</strong>
-                    <div t-field="o.partner_id"
-                         t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
-                </div>
-                <div style="display:inline-block;width:50%;vertical-align:top;">
-                    <strong class="d-block mt-0">Shipping address</strong>
-                    <t t-if="o.dest_address_id">
-                        <div t-field="o.dest_address_id"
-                             t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
-                    </t>
-                    <t t-else="">
-                        <div t-if="o.picking_type_id and o.picking_type_id.warehouse_id">
-                            <span t-field="o.picking_type_id.warehouse_id.name"/>
-                            <div t-field="o.picking_type_id.warehouse_id.partner_id"
-                                 t-options='{"widget": "contact", "fields": ["name", "address", "phone", "mobile", "email"], "no_marker": True, "phone_icons": True}'/>
-                        </div>
-                    </t>
-                </div>
-
+    <t t-set="address">
+        <div style="display:inline-block;width:49%;vertical-align:top;">
+            <strong class="d-block mt-0">Vendor name and address</strong>
+            <div t-field="o.partner_id"
+                 t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+        </div>
+        <div style="display:inline-block;width:50%;vertical-align:top;">
+            <strong class="d-block mt-0">Shipping address</strong>
+            <t t-if="o.dest_address_id">
+                <div t-field="o.dest_address_id"
+                     t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
             </t>
-        </xpath>
+            <t t-else="">
+                <div t-if="o.picking_type_id and o.picking_type_id.warehouse_id">
+                    <span t-field="o.picking_type_id.warehouse_id.name"/>
+                    <div t-field="o.picking_type_id.warehouse_id.partner_id"
+                         t-options='{"widget": "contact", "fields": ["name", "address", "phone", "mobile", "email"], "no_marker": True, "phone_icons": True}'/>
+                </div>
+            </t>
+        </div>
+    </t>
+</xpath>
+
+<!-- Narrowed predicate still required - this removal must only ever match
+     the core's original information_block, never the t-if above. -->
+<xpath expr="//t[@t-if='o.dest_address_id'][t/@t-set='information_block']" position="replace">
+
+</xpath>
 
         <!-- Remove core's separate shipping-address block (information_block)
              since it's now folded into the two-column "address" block above -
