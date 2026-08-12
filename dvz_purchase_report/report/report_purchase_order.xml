@@ -35,7 +35,7 @@
 <!--        </xpath>-->
 
               <xpath expr="//t[@t-set='address']" position="replace">
-          <h2 t-if="o.state in ['purchase', 'done']">Purchase Order #<span t-field="o.name"/></h2>
+<!--          <h2 t-if="o.state in ['purchase', 'done']">Purchase Order #<span t-field="o.name"/></h2>-->
           <div>
 
             <div style="display:inline-block;width:49%;vertical-align: top;">
