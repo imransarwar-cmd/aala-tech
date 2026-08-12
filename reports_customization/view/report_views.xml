@@ -34,7 +34,7 @@
       </xpath>
 
 
-        <xpath expr="//t[@t-if='o.dest_address_id'][t/@t-set='information_block']" position="replace"></xpath>
+<!--        <xpath expr="//t[@t-if='o.dest_address_id'][t/@t-set='information_block']" position="replace"></xpath>-->
 
         <xpath expr="//div[hasclass('mt-4')][t/@t-set='layout_document_title']" position="attributes">
             <attribute name="style">margin-top:5px;</attribute>
