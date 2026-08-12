@@ -53,9 +53,9 @@
 
 <!-- Narrowed predicate still required - this removal must only ever match
      the core's original information_block, never the t-if above. -->
-<xpath expr="//t[@t-if='o.dest_address_id'][t/@t-set='information_block']" position="replace">
+<!--<xpath expr="//t[@t-if='o.dest_address_id'][t/@t-set='information_block']" position="replace">-->
 
-</xpath>
+<!--</xpath>-->
 
         <!-- Remove core's separate shipping-address block (information_block)
              since it's now folded into the two-column "address" block above -
