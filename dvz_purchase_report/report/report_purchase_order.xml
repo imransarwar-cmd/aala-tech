@@ -33,25 +33,29 @@
 <!--                     t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>-->
 <!--            </t>-->
 <!--        </xpath>-->
-        <xpath expr="//t[@t-set='address']" position="replace">
-    <t t-set="address">
-        <div style="display:inline-block;width:49%;vertical-align:top;">
-            <strong class="d-block mt-0">Vendor name and address</strong>
-            <div t-field="o.partner_id"
-                 t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
-        </div>
-        <div style="display:inline-block;width:50%;vertical-align:top;">
-            <strong class="d-block mt-0">Shipping address</strong>
-                <div t-field="o.dest_address_id"
-                     t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
 
-        </div>
-    </t>
-</xpath>
+              <xpath expr="//t[@t-set='address']" position="replace">
+          <h2 t-if="o.state in ['purchase', 'done']">Purchase Order #<span t-field="o.name"/></h2>
+          <div>
 
-<!-- Narrowed predicate still required - this removal must only ever match
-     the core's original information_block, never the t-if above. -->
-<!--<xpath expr="//t[@t-if='o.dest_address_id'][t/@t-set='information_block']" position="replace"></xpath>-->
+            <div style="display:inline-block;width:49%;vertical-align: top;">
+                <strong>Vendor name and address:</strong>
+                <div class="">
+                    <div t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+                    <p t-if="o.partner_id.vat"><t t-esc="o.company_id.account_fiscal_country_id.vat_label or 'Tax ID'"/>: <span t-field="o.partner_id.vat"/></p>
+                </div>
+            </div>
+            <div style="display:inline-block;width:50%;vertical-align: top;">
+                        <strong>Shipping address:</strong>
+                        <div t-if="o.picking_type_id and o.picking_type_id.warehouse_id">
+                            <span t-field="o.picking_type_id.warehouse_id.name"/>
+                            <div t-field="o.picking_type_id.warehouse_id.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;,&quot;address&quot;, &quot;phone&quot;, &quot;mobile&quot;, &quot;email&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+                        </div>
+            </div>
+          </div>
+
+      </xpath>
+
 
         <!-- Trim the default top margin on the title block so the gap
              between the address row above and the title/table below is
