@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    "name": "DVZ Purchase Order / RFQ Report",
+    "name": "Purchase Order / RFQ Report",
     "version": "19.0.1.0.0",
     "summary": "Custom-styled Purchase Order / RFQ report with SR/Part No/Description columns and branded blue totals bar",
     "author": "Genius Valley",
