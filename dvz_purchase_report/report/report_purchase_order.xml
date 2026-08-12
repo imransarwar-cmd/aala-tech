@@ -21,47 +21,50 @@
             </t>
         </xpath>
 
-        <!-- Vendor address block: add an explicit "Vendor name and address"
-             label to match the reference layout (core renders the contact
-             widget with no label by default). Margin trimmed to mt-0 so the
-             gap under the company header stays tight instead of the
-             default bootstrap mt-3 spacer. -->
-<!--        <xpath expr="//t[@t-set='address']" position="replace">-->
-<!--            <t t-set="address">-->
-<!--                <strong class="d-block mt-0">Vendor name and address</strong>-->
-<!--                <div t-field="o.partner_id"-->
-<!--                     t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>-->
-<!--            </t>-->
-<!--        </xpath>-->
-
-              <xpath expr="//t[@t-set='address']" position="replace">
+        <!-- Address block: two columns, Vendor name and address on the
+             LEFT, Shipping address on the RIGHT. Built as a single
+             self-contained block so it always shows both sides regardless
+             of whether o.dest_address_id is set (falls back to the
+             warehouse address for shipping, matching the original
+             Odoo 16 module's logic). Header trimmed to margin-top:5px
+             exactly, rather than a bootstrap spacing class. -->
+<!--            <xpath expr="//t[@t-set='address']" position="replace">-->
 <!--          <h2 t-if="o.state in ['purchase', 'done']">Purchase Order #<span t-field="o.name"/></h2>-->
-          <div>
+<!--          <div>-->
 
-            <div style="display:inline-block;width:49%;vertical-align: top;">
-                <strong>Vendor name and address:</strong>
-                <div class="">
-                    <div t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
-                    <p t-if="o.partner_id.vat"><t t-esc="o.company_id.account_fiscal_country_id.vat_label or 'Tax ID'"/>: <span t-field="o.partner_id.vat"/></p>
-                </div>
-            </div>
-            <div style="display:inline-block;width:50%;vertical-align: top;">
-                        <strong>Shipping address:</strong>
-                        <div t-if="o.picking_type_id and o.picking_type_id.warehouse_id">
-                            <span t-field="o.picking_type_id.warehouse_id.name"/>
-                            <div t-field="o.picking_type_id.warehouse_id.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;,&quot;address&quot;, &quot;phone&quot;, &quot;mobile&quot;, &quot;email&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
-                        </div>
-            </div>
-          </div>
+<!--            <div style="display:inline-block;width:49%;vertical-align: top;">-->
+<!--                <strong>Vendor name and address:</strong>-->
+<!--                <div class="">-->
+<!--                    <div t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>-->
+<!--                    <p t-if="o.partner_id.vat"><t t-esc="o.company_id.account_fiscal_country_id.vat_label or 'Tax ID'"/>: <span t-field="o.partner_id.vat"/></p>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div style="display:inline-block;width:50%;vertical-align: top;">-->
+<!--                        <strong>Shipping address:</strong>-->
+<!--                        <div t-if="o.picking_type_id and o.picking_type_id.warehouse_id">-->
+<!--                            <span t-field="o.picking_type_id.warehouse_id.name"/>-->
+<!--                            <div t-field="o.picking_type_id.warehouse_id.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;,&quot;address&quot;, &quot;phone&quot;, &quot;mobile&quot;, &quot;email&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>-->
+<!--                        </div>-->
+<!--            </div>-->
+<!--          </div>-->
 
-      </xpath>
+<!--      </xpath>-->
 
 
-        <!-- Trim the default top margin on the title block so the gap
-             between the address row above and the title/table below is
-             minimal rather than the core template's mt-4. -->
+        <!-- Remove core's separate shipping-address block (information_block)
+             since it's now folded into the two-column "address" block above.
+             Narrowed to match only the block containing a t-set="information_block"
+             child, so it can never accidentally match our own t-if="o.dest_address_id"
+             inside the address block above (that bug caused the earlier
+             "t-elif/t-else must be preceded by t-if" install errors). -->
+<!--        <xpath expr="//t[@t-if='o.dest_address_id'][t/@t-set='information_block']" position="replace"></xpath>-->
+
+        <!-- Title block: exact 5px top margin instead of core's mt-4,
+             so the gap between the address row above and the title/table
+             below is tight and consistent. -->
         <xpath expr="//div[hasclass('mt-4')][t/@t-set='layout_document_title']" position="attributes">
-            <attribute name="class">mt-1</attribute>
+            <attribute name="style">margin-top:5px;</attribute>
+            <attribute name="class"></attribute>
         </xpath>
 
         <!-- Box border around the totals block, matching the bordered
