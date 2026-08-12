@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Purchase Order / Request for Quotation document
+         Matched against addons/purchase/report/purchase_order_templates.xml
+         on Odoo 19.0.
+         ================================================================ -->
+    <template id="dvz_report_purchaseorder_document_inherit" inherit_id="purchase.report_purchaseorder_document">
+
+        <!-- Title: highlight the order number in brand blue. Core already
+             switches text between "Request for Quotation" / "Purchase Order"
+             / "Cancelled Purchase Order" based on state - we just re-wrap
+             the number span with a colored style rather than re-deriving
+             the state logic ourselves. -->
+        <xpath expr="//t[@t-set='layout_document_title']" position="replace">
+            <t t-set="layout_document_title">
+                <t t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation #<span t-field="o.name" style="color:#1A5CA8;"/></t>
+                <t t-if="o.state == 'purchase'">Purchase Order #<span t-field="o.name" style="color:#1A5CA8;"/></t>
+                <t t-if="o.state == 'cancel'">Cancelled Purchase Order #<span t-field="o.name" style="color:#1A5CA8;"/></t>
+            </t>
+        </xpath>
+
+        <!-- Vendor address block: add an explicit "Vendor name and address"
+             label to match the reference layout (core renders the contact
+             widget with no label by default). -->
+        <xpath expr="//t[@t-set='address']" position="replace">
+            <t t-set="address">
+                <strong class="d-block mt-3">Vendor name and address</strong>
+                <div t-field="o.partner_id"
+                     t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+            </t>
+        </xpath>
+
+        <!-- Info row: simplified to Order Date + Purchase Representative,
+             matching the reference PDF (drops Buyer/Order Reference/
+             Expected Arrival wording in favor of the requested labels). -->
+        <xpath expr="//div[@id='informations']" position="replace">
+            <div id="informations" class="row mb-4">
+                <div t-if="o.date_order" class="col-3 bm-2">
+                    <strong>Order Date:</strong>
+                    <p t-field="o.date_order" t-options="{'date_only': 'true'}" class="m-0"/>
+                </div>
+                <div t-if="o.user_id" class="col-3 bm-2">
+                    <strong>Purchase Representative:</strong>
+                    <div t-field="o.user_id"/>
+                </div>
+                <div t-if="o.partner_ref" class="col-3 bm-2">
+                    <strong>Supplier Reference:</strong>
+                    <div t-field="o.partner_ref"/>
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Line items table: SR / Part No / Description / Qty / Unit Price / Amount.
+             Rebuilt against the real v19 table (drops core's Disc./Taxes columns
+             per the requested layout; field names - product_uom_id, filtered_lines -
+             are taken directly from the v19 source, not guessed. -->
+        <xpath expr="//table[hasclass('o_main_table')]" position="replace">
+            <table class="o_has_total_table table o_main_table table-borderless" style="width:100%;">
+                <thead style="display: table-row-group">
+                    <tr style="border-bottom:1px solid #999;">
+                        <th name="th_sr" class="text-start" style="width:8%;"><strong>SR</strong></th>
+                        <th name="th_part" class="text-start"><strong>Part No</strong></th>
+                        <th name="th_description" class="text-start"><strong>Description</strong></th>
+                        <th name="th_quantity" class="text-end"><strong>Qty</strong></th>
+                        <th name="th_price_unit" class="text-end"><strong>Unit Price</strong></th>
+                        <th name="th_subtotal" class="text-end"><strong>Amount</strong></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-set="current_subtotal" t-value="0"/>
+                    <t t-set="i" t-value="0"/>
+                    <t t-set="filtered_lines" t-value="o.order_line.filtered(lambda l: l.display_type or l.product_qty != 0)"/>
+                    <t t-foreach="filtered_lines" t-as="line">
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
+
+                        <tr t-att-class="'fw-bolder o_line_section' if line.display_type == 'line_section' else 'fw-bold o_line_subsection' if line.display_type == 'line_subsection' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''"
+                            style="border-bottom:1px solid #eee;">
+                            <t t-if="not line.display_type">
+                                <t t-set="i" t-value="i+1"/>
+                                <td class="text-start">
+                                    <span t-esc="i"/>
+                                </td>
+                                <td class="text-start">
+                                    <span t-field="line.product_id.default_code"/>
+                                </td>
+                                <td id="product" class="text-start">
+                                    <span t-field="line.name"/>
+                                </td>
+                                <td class="text-end">
+                                    <span t-field="line.product_qty"/>
+                                    <span t-field="line.product_uom_id.name" groups="uom.group_uom"/>
+                                </td>
+                                <td class="text-end">
+                                    <span t-field="line.price_unit"/>
+                                </td>
+                                <td class="text-end">
+                                    <span t-field="line.price_subtotal"
+                                        t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                </td>
+                            </t>
+                            <t t-if="line.display_type in ('line_section', 'line_subsection')">
+                                <td colspan="99" id="section">
+                                    <span t-field="line.name"/>
+                                </td>
+                                <t t-set="current_section" t-value="line"/>
+                                <t t-set="current_subtotal" t-value="0"/>
+                            </t>
+                            <t t-if="line.display_type == 'line_note'">
+                                <td colspan="99" id="note">
+                                    <span t-field="line.name"/>
+                                </td>
+                            </t>
+                        </tr>
+                        <t t-if="current_section and (line_last or filtered_lines[line_index+1].display_type in ('line_section', 'line_subsection'))">
+                            <tr class="is-subtotal text-end">
+                                <td colspan="99" id="subtotal">
+                                    <strong class="mr16">Subtotal</strong>
+                                    <span t-out="current_subtotal" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                </tbody>
+            </table>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         Totals bar. Confirmed against addons/account/views/report_invoice.xml
+         on Odoo 19.0: <template id="document_tax_totals_template"> renders
+         <tr class="o_subtotal"> for each subtotal line and a single final
+         <tr class="o_total"> for the grand total. purchase.document_tax_totals
+         (declared with inherit_id="account.document_tax_totals_template"
+         primary="True") is the purchase-specific alias of that template, so
+         extending it here only affects Purchase Order / RFQ reports and
+         leaves the invoice report untouched.
+         ================================================================ -->
+    <template id="dvz_purchase_document_tax_totals_inherit" inherit_id="purchase.document_tax_totals">
+        <xpath expr="//tr[hasclass('o_total')]" position="attributes">
+            <attribute name="style">background-color:#1A5CA8;color:#FFFFFF;</attribute>
+        </xpath>
+        <xpath expr="//tr[hasclass('o_total')]/td[1]" position="replace">
+            <td style="color:#FFFFFF;"><strong>Total With VAT</strong></td>
+        </xpath>
+        <xpath expr="//tr[hasclass('o_total')]/td[2]" position="attributes">
+            <attribute name="style">color:#FFFFFF;</attribute>
+        </xpath>
+    </template>
+
+</odoo>

@@ -47,10 +47,10 @@
     """
     ,
     "data": [
-        "view/partner.xml",
+        # "view/partner.xml",
         "report/base_document_layout.xml",
         "report/account_move.xml",
-        "view/account_move_views.xml"
+        # "view/account_move_views.xml"
 
     ],
     "installable": True,

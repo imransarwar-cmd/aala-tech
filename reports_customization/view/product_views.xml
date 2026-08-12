@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <odoo>
+     <data>
+        <record id="new_requirement_inherit_product" model="ir.ui.view">
+            <field name="name">new.requirement.inherit.product.form</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="arch" type="xml">
+                <field name="name" position="attributes">
+                    <attribute name="string">Item</attribute>
+                </field>
+                <field name="categ_id" position="attributes">
+                    <attribute name="string">Brand</attribute>
+                </field>
+
+                <xpath expr="//field[@name='categ_id']" position="after">
+                    <field name="system"/>
+                    <field name="division"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="stock_new_inherit_fields" model="ir.ui.view">
+            <field name="name">stock.new.inherit.fields</field>
+            <field name="model">stock.quant</field>
+            <field name="inherit_id" ref="stock.view_stock_quant_tree_editable"/>
+            <field name="arch" type="xml">
+             <field name="product_id" position="attributes">
+                <attribute name="string">Item</attribute>
+            </field>
+            <field name="value" position="attributes">
+                <attribute name="string">Total Cost</attribute>
+            </field>  
+            <field name="product_categ_id" position="attributes">
+                <attribute name="string">Brand</attribute>
+            </field>
+
+               <xpath expr="//field[@name='product_categ_id']" position="after">
+                    <field name="system"/>
+                    <field name="division"/>
+                </xpath>
+                <xpath expr="//field[@name='value']" position="before">
+                    <field name="unit_cost" string="Unit Cost"/>
+                </xpath>
+                <xpath expr="//field[@name='available_quantity']" position="before">
+                    <field name="reserved_quantity"/>
+                </xpath>
+
+            </field>
+        </record>
+        <record id="stock.menu_valuation" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_user'))]"/>
+        </record>
+        <record id="stock.menu_warehouse_report" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_user'))]"/>
+        </record>
+        <record id="stock.menu_forecast_inventory" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        </record>
+        <record id="stock.stock_move_menu" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        </record>
+        <record id="stock.stock_move_line_menu" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        </record>
+
+     </data>
+ </odoo>

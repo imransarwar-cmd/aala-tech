@@ -48,11 +48,11 @@
 
         <template id="einv_external_layout_standard"
                   inherit_id="web.external_layout_standard">
-            <xpath expr="//div[contains(@t-attf-class,'footer')]/div/ul" position="before">
-                <div t-call="einv_sa.financial_layout_row">
-                </div>
+<!--            <xpath expr="//div[contains(@t-attf-class,'footer')]/div/ul" position="before">-->
+<!--                <div t-call="einv_sa.financial_layout_row">-->
+<!--                </div>-->
 
-            </xpath>
+<!--            </xpath>-->
             <!--            <xpath expr="//li[@t-if='company.vat']" position="replace">-->
 
             <!--            </xpath>-->
@@ -60,11 +60,11 @@
 
         <template id="einv_external_layout_boxed"
                   inherit_id="web.external_layout_boxed">
-            <xpath expr="//div[contains(@t-attf-class,'footer')]/div" position="before">
-                <div t-call="einv_sa.financial_layout_row">
-                </div>
+<!--            <xpath expr="//div[contains(@t-attf-class,'footer')]/div" position="before">-->
+<!--                <div t-call="einv_sa.financial_layout_row">-->
+<!--                </div>-->
 
-            </xpath>
+<!--            </xpath>-->
             <!--            <xpath expr="//li[@t-if='company.vat']" position="replace">-->
 
             <!--            </xpath>-->
@@ -72,21 +72,21 @@
 
         <template id="einv_external_layout_bold"
                   inherit_id="web.external_layout_bold">
-            <xpath expr="//div[contains(@t-attf-class,'footer')]/div" position="before">
-                <div t-call="einv_sa.financial_layout_row">
-                </div>
+<!--            <xpath expr="//div[contains(@t-attf-class,'footer')]/div" position="before">-->
+<!--                <div t-call="einv_sa.financial_layout_row">-->
+<!--                </div>-->
 
-            </xpath>
+<!--            </xpath>-->
 
         </template>
 
         <template id="einv_external_layout_striped"
                   inherit_id="web.external_layout_striped">
-            <xpath expr="//div[contains(@t-attf-class,'footer')]/div/ul/div" position="before">
-                <div t-call="einv_sa.financial_layout_row">
-                </div>
+<!--            <xpath expr="//div[contains(@t-attf-class,'footer')]/div/ul/div" position="before">-->
+<!--                <div t-call="einv_sa.financial_layout_row">-->
+<!--                </div>-->
 
-            </xpath>
+<!--            </xpath>-->
 
         </template>
 

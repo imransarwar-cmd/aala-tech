@@ -9,7 +9,7 @@
             <field name="report_name">einv_sa.account_move_report</field>
             <field name="report_file">einv_sa.account_move_report</field>
             <field name="print_report_name">'Invoice - %s' % (object.name).replace('/', '')</field>
-            <field name="binding_model_id" ref="model_account_move"/>
+            <field name="binding_model_id" ref="account.model_account_move"/>
             <field name="binding_type">report</field>
         </record>
 
@@ -108,7 +108,8 @@
                 </div>
                 <div class="row">
                     <div class="col-3"><Strong>Other ID</Strong></div>
-                    <div class="col-5 text-center" style="text-align: center;"><span t-field="doc.partner_id.other_id"></span></div>
+<!--                    <div class="col-5 text-center" style="text-align: center;"><span t-field="doc.partner_id.other_id"></span></div>-->
+                    <div class="col-5 text-center" style="text-align: center;"></div>
                     <div class="col-4 text-right" style="text-align: end;"><Strong>معرف آخر</Strong></div>
                 </div>
                 <div class="oe_structure"/>
@@ -300,12 +301,12 @@
             </t>
         </template>
         <template id="report_custom_box_layout" inherit_id="web.external_layout_boxed">
-        <xpath expr="//div[@class='pt-5']" position="replace">
-            <div class="pt-0">
-                <!-- This div ensures that the address is not cropped by the header. -->
-                <t t-call="web.address_layout"/>
-            </div>
-        </xpath>
+<!--        <xpath expr="//div[@class='pt-5']" position="replace">-->
+<!--            <div class="pt-0">-->
+<!--                &lt;!&ndash; This div ensures that the address is not cropped by the header. &ndash;&gt;-->
+<!--                <t t-call="web.address_layout"/>-->
+<!--            </div>-->
+<!--        </xpath>-->
 
     </template>
 
