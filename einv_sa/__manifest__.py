@@ -2,7 +2,7 @@
 
 {
     "name": "e-Invoice KSA | tax invoice | report | qrcode | ZATCA | vat  | electronic | einvoice | e-invoice sa | accounting | tax  | Zakat, Tax and Customs Authority | invoice ",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.0",
     "depends": [
         'base', 'web', 'account',
         # NOTE: report/account_move.xml renders doc.l10n_sa_qr_code_str, which
