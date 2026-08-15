@@ -72,8 +72,7 @@
 
         </template>
 
-        <template id="einv_external_layout_striped"
-                  inherit_id="web.external_layout_striped">
+        <template id="einv_external_layout_striped"  inherit_id="web.external_layout_striped">
            <xpath expr="//*[@t-field='company.report_footer']" position="before">
                 <t t-call="einv_sa.financial_layout_row"/>
             </xpath>

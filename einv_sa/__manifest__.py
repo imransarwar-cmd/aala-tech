@@ -17,7 +17,8 @@
     "category": "Accounting",
     "website": "https://genius-valley.com/",
     "support": "odoo@gvitt.com",
-    "images": ["static/description/assets/main_screenshot.gif","static/description/assets/main_screenshot.png", "static/description/assets/ghits_desktop_inv.jpg",
+    "images": ["static/description/assets/main_screenshot.gif", "static/description/assets/main_screenshot.png",
+               "static/description/assets/ghits_desktop_inv.jpg",
                "static/description/assets/ghits_labtop1.jpg"],
     "price": "0",
     "license": "OPL-1",
@@ -46,6 +47,7 @@
     
     """
     ,
+    'depends': ['account', 'aala_base'],
     "data": [
         # "view/partner.xml",
         "report/base_document_layout.xml",
