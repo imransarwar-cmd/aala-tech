@@ -47,7 +47,7 @@
     
     """
     ,
-    'depends': ['account', 'aala_base'],
+    'depends': ['base', 'web', 'account', 'aala_base'],
     "data": [
         # "view/partner.xml",
         "report/base_document_layout.xml",

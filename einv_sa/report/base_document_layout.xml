@@ -3,7 +3,7 @@
     <data>
         <!-- report qweb view -->
         <template id="financial_layout_row">
-            <div style="border-top:0.5px solid grey;padding-top:4px;margin-top:4px;">
+            <div style="border-top:1px solid black;padding-top:4px;margin-top:4px;">
                 <div class="row" style="text-align:center;border-bottom:0.5px solid grey;padding-bottom:4px;margin-bottom:4px;">
                     <div class="col-2">CR No:</div>
                     <div class="col-2"><span t-field="company.company_registry"/></div>
@@ -12,7 +12,7 @@
                     <div class="col-2"><span t-field="company.vat"/></div>
                     <div class="col-2">:الرقم الضريبي</div>
                 </div>
-                <div class="row" style="text-align:center;">
+                <div class="row" style="text-align:center;border:1px solid lightgrey;padding:4px 0;">
                     <div class="col-3">Email:</div>
                     <div class="col-3"><span t-field="company.email"/></div>
                     <div class="col-3">Web:</div>
@@ -36,12 +36,16 @@
             </ul>
         </template>
 
-        <template id="einv_external_layout_standard"
-                  inherit_id="web.external_layout_standard">
-            <xpath expr="//img[contains(@class,'o_company_logo')]" position="after">
-                <div class="o_einv_header_company_name" t-field="company.name"/>
+        <template id="einv_header_company_name">
+            <div class="o_einv_header_company_name" style="font-weight:bold;text-align:right;" t-field="company.name"/>
+            <div t-if="company.arabic_name" class="o_einv_header_company_name_ar" style="font-weight:bold;text-align:right;" t-field="company.arabic_name"/>
+        </template>
+
+        <template id="einv_external_layout_standard" inherit_id="web.external_layout_standard">
+            <xpath expr="//ul[@name='company_address_list']" position="before">
+                <t t-call="einv_sa.einv_header_company_name"/>
             </xpath>
-            <xpath expr="//div[contains(@class,'o_footer_content')]" position="replace">
+            <xpath expr="//*[@t-field='company.report_footer']" position="before">
                 <t t-call="einv_sa.financial_layout_row"/>
             </xpath>
             <xpath expr="//ul[@name='company_address_list']/li[@t-if='not forced_vat']/following-sibling::li[1]" position="replace"></xpath>
@@ -50,10 +54,10 @@
 
         <template id="einv_external_layout_boxed"
                   inherit_id="web.external_layout_boxed">
-            <xpath expr="//img[contains(@class,'o_company_logo')]" position="after">
-                <div class="o_einv_header_company_name" t-field="company.name"/>
+            <xpath expr="//ul[@name='company_address_list']" position="before">
+                <t t-call="einv_sa.einv_header_company_name"/>
             </xpath>
-            <xpath expr="//div[contains(@class,'o_footer_content')]" position="replace">
+            <xpath expr="//*[@t-field='company.report_footer']" position="before">
                 <t t-call="einv_sa.financial_layout_row"/>
             </xpath>
             <xpath expr="//ul[@name='company_address_list']/li[@t-if='not forced_vat']/following-sibling::li[1]" position="replace"></xpath>
@@ -62,20 +66,20 @@
 
         <template id="einv_external_layout_bold"
                   inherit_id="web.external_layout_bold">
-            <xpath expr="//img[contains(@class,'o_company_logo')]" position="after">
-                <div class="o_einv_header_company_name" t-field="company.name"/>
+            <xpath expr="//ul[@name='company_address_list']" position="before">
+                <t t-call="einv_sa.einv_header_company_name"/>
             </xpath>
-            <xpath expr="//div[contains(@class,'o_footer_content')]" position="replace">
+            <xpath expr="//*[@t-field='company.report_footer']" position="before">
                 <t t-call="einv_sa.financial_layout_row"/>
             </xpath>
         </template>
 
         <template id="einv_external_layout_striped"
                   inherit_id="web.external_layout_striped">
-            <xpath expr="//img[contains(@class,'o_company_logo')]" position="after">
-                <div class="o_einv_header_company_name" t-field="company.name"/>
+            <xpath expr="//ul[@name='company_address_list']" position="before">
+                <t t-call="einv_sa.einv_header_company_name"/>
             </xpath>
-            <xpath expr="//div[contains(@class,'o_footer_content')]" position="replace">
+            <xpath expr="//*[@t-field='company.report_footer']" position="before">
                 <t t-call="einv_sa.financial_layout_row"/>
             </xpath>
         </template>
