@@ -7,7 +7,24 @@ body .header {
 font-family: 'Almarai','Lato' !important;   /* Arabic Font Almarai --install module  [nati_arabic_font]*/
 }
 
-
+/* Remove the gap between the header and the body content, across every
+   report layout (standard/boxed/bold/striped/folder/wave/bubble). Each
+   layout wraps its header in a div carrying "header" plus the
+   o_company_#{id}_layout class, and the body immediately after in a div
+   carrying "article" plus the same layout class - closing the gap between
+   those two covers every report using web.external_layout. */
+[class*="o_company_"][class*="_layout"].header {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+[class*="o_company_"][class*="_layout"].article {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+.article .page {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
 
 
 tr.no_border td {

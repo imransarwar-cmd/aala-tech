@@ -48,27 +48,27 @@
 
         <template id="einv_external_layout_standard"
                   inherit_id="web.external_layout_standard">
-            <xpath expr="//div[contains(@t-attf-class,'footer')]/div" position="before">
+            <xpath expr="//div[contains(@t-attf-class,'footer')]/div" position="after">
                 <t t-call="einv_sa.financial_layout_row"/>
 
             </xpath>
-                        <xpath expr="//ul[@name='company_address_list']/li[@t-if='not forced_vat']/following-sibling::li[1]" position="replace"></xpath>
-                        <xpath expr="//ul[@name='company_address_list']/li[@t-if='not forced_vat']" position="replace"></xpath>
+            <xpath expr="//ul[@name='company_address_list']/li[@t-if='not forced_vat']/following-sibling::li[1]" position="replace"></xpath>
+            <xpath expr="//ul[@name='company_address_list']/li[@t-if='not forced_vat']" position="replace"></xpath>
         </template>
 
         <template id="einv_external_layout_boxed"
                   inherit_id="web.external_layout_boxed">
-            <xpath expr="//div[contains(@t-attf-class,'footer')]/div" position="before">
+            <xpath expr="//div[contains(@t-attf-class,'footer')]/div" position="after">
                 <t t-call="einv_sa.financial_layout_row"/>
 
             </xpath>
-                        <xpath expr="//ul[@name='company_address_list']/li[@t-if='not forced_vat']/following-sibling::li[1]" position="replace"></xpath>
-                        <xpath expr="//ul[@name='company_address_list']/li[@t-if='not forced_vat']" position="replace"></xpath>
+            <xpath expr="//ul[@name='company_address_list']/li[@t-if='not forced_vat']/following-sibling::li[1]" position="replace"></xpath>
+            <xpath expr="//ul[@name='company_address_list']/li[@t-if='not forced_vat']" position="replace"></xpath>
         </template>
 
         <template id="einv_external_layout_bold"
                   inherit_id="web.external_layout_bold">
-            <xpath expr="//div[contains(@t-attf-class,'footer')]/div" position="before">
+            <xpath expr="//div[contains(@t-attf-class,'footer')]/div" position="after">
                 <t t-call="einv_sa.financial_layout_row"/>
 
             </xpath>
@@ -77,7 +77,7 @@
 
         <template id="einv_external_layout_striped"
                   inherit_id="web.external_layout_striped">
-           <xpath expr="//div[contains(@t-attf-class,'footer')]/div" position="before">
+           <xpath expr="//div[contains(@t-attf-class,'footer')]/div" position="after">
                 <t t-call="einv_sa.financial_layout_row"/>
 
             </xpath>

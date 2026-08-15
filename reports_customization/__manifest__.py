@@ -28,9 +28,9 @@
     "installable": True,
     "auto_install": False,
     "application": True,
-    # 'assets': {
-    #     'web.report_assets_common': [
-    #         'einv_sa/static/css/report_style.css',
-    #     ],
-    # },
+    'assets': {
+        'web.report_assets_common': [
+            'einv_sa/static/css/report_style.css',
+        ],
+    },
 }

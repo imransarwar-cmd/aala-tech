@@ -12,29 +12,32 @@
         </xpath>
 
                     <xpath expr="//t[@t-set='address']" position="replace">
-<!--          <h2 t-if="o.state in ['purchase', 'done']">Purchase Order #<span t-field="o.name"/></h2>-->
-          <div>
-
-            <div style="display:inline-block;width:49%;vertical-align: top;">
-                <strong>Vendor name and address:</strong>
-                <div class="">
-                    <div t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
-                    <p t-if="o.partner_id.vat"><t t-esc="o.company_id.account_fiscal_country_id.vat_label or 'Tax ID'"/>: <span t-field="o.partner_id.vat"/></p>
-                </div>
+          <t t-set="address">
+            <div style="display:inline-block;width:49%;vertical-align:top;margin-top:5px;">
+                <strong class="d-block" style="margin-top:0;">Vendor name and address</strong>
+                <div t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;, &quot;vat&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
             </div>
-            <div style="display:inline-block;width:50%;vertical-align: top;">
-                        <strong>Shipping address:</strong>
-                        <div t-if="o.picking_type_id and o.picking_type_id.warehouse_id">
-                            <span t-field="o.picking_type_id.warehouse_id.name"/>
-                            <div t-field="o.picking_type_id.warehouse_id.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;,&quot;address&quot;, &quot;phone&quot;, &quot;mobile&quot;, &quot;email&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
-                        </div>
+            <div style="display:inline-block;width:50%;vertical-align:top;margin-top:5px;">
+                <strong class="d-block" style="margin-top:0;">Shipping address</strong>
+                <t t-if="o.dest_address_id">
+                    <div t-field="o.dest_address_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+                </t>
+                <t t-else="">
+                    <div t-if="o.picking_type_id and o.picking_type_id.warehouse_id">
+                        <span t-field="o.picking_type_id.warehouse_id.name"/>
+                        <div t-field="o.picking_type_id.warehouse_id.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;,&quot;address&quot;, &quot;phone&quot;, &quot;mobile&quot;, &quot;email&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+                    </div>
+                </t>
             </div>
-          </div>
+          </t>
 
       </xpath>
 
-
-<!--        <xpath expr="//t[@t-if='o.dest_address_id'][t/@t-set='information_block']" position="replace"></xpath>-->
+        <!-- Was previously commented out - restoring this. Without it, core's
+             own information_block (shipping address) still renders alongside
+             our custom address block above, duplicating the shipping address
+             on the printed page. -->
+        <xpath expr="//t[@t-if='o.dest_address_id'][t/@t-set='information_block']" position="replace"></xpath>
 
         <xpath expr="//div[hasclass('mt-4')][t/@t-set='layout_document_title']" position="attributes">
             <attribute name="style">margin-top:5px;</attribute>
