@@ -12,12 +12,12 @@
                     <div class="col-2"><span t-field="company.vat"/></div>
                     <div class="col-2">:الرقم الضريبي</div>
                 </div>
-                <div class="row" style="text-align:center;border:1px solid lightgrey;padding:4px 0;">
-                    <div class="col-3">Email:</div>
-                    <div class="col-3"><span t-field="company.email"/></div>
-                    <div class="col-3">Web:</div>
-                    <div class="col-3"><span t-field="company.website"/></div>
-                </div>
+<!--                <div class="row" style="text-align:center;border:1px solid lightgrey;padding:4px 0;">-->
+<!--                    <div class="col-3">Email:</div>-->
+<!--                    <div class="col-3"><span t-field="company.email"/></div>-->
+<!--                    <div class="col-3">Web:</div>-->
+<!--                    <div class="col-3"><span t-field="company.website"/></div>-->
+<!--                </div>-->
             </div>
         </template>
 
@@ -37,8 +37,8 @@
         </template>
 
         <template id="einv_header_company_name">
-            <div class="o_einv_header_company_name" style="font-weight:bold;text-align:right;" t-field="company.name"/>
             <div t-if="company.arabic_name" class="o_einv_header_company_name_ar" style="font-weight:bold;text-align:right;" t-field="company.arabic_name"/>
+            <div t-else="" class="o_einv_header_company_name" style="font-weight:bold;text-align:right;" t-field="company.name"/>
         </template>
 
         <template id="einv_external_layout_standard" inherit_id="web.external_layout_standard">
