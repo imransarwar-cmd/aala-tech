@@ -81,3 +81,19 @@ background-color: #eaeaea;
 .flex-betweenxx :last-child{
     text-align: right;
 }
+
+
+/* Force the footer's columns (CR/VAT block, report footer text, page
+   numbers) to stack vertically instead of sitting side-by-side, across
+   every report layout - overrides both the flex and bootstrap-row based
+   footer variants. */
+.o_footer_content {
+    flex-direction: column !important;
+}
+.o_footer_content > div {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    float: none !important;
+    text-align: center !important;
+}
