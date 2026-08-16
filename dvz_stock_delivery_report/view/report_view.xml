@@ -43,194 +43,124 @@
         </div>
     </xpath>
 
-     <xpath expr="//li[hasclass('list-inline-item')]" position="replace">
-             <li class="list-inline-item"><strong><span class="page"/>/<span class="topage"/></strong></li>
-     </xpath>
+     <xpath expr="//span[contains(@t-if, 'pdf') and not(contains(@t-if, 'display_name_in_footer'))]" position="replace">
+        <span t-if="report_type == 'pdf'" t-attf-class="text-muted {{'text-nowrap' if is_html_empty(company.report_header) else ''}}"><strong><span class="page"/>/<span class="topage"/></strong></span>
+</xpath>
   </template>
 
-  <template id="report_delivery_document_inherit" inherit_id="stock.report_delivery_document">
-      <xpath expr="//h2/span" position="replace"></xpath>
-      <xpath expr="//t[@t-set='address']" position="replace">
-<!--          <h2 style="text-align:center;">Delivery Note</h2>-->
-<!--          <h2>-->
-<!--            <span t-field="o.name"/>-->
-<!--          </h2>-->
-          <div>
-            <div style="display:inline-block;width:50%;vertical-align: top;">
-                <div name="div_outgoing_address">
-                    <div name="outgoing_delivery_address" t-if="o.should_print_delivery_address()">
-                        <span><strong>Customer Address:</strong></span>
-                        <div t-field="o.move_ids_without_package[0].partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: False, &quot;phone_icons&quot;: False}"/>
-                    </div>
-                    <div name="outgoing_warehouse_address" t-elif="o.picking_type_id.code != 'internal' and o.picking_type_id.warehouse_id.partner_id">
-                        <span><strong>Warehouse Address:</strong></span>
-                        <div t-field="o.picking_type_id.warehouse_id.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: False, &quot;phone_icons&quot;: False}"/>
-                    </div>
-                </div>
-            </div>
-            <div style="display:inline-block;width:49%;vertical-align: top;">
-                <div class="">
-                    <div name="div_incoming_address">
-                        <div>
-                            <span><strong>Delivery Address:</strong></span>
-                            <div t-if="partner" name="partner_header">
-                                <div t-field="partner.commercial_partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
-                                <p t-if="partner.sudo().commercial_partner_id.vat"><t t-esc="o.company_id.country_id.vat_label or 'Tax ID'"/>: <span t-field="partner.sudo().commercial_partner_id.vat"/></p>
-                            </div>
-                            <!-- <div t-field="o.note"/> -->
-                        </div>
-                        <t t-set="show_partner" t-value="False"/>
-                        <div name="vendor_address" t-if="o.picking_type_id.code=='incoming' and partner">
-                            <span><strong>Vendor Address:</strong></span>
-                            <t t-set="show_partner" t-value="True"/>
-                        </div>
-                        <div name="customer_address" t-if="o.picking_type_id.code=='outgoing' and partner and partner != partner.commercial_partner_id">
-                            <span><strong>Customer Address:</strong></span>
-                            <t t-set="show_partner" t-value="True"/>
-                        </div>
-                        <div t-if="show_partner" name="partner_header">
-                            <div t-field="partner.commercial_partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;,&quot;mobile&quot;, &quot;email&quot;, &quot;vat&quot;], &quot;no_marker&quot;: False, &quot;phone_icons&quot;: False}"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-          </div>
+<template id="report_delivery_document_inherit" inherit_id="stock.report_delivery_document">
+    <!-- Core now prints its own title via o.picking_type_id._get_code_report_name()
+         inside this <h2>. Since our header-injected "Delivery Note"/"Receipt"
+         title already covers this, blank out core's body title to avoid
+         showing the title twice. -->
+    <xpath expr="//h2[@style='margin-top: 15px;']" position="replace"></xpath>
 
-      </xpath>
-      <xpath expr="//div[@name='div_origin']" position="after">
-          <t t-set="analytic_account" t-value="''"/>
-          <t t-foreach="lines" t-as="move">
-              <t t-if="move.analytic_account_line_id" t-set="analytic_account" t-value="move.analytic_account_line_id.name"/>
-          </t>
+    <!-- Relabel core's address block text rather than rebuilding the whole
+         two-column layout by hand - core's own address_layout template
+         already renders "address" (left) and "information_block" (right)
+         as a two-column layout. -->
+    <xpath expr="//div[@name='outgoing_delivery_address']/strong" position="replace">
+        <strong>Customer Address</strong>
+    </xpath>
+    <xpath expr="//div[@name='customer_address']/strong" position="replace">
+        <strong>Customer Address</strong>
+    </xpath>
 
-          <div t-if="analytic_account" class="col-auto" name="div_analytic_account">
-            <strong>Analytical Account:</strong>
-            <p t-esc="analytic_account"/>
-          </div>
-      </xpath>
-      <xpath expr="//div[@name='div_sched_date']" position="replace">
-           <div t-if="o.state" class="col-auto" name="div_sched_date">
-                <strong>Shipping Date:</strong>
-                <t t-if="o.state == 'done'">
-                    <p t-esc="o.date_done.strftime('%d-%m-%Y')"/>
-                </t>
-                <t t-if="o.state != 'done'">
-                    <p t-esc="o.scheduled_date.strftime('%d-%m-%Y')"/>
-               </t>
-           </div>
-      </xpath>
-      <xpath expr="//table[@name='stock_move_table']" position="replace">
+    <xpath expr="//div[@name='div_sched_date']" position="replace">
+         <div t-if="o.state" class="col col-3 mw-100 mb-2" name="div_sched_date">
+              <strong>Shipping Date:</strong>
+              <t t-if="o.state == 'done'">
+                  <p t-esc="o.date_done.strftime('%d-%m-%Y')"/>
+              </t>
+              <t t-if="o.state != 'done'">
+                  <p t-esc="o.scheduled_date.strftime('%d-%m-%Y')"/>
+             </t>
+         </div>
+    </xpath>
 
-<!--        <table class="table table-sm" name="stock_move_table">-->
-        <table class="" width="100%" name="stock_move_table">
-            <thead>
-                <tr>
-                    <th name="th_sm_sr_no"  style="width:5%;"><strong>SR#</strong></th>
-                    <th name="th_sm_product"><strong>Part No</strong></th>
-<!--                    <th name="th_sm_product"><strong>Analytical Account</strong></th>-->
-                    <th name="th_sm_desc"><strong>Description</strong></th>
-                    <th name="th_sm_quantity"><strong>Qty</strong></th>
-                </tr>
-            </thead>
-            <tbody>
-                <t t-set="lines" t-value="o.move_ids_without_package.filtered(lambda x: x.product_uom_qty)"/>
-                <t t-set="i" t-value="0"/>
-                <tr t-foreach="lines" t-as="move" style="border-bottom:1px solid;">
-                    <t t-set="i" t-value="i+1"/>
-                    <td>
-                         <t t-esc="i"/>
-                    </td>
-                    <td>
-                         <span t-field="move.product_id.default_code"/>
-                    </td>
-<!--                    <td>-->
-<!--                         <span t-field="move.analytic_account_line_id.name"/>-->
-<!--                    </td>-->
-                    <td>
-                        <span t-field="move.description_picking"/>
-                    </td>
-                    <td>
-                        <span t-field="move.quantity"/>
-                        <span t-field="move.product_uom"/>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-      </xpath>
-      <xpath expr="//table[@name='stock_move_line_table']" position="replace"></xpath>
-      <xpath expr="//t[@t-if='o.backorder_ids and backorders']" position="replace">
-          <br/>
-          <br/>
-          <br/>
-          <br/>
-          <t t-if="i > 5 ">
-        <p style="page-break-before: always;"></p>
-    </t>
-            <!-- <t t-if="i &gt; 3"><p style="page-break-after:always"/> -->
-              <div class="pt-4" ><u>NOTE:</u></div>
-              <div>In case of any shortage or damage, written notice must be given within 24 hours of receipt of goods.</div>
-              <div>
-                  <table width="100%">
-                      <tr>
-                          <th style="text-align:center;border:1px solid;">DELIVERED BY:</th>
-                          <th style="text-align:center;border:1px solid;">RECEIVED BY:</th>
-                      </tr>
-                      <tr>
-                          <td style="border:1px solid;">
+    <!-- Line items table: replace the state!=done table with SR#/Part No/
+         Description/Qty and drop its state restriction so it always
+         renders; remove the done-state table entirely to avoid an
+         orphaned t-elif and duplicate tables. -->
+    <xpath expr="//table[@name='stock_move_table']" position="replace">
+      <table class="" width="100%" name="stock_move_table">
+          <thead>
+              <tr>
+                  <th name="th_sm_sr_no" style="width:5%;"><strong>SR#</strong></th>
+                  <th name="th_sm_product"><strong>Part No</strong></th>
+                  <th name="th_sm_desc"><strong>Description</strong></th>
+                  <th name="th_sm_quantity"><strong>Qty</strong></th>
+              </tr>
+          </thead>
+          <tbody>
+              <t t-set="lines" t-value="o.move_ids.filtered(lambda x: x.product_uom_qty)"/>
+              <t t-set="i" t-value="0"/>
+              <tr t-foreach="lines" t-as="move" style="border-bottom:1px solid;">
+                  <t t-set="i" t-value="i+1"/>
+                  <td><t t-esc="i"/></td>
+                  <td><span t-field="move.product_id.default_code"/></td>
+                  <td><span t-field="move.description_picking"/></td>
+                  <td>
+                      <span t-field="move.quantity"/>
+                      <span t-field="move.product_uom"/>
+                  </td>
+              </tr>
+          </tbody>
+      </table>
+    </xpath>
+    <xpath expr="//table[@name='stock_move_line_table']" position="replace"></xpath>
+
+    <!-- Signature block: v19 restructured the backorder section into a
+         <div t-if>/<div t-else> pair, so there's no single node to
+         "replace" anymore. Insert the custom signature table before
+         core's own e-signature block instead - it then always appears
+         after the backorder table regardless of which branch rendered. -->
+    <xpath expr="//div[@t-if='not o.signature']" position="before">
+            <div class="pt-4"><u>NOTE:</u></div>
+            <div>In case of any shortage or damage, written notice must be given within 24 hours of receipt of goods.</div>
+            <div>
+                <table width="100%">
+                    <tr>
+                        <th style="text-align:center;border:1px solid;">DELIVERED BY:</th>
+                        <th style="text-align:center;border:1px solid;">RECEIVED BY:</th>
+                    </tr>
+                    <tr>
+                        <td style="border:1px solid;">
+                            <table width="90%">
+                                <tr>
+                                    <td style="text-align:right;border:none;" width="30%">SIGNATURE:</td>
+                                    <td style="border-bottom:1px solid;" width="60%"/>
+                                </tr>
+                                <tr>
+                                    <td style="text-align:right;border:none;">NAME:</td>
+                                    <td style="border-bottom:1px solid;"/>
+                                </tr>
+                                <tr>
+                                    <td style="text-align:right;border:none;">DATE:</td>
+                                    <td style="border-bottom:1px solid;"/>
+                                </tr>
+                            </table>
+                        </td>
+                        <td style="border:1px solid;">
                               <table width="90%">
-                                  <tr>
-                                      <!--<td height="15"/>-->
-                                  </tr>
-                                  <tr>
-                                      <td style="text-align:right;border:none;" width="30%">SIGNATURE:</td>
-                                      <td style="border-bottom:1px solid;" width="60%"/>
-                                  </tr>
-                                  <!--<tr height="10"/>-->
-                                  <tr>
-                                      <td style="text-align:right;border:none;">NAME:</td>
-                                      <td style="border-bottom:1px solid;"/>
-                                  </tr>
-                                  <!--<tr height="10"/>-->
-                                  <tr>
-                                      <td style="text-align:right;border:none;">DATE:</td>
-                                      <td style="border-bottom:1px solid;"/>
-                                  </tr>
-                                  <!--<tr>-->
-                                  <!--    <td height="15"/>-->
-                                  <!--</tr>-->
-                              </table>
-                          </td>
-                          <td style="border:1px solid;">
-                                <table width="90%">
-                                  <tr>
-                                      <!--<td height="15"/>-->
-                                  </tr>
-                                  <tr>
-                                      <td style="text-align:right;border:none;" width="30%">SIGNATURE:</td>
-                                      <td style="border-bottom:1px solid;" width="60%"/>
-                                  </tr>
-                                  <!--<tr height="10"/>-->
-                                  <tr>
-                                      <td style="text-align:right;border:none;">NAME:</td>
-                                      <td style="border-bottom:1px solid;"/>
-                                  </tr>
-                                  <tr>
-                                      <td style="text-align:right;border:none;">DATE:</td>
-                                      <td style="border-bottom:1px solid;"/>
-                                  </tr>
-                                  <!--<tr height="10"/>-->
-                                  <!--<tr>-->
-                                  <!--    <td height="15"/>-->
-                                  <!--</tr>-->
-                              </table>
-                          </td>
-                      </tr>
-                  </table>
-              </div>
-          <!-- </t> -->
-
-      </xpath>
+                                <tr>
+                                    <td style="text-align:right;border:none;" width="30%">SIGNATURE:</td>
+                                    <td style="border-bottom:1px solid;" width="60%"/>
+                                </tr>
+                                <tr>
+                                    <td style="text-align:right;border:none;">NAME:</td>
+                                    <td style="border-bottom:1px solid;"/>
+                                </tr>
+                                <tr>
+                                    <td style="text-align:right;border:none;">DATE:</td>
+                                    <td style="border-bottom:1px solid;"/>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+    </xpath>
   </template>
 
 </odoo>
-    
