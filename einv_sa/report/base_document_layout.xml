@@ -4,7 +4,7 @@
         <!-- report qweb view -->
         <template id="financial_layout_row">
             <div style="border-top:1px solid black;padding-top:4px;margin-top:4px;">
-                <div class="row" style="text-align:center;border-bottom:0.5px solid grey;padding-bottom:4px;margin-bottom:4px;">
+                <div class="row" style="text-align:left;border-bottom:0.5px solid grey;padding-bottom:4px;margin-bottom:4px;">
                     <div class="col-2">CR No:</div>
                     <div class="col-2"><span t-field="company.company_registry"/></div>
                     <div class="col-2">:رقم سجل الشركة</div>
