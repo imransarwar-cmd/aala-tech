@@ -113,3 +113,9 @@ background-color: #eaeaea;
 .o_footer_content .col-2 {
     margin-right: 15px;
 }
+
+
+/* Bump up the footer's CR No/VAT No/Email/Web text - default was too small */
+.o_einv_footer_block {
+    font-size: 13px;
+}

@@ -53,8 +53,7 @@
             <xpath expr="//ul[@name='company_address_list']/li[@t-if='not forced_vat']" position="replace"></xpath>
         </template>
 
-        <template id="einv_external_layout_boxed"
-                  inherit_id="web.external_layout_boxed">
+        <template id="einv_external_layout_boxed" inherit_id="web.external_layout_boxed">
 <!--            <xpath expr="//ul[@name='company_address_list']" position="before">-->
 <!--                <t t-call="einv_sa.einv_header_company_name"/>-->
 <!--            </xpath>-->
@@ -65,8 +64,7 @@
             <xpath expr="//ul[@name='company_address_list']/li[@t-if='not forced_vat']" position="replace"></xpath>
         </template>
 
-        <template id="einv_external_layout_bold"
-                  inherit_id="web.external_layout_bold">
+        <template id="einv_external_layout_bold" inherit_id="web.external_layout_bold">
 <!--            <xpath expr="//ul[@name='company_address_list']" position="before">-->
 <!--                <t t-call="einv_sa.einv_header_company_name"/>-->
 <!--            </xpath>-->
@@ -75,8 +73,7 @@
             </xpath>
         </template>
 
-        <template id="einv_external_layout_striped"
-                  inherit_id="web.external_layout_striped">
+        <template id="einv_external_layout_striped" inherit_id="web.external_layout_striped">
             <xpath expr="//ul[@name='company_address_list']" position="before">
                 <t t-call="einv_sa.einv_header_company_name"/>
             </xpath>
