@@ -12,7 +12,7 @@
                     <div class="col-2"><span t-field="company.vat"/></div>
                     <div class="col-2">:الرقم الضريبي</div>
                 </div>
-                <div class="row justify-content-center" style="text-align:center;border:1px solid lightgrey;padding:4px 0;">
+                <div class="row justify-content-center" style="text-align:center;border-top:1px solid lightgrey;padding:4px 0;">
                     <div class="col-auto">Email:</div>
                     <div class="col-auto"><span t-field="company.email"/></div>
                     <div class="col-auto">Web:</div>

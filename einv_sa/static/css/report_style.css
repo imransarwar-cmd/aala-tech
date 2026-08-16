@@ -88,12 +88,28 @@ background-color: #eaeaea;
    every report layout - overrides both the flex and bootstrap-row based
    footer variants. */
 .o_footer_content {
+    display: flex !important;
     flex-direction: column !important;
 }
-.o_footer_content > div {
+.o_footer_content > div,
+.o_footer_content > span {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
     float: none !important;
     text-align: center !important;
+    order: 0;
+}
+/* Page number block always renders last, regardless of its original
+   position in the DOM for a given layout. */
+.o_footer_content > div:has(.page),
+.o_footer_content > span:has(.page) {
+    order: 100 !important;
+}
+
+/* Space between each label (CR No:/Vat No:/Email:/Web:) and its value */
+.o_einv_header_company_name,
+.o_footer_content .col-auto,
+.o_footer_content .col-2 {
+    margin-right: 15px;
 }
