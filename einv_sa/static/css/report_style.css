@@ -112,6 +112,7 @@ background-color: #eaeaea;
 .o_footer_content .col-auto,
 .o_footer_content .col-2 {
     margin-right: 15px;
+    font-size: 20px  !important;
 }
 
 
