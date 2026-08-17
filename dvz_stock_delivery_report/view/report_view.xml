@@ -8,6 +8,30 @@
      <xpath expr="//span[contains(@t-if, 'pdf') and not(contains(@t-if, 'display_name_in_footer'))]" position="replace">
         <span t-if="report_type == 'pdf'" t-attf-class="text-muted {{'text-nowrap' if is_html_empty(company.report_header) else ''}}"><strong><span class="page"/>/<span class="topage"/></strong></span>
      </xpath>
+     <xpath expr="//t[@t-call='web.address_layout']" position="before">
+        <div t-if="o and o._name=='stock.picking'" style="margin-top:5px;">
+            <h2 style="text-align:center;" t-if="o.picking_type_id.code=='outgoing'">DELIVERY NOTE</h2>
+            <h2 style="text-align:center;" t-elif="o.picking_type_id.code=='incoming'">RECEIPT</h2>
+        </div>
+     </xpath>
+  </template>
+
+  <template id="delivery_slip_external_layout_standard" inherit_id="web.external_layout_standard">
+     <xpath expr="//t[@t-call='web.address_layout']" position="before">
+        <div t-if="o and o._name=='stock.picking'" style="margin-top:5px;">
+            <h2 style="text-align:center;" t-if="o.picking_type_id.code=='outgoing'">DELIVERY NOTE</h2>
+            <h2 style="text-align:center;" t-elif="o.picking_type_id.code=='incoming'">RECEIPT</h2>
+        </div>
+     </xpath>
+  </template>
+
+  <template id="delivery_slip_external_layout_boxed" inherit_id="web.external_layout_boxed">
+     <xpath expr="//t[@t-call='web.address_layout']" position="before">
+        <div t-if="o and o._name=='stock.picking'" style="margin-top:5px;">
+            <h2 style="text-align:center;" t-if="o.picking_type_id.code=='outgoing'">DELIVERY NOTE</h2>
+            <h2 style="text-align:center;" t-elif="o.picking_type_id.code=='incoming'">RECEIPT</h2>
+        </div>
+     </xpath>
   </template>
 
   <template id="report_delivery_document_inherit" inherit_id="stock.report_delivery_document">
@@ -21,16 +45,7 @@
            height and was silently clipping the injected title, which is
            why it kept disappearing. Keeping this in the body avoids that
            entirely. -->
-      <xpath expr="//h2[@style='margin-top: 15px;']" position="replace">
-          <h2 style="text-align:center;margin-top:5px;" t-if="o.picking_type_id.code=='outgoing'">DELIVERY NOTE</h2>
-          <h2 style="text-align:center;margin-top:5px;" t-elif="o.picking_type_id.code=='incoming'">RECEIPT</h2>
-          <h2 style="text-align:center;margin-top:5px;" t-else="">
-              <span t-out="o.picking_type_id._get_code_report_name()"/>
-          </h2>
-          <h2 style="color:#1A5CA8;">
-              <span t-field="o.name"/>
-          </h2>
-      </xpath>
+      <xpath expr="//h2[@style='margin-top: 15px;']" position="replace"></xpath>
 
       <!-- Two-column address block, always visible on both sides
            regardless of core's should_print_delivery_address() condition
@@ -55,6 +70,9 @@
 
       <xpath expr="//t[@t-set='information_block']" position="replace">
           <t t-set="information_block">
+              <strong class="d-block" style="color:#1A5CA8;">
+                  <span t-field="o.name"/>
+              </strong>
               <strong class="d-block">Customer Address</strong>
               <div t-field="o.partner_id"
                    t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
