@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ================================================================
-         Purchase Order / Request for Quotation document
-         Matched against addons/purchase/report/purchase_order_templates.xml
-         on Odoo 19.0.
-         ================================================================ -->
-    <template id="dvz_report_purchaseorder_document_inherit" inherit_id="purchase.report_purchaseorder_document">
+    <template id="report_purchase_document_inherit" inherit_id="purchase.report_purchaseorder_document">
 
-        <!-- Title: highlight the order number in brand blue. Core already
-             switches text between "Request for Quotation" / "Purchase Order"
-             / "Cancelled Purchase Order" based on state - we just re-wrap
-             the number span with a colored style rather than re-deriving
-             the state logic ourselves. -->
         <xpath expr="//t[@t-set='layout_document_title']" position="replace">
             <t t-set="layout_document_title">
                 <t t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation #<span t-field="o.name" style="color:#1A5CA8;"/></t>
@@ -21,62 +11,40 @@
             </t>
         </xpath>
 
-        <!-- Address block: two columns, Vendor name and address on the
-             LEFT, Shipping address on the RIGHT. Built as a single
-             self-contained block so it always shows both sides regardless
-             of whether o.dest_address_id is set (falls back to the
-             warehouse address for shipping, matching the original
-             Odoo 16 module's logic). Header trimmed to margin-top:5px
-             exactly, rather than a bootstrap spacing class. -->
-        <xpath expr="//t[@t-set='address']" position="replace">
-            <t t-set="address">
-                <div style="display:inline-block;width:49%;vertical-align:top;margin-top:5px;">
-                    <strong class="d-block" style="margin-top:0;">Vendor name and address</strong>
-                    <div t-field="o.partner_id"
-                         t-options='{"widget": "contact", "fields": ["address", "name", "phone", "vat"], "no_marker": True, "phone_icons": True}'/>
+                    <xpath expr="//t[@t-set='address']" position="replace">
+<!--          <h2 t-if="o.state in ['purchase', 'done']">Purchase Order #<span t-field="o.name"/></h2>-->
+          <div>
+
+            <div style="display:inline-block;width:49%;vertical-align: top;">
+                <strong>Vendor name and address:</strong>
+                <div class="">
+                    <div t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+                    <p t-if="o.partner_id.vat"><t t-esc="o.company_id.account_fiscal_country_id.vat_label or 'Tax ID'"/>: <span t-field="o.partner_id.vat"/></p>
                 </div>
-                <div style="display:inline-block;width:50%;vertical-align:top;margin-top:5px;">
-                    <strong class="d-block" style="margin-top:0;">Shipping address</strong>
-                    <t t-if="o.dest_address_id">
-                        <div t-field="o.dest_address_id"
-                             t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
-                    </t>
-                    <t t-else="">
+            </div>
+            <div style="display:inline-block;width:50%;vertical-align: top;">
+                        <strong>Shipping address:</strong>
                         <div t-if="o.picking_type_id and o.picking_type_id.warehouse_id">
                             <span t-field="o.picking_type_id.warehouse_id.name"/>
-                            <div t-field="o.picking_type_id.warehouse_id.partner_id"
-                                 t-options='{"widget": "contact", "fields": ["name", "address", "phone", "mobile", "email"], "no_marker": True, "phone_icons": True}'/>
+                            <div t-field="o.picking_type_id.warehouse_id.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;,&quot;address&quot;, &quot;phone&quot;, &quot;mobile&quot;, &quot;email&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
                         </div>
-                    </t>
-                </div>
-            </t>
-        </xpath>
+            </div>
+          </div>
 
-        <!-- Remove core's separate shipping-address block (information_block)
-             since it's now folded into the two-column "address" block above.
-             Narrowed to match only the block containing a t-set="information_block"
-             child, so it can never accidentally match our own t-if="o.dest_address_id"
-             inside the address block above (that bug caused the earlier
-             "t-elif/t-else must be preceded by t-if" install errors). -->
-        <xpath expr="//t[@t-if='o.dest_address_id'][t/@t-set='information_block']" position="replace"></xpath>
+      </xpath>
 
-        <!-- Title block: exact 5px top margin instead of core's mt-4,
-             so the gap between the address row above and the title/table
-             below is tight and consistent. -->
+
+<!--        <xpath expr="//t[@t-if='o.dest_address_id'][t/@t-set='information_block']" position="replace"></xpath>-->
+
         <xpath expr="//div[hasclass('mt-4')][t/@t-set='layout_document_title']" position="attributes">
             <attribute name="style">margin-top:5px;</attribute>
             <attribute name="class"></attribute>
         </xpath>
 
-        <!-- Box border around the totals block, matching the bordered
-             summary table in the reference PDF. -->
         <xpath expr="//table[hasclass('o_total_table')]" position="attributes">
             <attribute name="style">border:1px solid #ccc;</attribute>
         </xpath>
 
-        <!-- Info row: simplified to Order Date + Purchase Representative,
-             matching the reference PDF (drops Buyer/Order Reference/
-             Expected Arrival wording in favor of the requested labels). -->
         <xpath expr="//div[@id='informations']" position="replace">
             <div id="informations" class="row mb-4">
                 <div t-if="o.date_order" class="col-3 bm-2">
@@ -94,10 +62,6 @@
             </div>
         </xpath>
 
-        <!-- Line items table: SR / Part No / Description / Qty / Unit Price / Amount.
-             Rebuilt against the real v19 table (drops core's Disc./Taxes columns
-             per the requested layout; field names - product_uom_id, filtered_lines -
-             are taken directly from the v19 source, not guessed. -->
         <xpath expr="//table[hasclass('o_main_table')]" position="replace">
             <table class="o_has_total_table table o_main_table table-borderless" style="width:100%;">
                 <thead style="display: table-row-group">
@@ -116,43 +80,29 @@
                     <t t-set="filtered_lines" t-value="o.order_line.filtered(lambda l: l.display_type or l.product_qty != 0)"/>
                     <t t-foreach="filtered_lines" t-as="line">
                         <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
-
                         <tr t-att-class="'fw-bolder o_line_section' if line.display_type == 'line_section' else 'fw-bold o_line_subsection' if line.display_type == 'line_subsection' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''"
                             style="border-bottom:1px solid #eee;">
                             <t t-if="not line.display_type">
                                 <t t-set="i" t-value="i+1"/>
-                                <td class="text-start">
-                                    <span t-esc="i"/>
-                                </td>
-                                <td class="text-start">
-                                    <span t-field="line.product_id.default_code"/>
-                                </td>
-                                <td id="product" class="text-start">
-                                    <span t-field="line.name"/>
-                                </td>
+                                <td class="text-start"><span t-esc="i"/></td>
+                                <td class="text-start"><span t-field="line.product_id.default_code"/></td>
+                                <td id="product" class="text-start"><span t-field="line.name"/></td>
                                 <td class="text-end">
                                     <span t-field="line.product_qty"/>
                                     <span t-field="line.product_uom_id.name" groups="uom.group_uom"/>
                                 </td>
+                                <td class="text-end"><span t-field="line.price_unit"/></td>
                                 <td class="text-end">
-                                    <span t-field="line.price_unit"/>
-                                </td>
-                                <td class="text-end">
-                                    <span t-field="line.price_subtotal"
-                                        t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    <span t-field="line.price_subtotal" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                 </td>
                             </t>
                             <t t-if="line.display_type in ('line_section', 'line_subsection')">
-                                <td colspan="99" id="section">
-                                    <span t-field="line.name"/>
-                                </td>
+                                <td colspan="99" id="section"><span t-field="line.name"/></td>
                                 <t t-set="current_section" t-value="line"/>
                                 <t t-set="current_subtotal" t-value="0"/>
                             </t>
                             <t t-if="line.display_type == 'line_note'">
-                                <td colspan="99" id="note">
-                                    <span t-field="line.name"/>
-                                </td>
+                                <td colspan="99" id="note"><span t-field="line.name"/></td>
                             </t>
                         </tr>
                         <t t-if="current_section and (line_last or filtered_lines[line_index+1].display_type in ('line_section', 'line_subsection'))">
@@ -169,37 +119,13 @@
         </xpath>
     </template>
 
-    <!-- Hide the "Payment Terms:" line at the bottom of the document.
-         Note: in the real v19 source these are sibling elements (a
-         <strong> label and a <span> value), not nested - so each needs
-         its own removal rather than selecting a shared parent, which
-         would have caught the whole surrounding page div instead. -->
-    <template id="dvz_report_purchaseorder_hide_payment_terms" inherit_id="purchase.report_purchaseorder_document">
-        <xpath expr="//span[@t-field='o.payment_term_id']" position="replace"></xpath>
-        <xpath expr="//strong[text()='Payment Terms: ']" position="replace"></xpath>
-    </template>
-
-    <!-- ================================================================
-         Totals bar. Confirmed against addons/account/views/report_invoice.xml
-         on Odoo 19.0: <template id="document_tax_totals_template"> renders
-         <tr class="o_subtotal"> for each subtotal line and a single final
-         <tr class="o_total"> for the grand total. purchase.document_tax_totals
-         (declared with inherit_id="account.document_tax_totals_template"
-         primary="True") is the purchase-specific alias of that template, so
-         extending it here only affects Purchase Order / RFQ reports and
-         leaves the invoice report untouched.
-         ================================================================ -->
-    <template id="dvz_purchase_document_tax_totals_inherit" inherit_id="purchase.document_tax_totals">
-        <!-- "Untaxed Amount" row: keep plain white background, add a thin
-             bottom border to separate it visually from the Taxes row. -->
+    <template id="document_tax_totals_inherit" inherit_id="purchase.document_tax_totals">
         <xpath expr="//tr[hasclass('o_subtotal')]" position="attributes">
             <attribute name="style">border-bottom:1px solid #ccc;</attribute>
         </xpath>
-        <!-- "Taxes" row: light grey band, matching the reference PDF. -->
         <xpath expr="//tr[hasclass('o_taxes')]" position="attributes">
             <attribute name="style">background-color:#F2F2F2;border-bottom:1px solid #ccc;</attribute>
         </xpath>
-        <!-- "Total With VAT" row: solid blue bar, bold white text. -->
         <xpath expr="//tr[hasclass('o_total')]" position="attributes">
             <attribute name="style">background-color:#1A5CA8;color:#FFFFFF;</attribute>
         </xpath>
@@ -210,5 +136,9 @@
             <attribute name="style">color:#FFFFFF;</attribute>
         </xpath>
     </template>
+    <template id="dvz_report_purchaseorder_hide_payment_terms" inherit_id="purchase.report_purchaseorder_document">
+    <xpath expr="//span[@t-field='o.payment_term_id']/preceding-sibling::strong[1]" position="replace"></xpath>
+    <xpath expr="//span[@t-field='o.payment_term_id']" position="replace"></xpath>
+</template>
 
 </odoo>
