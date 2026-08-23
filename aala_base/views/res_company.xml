@@ -1,6 +1,6 @@
 <odoo>
     <!-- Inherit Form View to Modify it -->
-    <record id="res_company_form_inherit" model="ir.ui.view">
+    <record id="dvz_res_company_form_inherit" model="ir.ui.view">
         <field name="name">res_company_form_inherit</field>
         <field name="model">res.company</field>
         <field name="inherit_id" ref="base.view_company_form"/>
@@ -24,7 +24,7 @@
             </xpath>
         </field>
     </record>
-    <record id="res_country_form_inherit" model="ir.ui.view">
+    <record id="dvz_dvz_res_country_form_inherit" model="ir.ui.view">
         <field name="name">res_country_form_inherit</field>
         <field name="model">res.country</field>
         <field name="inherit_id" ref="base.view_country_form"/>
