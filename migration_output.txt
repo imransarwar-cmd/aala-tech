@@ -3,7 +3,6 @@ Mode: APPLY (will write to target)
 ======================================================================
 PURCHASE ORDERS
 ======================================================================
-  [OK] P01199: created in target as id=1241 (1 line(s) added)
 
 ======================================================================
 SALE ORDERS
@@ -11,7 +10,7 @@ SALE ORDERS
   [SKIP] S00691: already exists in target (id=697)
   [SKIP] S00690: already exists in target (id=696)
   [SKIP] S00689: already exists in target (id=695)
-  [SKIP] S00688: already exists in target (id=694)
+  [SKIP] S00688: already exists in target (id=701)
   [SKIP] S00687: already exists in target (id=693)
   [SKIP] S00649: already exists in target (id=655)
 

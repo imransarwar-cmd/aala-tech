@@ -121,31 +121,15 @@
             </tbody>
         </table>
       </xpath>
-      <xpath expr="//table[@name='stock_move_table']" position="after">
-          <div t-if="o.backorder_ids" style="margin-top:15px;">
-              <div>Remaining quantities not yet delivered:</div>
-              <table class="" width="100%" name="stock_move_table_remaining">
-                  <thead>
-                      <tr>
-                          <th name="th_remaining_product" style="text-align:left;"><strong>PRODUCT</strong></th>
-                          <th name="th_remaining_qty" style="text-align:right;"><strong>QUANTITY</strong></th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <t t-foreach="o.backorder_ids.move_ids" t-as="bo_move">
-                          <tr style="border-bottom:1px solid;">
-                              <td><span t-field="bo_move.product_id.display_name"/></td>
-                              <td style="text-align:right;">
-                                  <span t-field="bo_move.product_uom_qty"/>
-                                  <span t-field="bo_move.product_uom"/>
-                              </td>
-                          </tr>
-                      </t>
-                  </tbody>
-              </table>
-          </div>
-      </xpath>
       <xpath expr="//table[@name='stock_move_line_table']" position="replace"></xpath>
+      <!-- Odoo core wraps its OWN native "remaining quantities not yet
+           delivered" heading AND table together in one <div t-else="">.
+           Removing just the table (an earlier, incomplete version of
+           this fix) left that wrapper's heading paragraph still
+           rendering, causing a duplicate heading even with only one
+           table showing. Target the table's parent div directly so both
+           the heading and the table are removed together in one shot. -->
+      <xpath expr="//table[@name='stock_backorder_table']/.." position="replace"></xpath>
 
       <!-- Signature block: v19 restructured the backorder section into a
            <div t-if>/<div t-else> pair, so there's no single node to

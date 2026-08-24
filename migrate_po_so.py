@@ -75,7 +75,7 @@ TARGET = {
 
 # Record names to migrate - taken directly from Odoo_16_Updated_Entry_Details.xlsx
 PO_NAMES = [
-    "P01199",
+    # "P01199",
 ]
 
 # "S00649 - Revision" in the sheet is a note, not a literal record name -
