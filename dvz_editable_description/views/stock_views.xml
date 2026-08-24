@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="dvz_stock_picking_form_editable_description" model="ir.ui.view">
+        <field name="name">stock.picking.form.dvz.editable.description</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="/form/sheet" position="inside">
+                <group string="Descriptions (editable anytime)" name="dvz_descriptions">
+                    <field name="move_ids" nolabel="1" readonly="0">
+                        <list editable="bottom" create="0" delete="0">
+                            <field name="product_id" readonly="1"/>
+                            <field name="description_picking" string="Description"/>
+                        </list>
+                    </field>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

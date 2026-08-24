@@ -1,31 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Sale order line description: force editable regardless of the
-         order's locked state. Targets the 'name' field specifically
-         inside the order_line list, leaving every other field's
-         readonly behavior untouched. -->
     <record id="dvz_sale_order_form_editable_description" model="ir.ui.view">
         <field name="name">sale.order.form.dvz.editable.description</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='order_line']/list//field[@name='name']"
-                   position="attributes">
+            <xpath expr="//field[@name='order_line']" position="attributes">
                 <attribute name="readonly">0</attribute>
             </xpath>
         </field>
     </record>
 
-    <!-- Invoice line description: same treatment on account.move's line
-         list, so the field is clickable/editable even once posted. -->
     <record id="dvz_account_move_form_editable_description" model="ir.ui.view">
         <field name="name">account.move.form.dvz.editable.description</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='invoice_line_ids']/list//field[@name='name']"
-                   position="attributes">
+            <xpath expr="//field[@name='invoice_line_ids']" position="attributes">
                 <attribute name="readonly">0</attribute>
             </xpath>
         </field>
