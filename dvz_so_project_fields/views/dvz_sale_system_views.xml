@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="dvz_sale_system_view_list" model="ir.ui.view">
+        <field name="name">dvz.sale.system.list</field>
+        <field name="model">dvz.sale.system</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="dvz_sale_system_action" model="ir.actions.act_window">
+        <field name="name">Systems</field>
+        <field name="res_model">dvz.sale.system</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <menuitem id="dvz_sale_system_menu"
+              name="Systems"
+              action="dvz_sale_system_action"
+              parent="sale.menu_sale_config"
+              sequence="50"/>
+
+</odoo>

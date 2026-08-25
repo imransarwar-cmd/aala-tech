@@ -57,20 +57,6 @@ class AccountPartnerLedger(models.TransientModel):
               ['liability_payable', 'asset_receivable']),
              ('parent_state', '=', 'posted')])
         partner_ids = move_line_ids.mapped('partner_id')
-        # Batch-load account/journal codes ONCE for every account/journal
-        # referenced across all move lines, instead of calling .browse()
-        # individually per line inside the loop below (was 1000+ extra
-        # queries on a modest dataset - now just 2 total).
-        account_code_by_id = {
-            a.id: a.code
-            for a in self.env['account.account'].browse(
-                move_line_ids.mapped('account_id').ids)
-        }
-        journal_code_by_id = {
-            j.id: j.code
-            for j in self.env['account.journal'].browse(
-                move_line_ids.mapped('journal_id').ids)
-        }
         for partner in partner_ids:
             total_debit_balance = 0
             total_credit_balance = 0
@@ -88,8 +74,10 @@ class AccountPartnerLedger(models.TransientModel):
                     ['date', 'move_name', 'account_type', 'debit', 'credit',
                      'date_maturity', 'account_id', 'journal_id', 'move_id',
                      'matching_number', 'amount_currency'])
-                account_code = account_code_by_id.get(move_line.account_id.id)
-                journal_code = journal_code_by_id.get(move_line.journal_id.id)
+                account_code = self.env['account.account'].browse(
+                    move_line.account_id.id).code
+                journal_code = self.env['account.journal'].browse(
+                    move_line.journal_id.id).code
                 if account_code:
                     move_line_data[0]['jrnl'] = journal_code
                     move_line_data[0]['code'] = account_code
@@ -320,25 +308,15 @@ class AccountPartnerLedger(models.TransientModel):
             total_credit_balance = 0
             balance = 0
             move_line_list = []
-            # Batch-load account/journal codes once for this partner's
-            # move lines, instead of one .browse() call per line.
-            account_code_by_id = {
-                a.id: a.code
-                for a in self.env['account.account'].browse(
-                    move_line_ids.mapped('account_id').ids)
-            }
-            journal_code_by_id = {
-                j.id: j.code
-                for j in self.env['account.journal'].browse(
-                    move_line_ids.mapped('journal_id').ids)
-            }
             for move_line in move_line_ids:
                 move_line_data = move_line.read(
                     ['date', 'move_name', 'account_type', 'debit', 'credit',
                      'date_maturity', 'account_id', 'journal_id', 'move_id',
                      'matching_number', 'amount_currency'])
-                account_code = account_code_by_id.get(move_line.account_id.id)
-                journal_code = journal_code_by_id.get(move_line.journal_id.id)
+                account_code = self.env['account.account'].browse(
+                    move_line.account_id.id).code
+                journal_code = self.env['account.journal'].browse(
+                    move_line.journal_id.id).code
                 if account_code:
                     move_line_data[0]['jrnl'] = journal_code
                     move_line_data[0]['code'] = account_code

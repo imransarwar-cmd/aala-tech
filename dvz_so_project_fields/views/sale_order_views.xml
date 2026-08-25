@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- New notebook tab holding all the project/engineering fields.
+         Added as a whole new <page> rather than injected into an
+         existing group - more robust against view structure differences
+         across builds, and makes the "hide whole section" toggle trivial
+         (invisible on the page itself hides everything inside it). -->
+    <record id="dvz_sale_order_form_project_fields" model="ir.ui.view">
+        <field name="name">sale.order.form.dvz.project.fields</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Project Details" name="dvz_project_details"
+                      invisible="not company_id.dvz_show_project_fields">
+                    <group>
+                        <group>
+                            <field name="dvz_sales_engineer_id"/>
+                            <field name="dvz_customer_name"/>
+                            <field name="dvz_project_name"/>
+                            <field name="dvz_area"/>
+                        </group>
+                        <group>
+                            <field name="dvz_division"/>
+                            <field name="dvz_system_id"/>
+                            <field name="dvz_brand"/>
+                            <field name="dvz_status"/>
+                            <field name="amount_untaxed" string="Value (without VAT)"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

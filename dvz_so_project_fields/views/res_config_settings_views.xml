@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="dvz_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.dvz.project.fields</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('app_settings_block')][@data-key='sale']" position="inside">
+                <block title="Project Fields" id="dvz_project_fields_setting_container">
+                    <setting id="dvz_show_project_fields_setting" help="Show or hide the Project Details tab (Sales Engineer, Project, Area, Division, System, Brand, Status) on Quotations and Sale Orders">
+                        <field name="dvz_show_project_fields"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
