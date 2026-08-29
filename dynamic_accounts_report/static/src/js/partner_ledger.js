@@ -2,7 +2,7 @@
 const { Component } = owl;
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { useRef, useState, onMounted } from "@odoo/owl";
+import { useRef, useState } from "@odoo/owl";
 import { BlockUI } from "@web/core/ui/block_ui";
 import { download } from "@web/core/network/download";
 const actionRegistry = registry.category("actions");
@@ -36,122 +36,8 @@ class PartnerLedger extends owl.Component {
             message_list : [],
             partner_search_results: [],
             row_search_text: '',
-            current_offset: 0,
-            has_more: false,
-            loading_more: false,
-        });
-        this.scrollContainer = useRef('scrollContainer');
-        onMounted(() => {
-            if (this.scrollContainer.el) {
-                this.scrollContainer.el.addEventListener('scroll', this.onTableScroll.bind(this));
-            }
         });
         this.load_data(self.initial_render = true);
-    }
-
-    onTableScroll(ev) {
-        /**
-         * Fires on every scroll of the report's scrollable table
-         * container. When the user has scrolled near the bottom and
-         * there are more partners left to load (state.has_more), the
-         * next page of 80 is fetched automatically - this is what makes
-         * "load 80, then keep loading on scroll" actually work.
-         */
-        const el = ev.target;
-        const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 150;
-        if (nearBottom && this.state.has_more && !this.state.loading_more) {
-            this.loadMorePartners();
-        }
-    }
-
-    parseReportData(dataArray, append) {
-        /**
-         * Shared parsing logic for the raw dict returned by both
-         * view_report and get_filter_values - extracts the partner list,
-         * per-partner totals, and pagination metadata, explicitly
-         * excluding 'partner_totals', 'total_partner_count', and
-         * 'has_more' from being mistaken for partner names (which would
-         * otherwise crash trying to .forEach() a plain number).
-         *
-         * When append=true (scroll-triggered "load more"), new partners
-         * are added to the existing list/data/totals instead of
-         * replacing them - this is what keeps previously-loaded rows on
-         * screen while more are fetched underneath.
-         */
-        const metaKeys = ['partner_totals', 'total_partner_count', 'has_more'];
-        let partner_list = [];
-        let partner_totals = {};
-        Object.entries(dataArray).forEach(([key, value]) => {
-            if (!metaKeys.includes(key)) {
-                partner_list.push(key);
-                if (Array.isArray(value)) {
-                    value.forEach(entry => {
-                        entry[0].debit_display = this.formatNumberWithSeparators(entry[0].debit || 0);
-                        entry[0].credit_display = this.formatNumberWithSeparators(entry[0].credit || 0);
-                        entry[0].amount_currency_display = this.formatNumberWithSeparators(entry[0].amount_currency || 0);
-                    });
-                }
-            } else if (key === 'partner_totals') {
-                partner_totals = value;
-            }
-        });
-
-        let currency;
-        let totalDebitSum = append ? (this.state.total_debit || 0) : 0;
-        let totalCreditSum = append ? (this.state.total_credit || 0) : 0;
-        Object.values(partner_totals).forEach(partner => {
-            currency = partner.currency_id;
-            totalDebitSum += partner.total_debit || 0;
-            totalCreditSum += partner.total_credit || 0;
-            partner.total_debit_display = this.formatNumberWithSeparators(partner.total_debit || 0);
-            partner.total_credit_display = this.formatNumberWithSeparators(partner.total_credit || 0);
-        });
-
-        if (append) {
-            this.state.partners = [...(this.state.partners || []), ...partner_list];
-            this.state.data = { ...(this.state.data || {}), ...dataArray };
-            this.state.total = { ...(this.state.total || {}), ...partner_totals };
-        } else {
-            this.state.partners = partner_list;
-            this.state.data = dataArray;
-            this.state.total = partner_totals;
-        }
-        this.state.partner_list = this.state.partners;
-        this.state.total_list = this.state.total;
-        this.state.currency = currency;
-        this.state.total_debit = totalDebitSum;
-        this.state.total_debit_display = this.formatNumberWithSeparators(totalDebitSum || 0);
-        this.state.total_credit = totalCreditSum;
-        this.state.total_credit_display = this.formatNumberWithSeparators(totalCreditSum || 0);
-        this.state.has_more = !!dataArray.has_more;
-    }
-
-    async loadMorePartners() {
-        /**
-         * Fetches the next page of 80 partners using whichever method
-         * (view_report, with no filters applied yet, or get_filter_values,
-         * once a filter is active) produced the currently-displayed data,
-         * replaying the same filter arguments with an increased offset.
-         */
-        this.state.loading_more = true;
-        this.state.current_offset += 80;
-        try {
-            let dataArray;
-            if (this.state.last_query_method === 'get_filter_values') {
-                dataArray = await this.orm.call("account.partner.ledger", "get_filter_values", [
-                    this.state.selected_partner, this.state.date_range, this.state.account,
-                    this.state.options, this.state.current_offset, 80,
-                ]);
-            } else {
-                const action_title = this.props.action.display_name;
-                dataArray = await this.orm.call("account.partner.ledger", "view_report", [
-                    [this.wizard_id], action_title, this.state.current_offset, 80,
-                ]);
-            }
-            this.parseReportData(dataArray, true);
-        } finally {
-            this.state.loading_more = false;
-        }
     }
 
     formatNumberWithSeparators(number) {
@@ -167,16 +53,48 @@ class PartnerLedger extends owl.Component {
 
     async load_data() {
         /**
-         * Loads the first page (80 partners) for the partner ledger report.
+         * Loads the data for the partner ledger report.
          */
+        let partner_list = []
+        let partner_totals = ''
+        let totalDebitSum = 0;
+        let totalCreditSum = 0;
+        let currency;
         var self = this;
         var action_title = self.props.action.display_name;
         try {
-            self.state.current_offset = 0;
-            self.state.last_query_method = 'view_report';
-            const dataArray = await self.orm.call("account.partner.ledger", "view_report", [[this.wizard_id], action_title, 0, 80]);
-            self.parseReportData(dataArray, false);
-            self.state.title = action_title;
+            var self = this;
+            self.state.data = await self.orm.call("account.partner.ledger", "view_report", [[this.wizard_id], action_title,]);
+            const dataArray = self.state.data;
+             Object.entries(dataArray).forEach(([key, value]) => {
+            if (key !== 'partner_totals') {
+                partner_list.push(key);
+                value.forEach(entry => {
+                    entry[0].debit_display = this.formatNumberWithSeparators(entry[0].debit || 0);
+                    entry[0].credit_display = this.formatNumberWithSeparators(entry[0].credit || 0);
+                    entry[0].amount_currency_display = this.formatNumberWithSeparators(entry[0].amount_currency || 0);
+        });
+            } else {
+                partner_totals = value;
+            }
+            });
+            Object.values(partner_totals).forEach(partner => {
+                currency = partner.currency_id;
+                totalDebitSum += partner.total_debit || 0;
+                totalCreditSum += partner.total_credit || 0;
+                partner.total_debit_display = this.formatNumberWithSeparators(partner.total_debit || 0)
+                partner.total_credit_display = this.formatNumberWithSeparators(partner.total_credit || 0)
+            });
+            self.state.partners = partner_list
+            self.state.partner_list = partner_list
+            self.state.total_list = partner_totals
+            self.state.total = partner_totals
+            self.state.currency = currency
+            self.state.total_debit = totalDebitSum
+            self.state.total_debit_display = this.formatNumberWithSeparators(self.state.total_debit || 0)
+            self.state.total_credit = totalCreditSum
+            self.state.total_credit_display = this.formatNumberWithSeparators(self.state.total_credit || 0)
+            self.state.title = action_title
         }
         catch (el) {
             window.location.href;
@@ -456,10 +374,25 @@ class PartnerLedger extends owl.Component {
                 }
             }
         }
-        this.state.current_offset = 0;
-        this.state.last_query_method = 'get_filter_values';
-        let filtered_data = await this.orm.call("account.partner.ledger", "get_filter_values", [this.state.selected_partner, this.state.date_range, this.state.account, this.state.options, 0, 80]);
-        this.parseReportData(filtered_data, false);
+        let filtered_data = await this.orm.call("account.partner.ledger", "get_filter_values", [this.state.selected_partner, this.state.date_range, this.state.account, this.state.options,]);
+        for (let index in filtered_data) {
+            const value = filtered_data[index];
+            if (index !== 'partner_totals') {
+                partner_list.push(index)
+            }
+            else {
+                partner_totals = value
+                Object.values(partner_totals).forEach(partner_list => {
+                        totalDebitSum += partner_list.total_debit || 0;
+                        totalCreditSum += partner_list.total_credit || 0;
+                    });
+            }
+        }
+        this.state.partners = partner_list
+        this.state.data = filtered_data
+        this.state.total = partner_totals
+        this.state.total_debit = totalDebitSum
+        this.state.total_credit = totalCreditSum
         if (this.unfoldButton.el.classList.contains("selected-filter")) {
             this.unfoldButton.el.classList.remove("selected-filter");
         }
@@ -504,14 +437,32 @@ class PartnerLedger extends owl.Component {
          * filter dropdowns and would throw trying to read val.target from
          * an event this dropdown doesn't produce.
          */
+        let partner_list = [];
+        let partner_totals = '';
+        let totalDebitSum = 0;
+        let totalCreditSum = 0;
         this.state.partners = null;
         this.state.data = null;
         this.state.total = null;
         this.state.filter_applied = true;
-        this.state.current_offset = 0;
-        this.state.last_query_method = 'get_filter_values';
-        let filtered_data = await this.orm.call("account.partner.ledger", "get_filter_values", [this.state.selected_partner, this.state.date_range, this.state.account, this.state.options, 0, 80]);
-        this.parseReportData(filtered_data, false);
+        let filtered_data = await this.orm.call("account.partner.ledger", "get_filter_values", [this.state.selected_partner, this.state.date_range, this.state.account, this.state.options,]);
+        for (let index in filtered_data) {
+            const value = filtered_data[index];
+            if (index !== 'partner_totals') {
+                partner_list.push(index);
+            } else {
+                partner_totals = value;
+                Object.values(partner_totals).forEach(partner_list => {
+                    totalDebitSum += partner_list.total_debit || 0;
+                    totalCreditSum += partner_list.total_credit || 0;
+                });
+            }
+        }
+        this.state.partners = partner_list;
+        this.state.data = filtered_data;
+        this.state.total = partner_totals;
+        this.state.total_debit = totalDebitSum;
+        this.state.total_credit = totalCreditSum;
     }
     clearPartnerFilter() {
         /** Empties the partner selection and refreshes to show all partners again. */
