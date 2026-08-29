@@ -34,7 +34,7 @@ class AccountPartnerLedger(models.TransientModel):
     _description = 'Partner Ledger Report'
 
     @api.model
-    def view_report(self, option, tag, offset=0, limit=80):
+    def view_report(self, option, tag):
         """
         Retrieve partner-related data for generating a report.
 
@@ -44,26 +44,10 @@ class AccountPartnerLedger(models.TransientModel):
         :param tag: The tag used for filtering the data.
         :type tag: str
 
-        :param offset: Number of partners to skip - for pagination.
-        :type offset: int
-
-        :param limit: Max number of partners to process in this call.
-        :type limit: int
-
-        :return: A dictionary containing the partner data for the report,
-            plus 'total_partner_count' and 'has_more' pagination metadata.
+        :return: A dictionary containing the partner data for the report.
         :rtype: dict
         """
-        company_opening_date = self.env['res.company'].search([], limit=1).account_opening_date
-        # account_opening_date is optional and often left unset (False)
-        # if the Fiscal Year Opening Date was never configured in
-        # Settings > Accounting - fall back to a safe, very early date
-        # so the "before this date" comparison below still works instead
-        # of crashing on .strftime() against a bool.
-        if company_opening_date:
-            fiscal_year = company_opening_date.strftime('%Y-%m-%d')
-        else:
-            fiscal_year = '1900-01-01'
+        fiscal_year = self.env['res.company'].search([]).mapped('account_opening_date')[0].strftime('%Y-%m-%d')
         fiscal_year_start = datetime.strptime(fiscal_year,
                                               '%Y-%m-%d').date()
         partner_dict = {}
@@ -72,14 +56,7 @@ class AccountPartnerLedger(models.TransientModel):
             [('account_type', 'in',
               ['liability_payable', 'asset_receivable']),
              ('parent_state', '=', 'posted')])
-        all_partner_ids = move_line_ids.mapped('partner_id')
-        # Paginate BEFORE the per-partner loop below, so a normal page
-        # load only ever processes 80 partners' worth of move lines
-        # instead of the whole company's history at once - this is what
-        # makes "load more on scroll" possible.
-        total_partner_count = len(all_partner_ids)
-        partner_ids = all_partner_ids[offset:offset + limit]
-        has_more = (offset + limit) < total_partner_count
+        partner_ids = move_line_ids.mapped('partner_id')
         # Batch-load account/journal codes ONCE for every account/journal
         # referenced across all move lines, instead of calling .browse()
         # individually per line inside the loop below (was 1000+ extra
@@ -130,12 +107,10 @@ class AccountPartnerLedger(models.TransientModel):
                 'initial_credit': total_credit_balance,
             }
             partner_dict['partner_totals'] = partner_totals
-        partner_dict['total_partner_count'] = total_partner_count
-        partner_dict['has_more'] = has_more
         return partner_dict
 
     @api.model
-    def get_filter_values(self, partner_id, data_range, account, options, offset=0, limit=80):
+    def get_filter_values(self, partner_id, data_range, account, options):
         """
         Retrieve filtered partner-related data for generating a report.
 
@@ -151,17 +126,7 @@ class AccountPartnerLedger(models.TransientModel):
         :param options: Additional options for filtering the data.
         :type options: dict
 
-        :param offset: Number of partners to skip - used for pagination
-            so the expensive per-partner processing loop below only runs
-            for the current page instead of every matching partner at
-            once (this was the single biggest cost in the whole report).
-        :type offset: int
-
-        :param limit: Max number of partners to process in this call.
-        :type limit: int
-
-        :return: A dictionary containing the filtered partner data, plus
-            'total_partner_count' and 'has_more' pagination metadata.
+        :return: A dictionary containing the filtered partner data.
         :rtype: dict
         """
         if options == {}:
@@ -192,14 +157,6 @@ class AccountPartnerLedger(models.TransientModel):
                 'account_type', 'in', account_type_domain),
                 ('parent_state', 'in', option_domain)]).mapped(
                 'partner_id').ids
-        # Paginate here, BEFORE the expensive per-partner loop below runs
-        # a fresh search for every single partner - this is what actually
-        # makes "load more on scroll" possible, and also means a normal
-        # page load only ever processes 80 partners' worth of move lines
-        # instead of the entire company's history at once.
-        total_partner_count = len(partner_id)
-        partner_id = partner_id[offset:offset + limit]
-        has_more = (offset + limit) < total_partner_count
         balance_move_line_ids = []
         for partners in partner_id:
             partner = self.env['res.partner'].browse(partners).name
@@ -405,8 +362,6 @@ class AccountPartnerLedger(models.TransientModel):
                 'initial_credit': total_credit_balance,
             }
             partner_dict['partner_totals'] = partner_totals
-        partner_dict['total_partner_count'] = total_partner_count
-        partner_dict['has_more'] = has_more
         return partner_dict
 
     @api.model
