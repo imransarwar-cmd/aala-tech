@@ -34,6 +34,8 @@ class PartnerLedger extends owl.Component {
             account: null,
             options: null,
             message_list : [],
+            partner_search_results: [],
+            row_search_text: '',
         });
         this.load_data(self.initial_render = true);
     }
@@ -394,6 +396,96 @@ class PartnerLedger extends owl.Component {
         if (this.unfoldButton.el.classList.contains("selected-filter")) {
             this.unfoldButton.el.classList.remove("selected-filter");
         }
+    }
+    async onPartnerSearchInput(ev) {
+        /**
+         * Live-searches res.partner as the user types in the Partners
+         * dropdown, populating the checkbox list below the search box.
+         */
+        const searchText = ev.target.value || "";
+        if (!searchText) {
+            this.state.partner_search_results = [];
+            return;
+        }
+        const results = await this.orm.searchRead(
+            "res.partner",
+            [["name", "ilike", searchText]],
+            ["id", "name"],
+            { limit: 20 }
+        );
+        this.state.partner_search_results = results;
+    }
+    onPartnerCheckToggle(partnerId) {
+        /**
+         * Adds/removes a partner id from the current selection when its
+         * checkbox is toggled in the dropdown - selection isn't applied
+         * to the report until the "Apply" button is clicked.
+         */
+        const idx = this.state.selected_partner.indexOf(partnerId);
+        if (idx === -1) {
+            this.state.selected_partner.push(partnerId);
+        } else {
+            this.state.selected_partner.splice(idx, 1);
+        }
+    }
+    async applyPartnerFilter() {
+        /**
+         * Re-fetches the report using the current this.state.selected_partner
+         * selection. Duplicates applyFilter's final fetch/processing block
+         * rather than calling applyFilter() directly, since that method
+         * expects a differently-shaped (val, ev) pair matching its other
+         * filter dropdowns and would throw trying to read val.target from
+         * an event this dropdown doesn't produce.
+         */
+        let partner_list = [];
+        let partner_totals = '';
+        let totalDebitSum = 0;
+        let totalCreditSum = 0;
+        this.state.partners = null;
+        this.state.data = null;
+        this.state.total = null;
+        this.state.filter_applied = true;
+        let filtered_data = await this.orm.call("account.partner.ledger", "get_filter_values", [this.state.selected_partner, this.state.date_range, this.state.account, this.state.options,]);
+        for (let index in filtered_data) {
+            const value = filtered_data[index];
+            if (index !== 'partner_totals') {
+                partner_list.push(index);
+            } else {
+                partner_totals = value;
+                Object.values(partner_totals).forEach(partner_list => {
+                    totalDebitSum += partner_list.total_debit || 0;
+                    totalCreditSum += partner_list.total_credit || 0;
+                });
+            }
+        }
+        this.state.partners = partner_list;
+        this.state.data = filtered_data;
+        this.state.total = partner_totals;
+        this.state.total_debit = totalDebitSum;
+        this.state.total_credit = totalCreditSum;
+    }
+    clearPartnerFilter() {
+        /** Empties the partner selection and refreshes to show all partners again. */
+        this.state.selected_partner = [];
+        this.state.selected_partner_rec = [];
+        this.applyPartnerFilter();
+    }
+    onRowSearchInput(ev) {
+        /** Live client-side filter on the already-loaded partner list -
+         * no server round-trip, just hides/shows rows already in memory. */
+        this.state.row_search_text = ev.target.value || '';
+    }
+    getFilteredPartners() {
+        if (!this.state.partners) {
+            return [];
+        }
+        const search = (this.state.row_search_text || '').toLowerCase();
+        if (!search) {
+            return this.state.partners;
+        }
+        return this.state.partners.filter(
+            (partner) => String(partner).toLowerCase().includes(search)
+        );
     }
     getDomain() {
         return [];

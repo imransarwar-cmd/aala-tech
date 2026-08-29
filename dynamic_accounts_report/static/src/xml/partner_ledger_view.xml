@@ -150,6 +150,7 @@
                                 <!-- Table Header -->
                                 <thead>
                                     <tr class="o_heading">
+                                        <th style="width:20px;"/>
                                         <th>Partner</th>
                                         <th class="text-end">Debit</th>
                                         <th class="text-end">Credit</th>
@@ -158,12 +159,26 @@
                                 </thead>
                                 <!-- Table Body -->
                                 <tbody t-ref="tbody">
-                                    <!-- One summary row per partner - no per-transaction detail lines -->
+                                    <!-- Summary row per partner, with an expandable detail
+                                         section underneath showing every transaction line -
+                                         matching Odoo 16's caret-toggle behavior. -->
                                     <t t-if="state.partners">
+                                        <t t-set="i" t-value="0"/>
                                         <t t-foreach="getFilteredPartners()"
                                            t-as="partner"
                                            t-key="partner_index">
+                                            <t t-set="i" t-value="i + 1"/>
                                             <tr class="border-bottom border-dark border-gainsboro">
+                                                <td>
+                                                    <span class="toggle-icon"
+                                                          data-bs-toggle="collapse"
+                                                          t-attf-href="#dvz-partner-{{i}}"
+                                                          aria-expanded="false"
+                                                          t-attf-aria-controls="dvz-partner-{{i}}"
+                                                          style="cursor:pointer;">
+                                                        <i class="fa fa-caret-down"/>
+                                                    </span>
+                                                </td>
                                                 <th>
                                                     <a class="btn header o_heading"
                                                        t-att-data-id="state.total[partner]['partner_id']"
@@ -198,6 +213,73 @@
                                                         <t t-esc="(state.total[partner]['total_debit'] - state.total[partner]['total_credit']).toFixed(2)"/>
                                                     </span>
                                                 </th>
+                                            </tr>
+                                            <!-- Collapsible detail section - hidden by default,
+                                                 shown when the caret is clicked. -->
+                                            <tr t-attf-class="collapse" t-attf-id="dvz-partner-{{i}}">
+                                                <td colspan="5" style="padding:0;">
+                                                    <table class="table table-sm mb-0" width="100%">
+                                                        <thead>
+                                                            <tr style="background:#f0f0f0;">
+                                                                <th>Date</th>
+                                                                <th>JRNL</th>
+                                                                <th>Account</th>
+                                                                <th>Ref</th>
+                                                                <th>Due Date</th>
+                                                                <th>Matching Number</th>
+                                                                <th class="text-end">Debit</th>
+                                                                <th class="text-end">Credit</th>
+                                                                <th class="text-end">Amount Currency</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <t t-foreach="state.data[partner]"
+                                                               t-as="valuelist"
+                                                               t-key="valuelist_index">
+                                                                <tr>
+                                                                    <td><t t-esc="valuelist[0]['date']"/></td>
+                                                                    <td><t t-esc="valuelist[0]['jrnl']"/></td>
+                                                                    <td><t t-esc="valuelist[0]['code']"/></td>
+                                                                    <td>
+                                                                        <t t-if="valuelist[0]['move_name']">
+                                                                            <a href="#"
+                                                                               style="text-decoration:underline;cursor:pointer;"
+                                                                               t-att-data-id="valuelist[0]['move_id'][0]"
+                                                                               t-on-click="gotoJournalEntry"
+                                                                               t-esc="valuelist[0]['move_name']"/>
+                                                                        </t>
+                                                                    </td>
+                                                                    <td>
+                                                                        <t t-if="valuelist[0]['date_maturity']"
+                                                                           t-esc="valuelist[0]['date_maturity']"/>
+                                                                    </td>
+                                                                    <td>
+                                                                        <t t-if="valuelist[0]['matching_number']"
+                                                                           t-esc="valuelist[0]['matching_number']"/>
+                                                                    </td>
+                                                                    <td class="text-end">
+                                                                        <t t-if="valuelist[0]['debit']"
+                                                                           t-esc="state.total[partner]['currency_id']"/>
+                                                                        <t t-if="valuelist[0]['debit']"
+                                                                           t-esc="valuelist[0]['debit']"/>
+                                                                    </td>
+                                                                    <td class="text-end">
+                                                                        <t t-if="valuelist[0]['credit']"
+                                                                           t-esc="state.total[partner]['currency_id']"/>
+                                                                        <t t-if="valuelist[0]['credit']"
+                                                                           t-esc="valuelist[0]['credit']"/>
+                                                                    </td>
+                                                                    <td class="text-end">
+                                                                        <t t-if="valuelist[0]['amount_currency']"
+                                                                           t-esc="state.total[partner]['currency_id']"/>
+                                                                        <t t-if="valuelist[0]['amount_currency']"
+                                                                           t-esc="valuelist[0]['amount_currency']"/>
+                                                                    </td>
+                                                                </tr>
+                                                            </t>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
                                             </tr>
                                         </t>
                                     </t>
