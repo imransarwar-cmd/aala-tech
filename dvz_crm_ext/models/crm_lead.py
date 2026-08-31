@@ -10,6 +10,14 @@ STATUS_SELECTION = [
 class CrmLead(models.Model):
     _inherit = "crm.lead"
 
+    system_id = fields.Many2one("system.master", string="System")
+    activity = fields.Char(string="Activity")
+    sales_id = fields.Many2one("hr.employee", string="Sales")
+    presales_id = fields.Many2one("hr.employee", string="Presales")
+    inquiry_date = fields.Date(string="Inquiry")
+    due_date = fields.Date(string="Completion / Due Date")
+    est_closing_date = fields.Date(string="Est. Closing")
+
     # Customer already exists natively as partner_id - not duplicated.
     dvz_project = fields.Many2one("project.project", string="Project")
     dvz_system_id = fields.Many2one(
