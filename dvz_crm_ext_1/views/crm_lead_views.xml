@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form view only (not Kanban, per instruction) - new tab holding
+         Project/Status header fields and the System/Activity/Product
+         line table, added as a whole new <page> for robustness against
+         the exact existing form structure. -->
+    <record id="dvz_crm_lead_form_project_lines" model="ir.ui.view">
+        <field name="name">crm.lead.form.dvz.project.lines</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='lost_reason_id']" position="before">
+                <field name="system_id"/>
+                <field name="activity"/>
+                <field name="sales_id"/>
+                <field name="presales_id"/>
+            </xpath>
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="inquiry_date"/>
+                <field name="due_date"/>
+                <field name="est_closing_date"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Project Lines" name="dvz_project_lines">
+                    <group>
+                        <field name="dvz_project"/>
+                        <field name="dvz_system_id"/>
+                        <field name="dvz_status"/>
+                    </group>
+                        <field name="dvz_line_ids">
+                            <list editable="bottom">
+                                <field name="product_id"/>
+                                <field name="sales_id"  invisible="1"/>
+                                <field name="name" string="Description"/>
+                                <field name="quantity"/>
+                                <field name="price_unit"/>
+                                <field name="tax_ids" widget="many2many_tags"/>
+                                <field name="amount" sum="Total"/>
+                            </list>
+                        </field>
+                    <group class="oe_subtotal_footer" colspan="2">
+                        <field name="dvz_amount_untaxed" widget="float" string="Untaxed Amount"/>
+                        <field name="dvz_amount_tax" widget="float" string="Taxes"/>
+                        <field name="dvz_amount_total" widget="float" string="Total"
+                               class="oe_subtotal_footer_separator"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Kanban quick-create card (the small inline "Add" form shown when
+         creating a lead directly from a Kanban column). Customer
+         (partner_id) is already the first field on this card by default
+         - this inserts Project, System, and a Date field (date_deadline,
+         a real native field already on crm.lead) immediately after it. -->
+    <record id="dvz_crm_lead_quick_create_form" model="ir.ui.view">
+        <field name="name">crm.lead.form.dvz.quick.create</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.quick_create_opportunity_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="dvz_project"/>
+                <field name="dvz_system_id"/>
+                <field name="date_deadline" string="Date"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

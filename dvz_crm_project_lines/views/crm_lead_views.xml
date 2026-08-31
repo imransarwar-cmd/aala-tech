@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form view only (not Kanban, per instruction) - new tab holding
+         Project/Status header fields and the System/Activity/Product
+         line table, added as a whole new <page> for robustness against
+         the exact existing form structure. -->
+    <record id="dvz_crm_lead_form_project_lines" model="ir.ui.view">
+        <field name="name">crm.lead.form.dvz.project.lines</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Project Lines" name="dvz_project_lines">
+                    <group>
+                        <field name="dvz_project"/>
+                        <field name="dvz_status"/>
+                    </group>
+                    <field name="dvz_line_ids">
+                        <list editable="bottom">
+                            <field name="system_id"/>
+                            <field name="activity"/>
+                            <field name="sales_id"/>
+                            <field name="presales_id"/>
+                            <field name="inquiry_date"/>
+                            <field name="due_date"/>
+                            <field name="est_closing_date"/>
+                            <field name="product_id"/>
+                            <field name="name" string="Description"/>
+                            <field name="quantity"/>
+                            <field name="price_unit"/>
+                            <field name="tax_ids" widget="many2many_tags"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
