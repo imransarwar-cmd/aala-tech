@@ -10,6 +10,17 @@
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_lead_view_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='lost_reason_id']" position="before">
+                <field name="system_id"/>
+                <field name="activity"/>
+                <field name="sales_id"/>
+                <field name="presales_id"/>
+            </xpath>
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="inquiry_date"/>
+                <field name="due_date"/>
+                <field name="est_closing_date"/>
+            </xpath>
             <xpath expr="//page[@name='internal_notes']" position="before">
                 <page string="Lines" name="dvz_project_lines">
                     <group>
@@ -19,19 +30,20 @@
                     </group>
                     <field name="dvz_line_ids">
                         <list editable="bottom">
-<!--                            <field name="sales_id" invisible="1"/>-->
+                            <!--                            <field name="sales_id" invisible="1"/>-->
                             <field name="product_id"/>
                             <field name="name" string="Description"/>
                             <field name="quantity"/>
                             <field name="price_unit"/>
                             <field name="tax_ids" widget="many2many_tags"/>
-                            <field name="amount" />
+                            <field name="amount"/>
                         </list>
                     </field>
                     <group class="oe_subtotal_footer" colspan="2">
                         <field name="dvz_amount_untaxed" widget="float" string="Untaxed Amount"/>
                         <field name="dvz_amount_tax" widget="float" string="Taxes"/>
-                        <field name="dvz_amount_total" widget="float" string="Total" class="oe_subtotal_footer_separator"/>
+                        <field name="dvz_amount_total" widget="float" string="Total"
+                               class="oe_subtotal_footer_separator"/>
                     </group>
                 </page>
             </xpath>
