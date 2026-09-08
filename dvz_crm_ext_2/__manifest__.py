@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    "name": "CRM Project Lines",
+    "name": "DVZ CRM Project Lines",
     "version": "19.0.1.0.0",
     "summary": "Adds Project/Status to CRM Leads, plus a one2many line table "
                 "(System, Activity, Sales, Presales, Inquiry, Due Date, "

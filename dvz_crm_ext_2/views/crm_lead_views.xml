@@ -10,64 +10,33 @@
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_lead_view_form"/>
         <field name="arch" type="xml">
-            <!-- Native "Contact" label -> "Customer" - crm.lead's form
-                 has TWO separate partner_id fields (Leads vs.
-                 Opportunities groups, mutually exclusive by type); this
-                 targets specifically the one inside opportunity_partner,
-                 confirmed as the one actually visible on Opportunities. -->
-            <xpath expr="//group[@name='opportunity_partner']/field[@name='partner_id']" position="attributes">
-                <attribute name="string">Customer</attribute>
-            </xpath>
-
-            <!-- Native "Properties" widget ("Property 1" placeholder) -
-                 hidden entirely, since it can't be renamed from here
-                 (it's Odoo's own dynamic Properties feature, configured
-                 per-team, not a field this module defines). -->
-            <xpath expr="//field[@name='lead_properties']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
-
-            <!-- Native "Tags" field hidden per request. -->
-            <xpath expr="//field[@name='tag_ids']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
-
             <xpath expr="//field[@name='lost_reason_id']" position="before">
                 <field name="system_id"/>
-                    <field name="sales_id"/>
-                    <field name="presales_id"/>
                 <field name="activity"/>
+                <field name="sales_id"/>
+                <field name="presales_id"/>
             </xpath>
-
-            <!-- Inquiry and Due Date appear BEFORE Expected Closing
-                 (date_deadline). Est. Closing is no longer added at all
-                 (removed per request) - only its per-line equivalent in
-                 the table below remains, which is unaffected. -->
-            <xpath expr="//field[@name='user_id']" position="after">
+            <xpath expr="//field[@name='tag_ids']" position="after">
                 <field name="inquiry_date"/>
                 <field name="due_date"/>
+                <field name="est_closing_date"/>
             </xpath>
-
             <xpath expr="//page[@name='internal_notes']" position="before">
                 <page string="Lines" name="dvz_project_lines">
                     <group>
-                        <group><field name="dvz_project"/></group>
-                        <group>
-                            <field name="dvz_status"/>
-                        </group>
-
-
+                        <field name="dvz_project"/>
+                        <field name="dvz_system_id"/>
+                        <field name="dvz_status"/>
                     </group>
                     <field name="dvz_line_ids">
                         <list editable="bottom">
-                            <field name="product_id" optional="show"/>
-                            <field name="name" string="Description" optional="show"/>
-                            <field name="quantity" optional="show"/>
-                            <field name="price_unit" optional="show"/>
-                            <field name="tax_ids" widget="many2many_tags" optional="show"/>
-                            <field name="margin_percent" optional="show"/>
-                            <field name="margin_amount" optional="show"/>
-                            <field name="amount" optional="show"/>
+                            <!--                            <field name="sales_id" invisible="1"/>-->
+                            <field name="product_id"/>
+                            <field name="name" string="Description"/>
+                            <field name="quantity"/>
+                            <field name="price_unit"/>
+                            <field name="tax_ids" widget="many2many_tags"/>
+                            <field name="amount"/>
                         </list>
                     </field>
                     <group class="oe_subtotal_footer" colspan="2">
@@ -75,7 +44,6 @@
                         <field name="dvz_amount_tax" widget="float" string="Taxes"/>
                         <field name="dvz_amount_total" widget="float" string="Total"
                                class="oe_subtotal_footer_separator"/>
-                        <field name="dvz_margin_total" widget="float" string="Total Margin"/>
                     </group>
                 </page>
             </xpath>

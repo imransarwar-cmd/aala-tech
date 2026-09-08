@@ -15,7 +15,7 @@ class CrmLead(models.Model):
     sales_id = fields.Many2one("hr.employee", string="Sales")
     presales_id = fields.Many2one("hr.employee", string="Presales")
     inquiry_date = fields.Date(string="Inquiry")
-    due_date = fields.Date(string="Due Date")
+    due_date = fields.Date(string="Completion / Due Date")
     est_closing_date = fields.Date(string="Est. Closing")
 
     # Customer already exists natively as partner_id - not duplicated.
@@ -40,25 +40,17 @@ class CrmLead(models.Model):
     dvz_amount_total = fields.Float(
         string="Total", compute="_compute_dvz_amounts", store=True,
     )
-    dvz_margin_total = fields.Float(
-        string="Total Margin", compute="_compute_dvz_amounts", store=True,
-        help="Sum of every line's Margin Amount (each line's Subtotal x "
-             "its own Margin %).",
-    )
 
     @api.depends(
         "dvz_line_ids.quantity", "dvz_line_ids.price_unit",
         "dvz_line_ids.tax_ids", "dvz_line_ids.product_id",
-        "dvz_line_ids.margin_amount",
     )
     def _compute_dvz_amounts(self):
         for lead in self:
             untaxed = 0.0
             tax_amount = 0.0
-            margin_total = 0.0
             currency = lead.env.company.currency_id
             for line in lead.dvz_line_ids:
-                margin_total += line.margin_amount or 0.0
                 if not line.product_id:
                     continue
                 # Uses Odoo's own tax engine (the same one sale.order.line
@@ -77,7 +69,6 @@ class CrmLead(models.Model):
             lead.dvz_amount_untaxed = untaxed
             lead.dvz_amount_tax = tax_amount
             lead.dvz_amount_total = untaxed + tax_amount
-            lead.dvz_margin_total = margin_total
 
     def _dvz_build_order_line_commands(self):
         """Build order_line create-commands from every dvz_line_ids row
