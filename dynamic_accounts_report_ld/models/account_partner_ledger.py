@@ -75,7 +75,6 @@ class AccountPartnerLedger(models.TransientModel):
             total_debit_balance = 0
             total_credit_balance = 0
             balance = 0
-            running_balance = 0.0
             move_line_id = move_line_ids.filtered(
                 lambda x: x.partner_id == partner)
             move_line_list = []
@@ -88,14 +87,12 @@ class AccountPartnerLedger(models.TransientModel):
                 move_line_data = move_line.read(
                     ['date', 'move_name', 'account_type', 'debit', 'credit',
                      'date_maturity', 'account_id', 'journal_id', 'move_id',
-                     'matching_number', 'amount_currency', 'name'])
+                     'matching_number', 'amount_currency'])
                 account_code = account_code_by_id.get(move_line.account_id.id)
                 journal_code = journal_code_by_id.get(move_line.journal_id.id)
                 if account_code:
                     move_line_data[0]['jrnl'] = journal_code
                     move_line_data[0]['code'] = account_code
-                running_balance += (move_line.debit or 0.0) - (move_line.credit or 0.0)
-                move_line_data[0]['running_balance'] = running_balance
                 move_line_list.append(move_line_data)
             partner_dict[partner.name] = move_line_list
             currency_id = self.env.company.currency_id.symbol
@@ -302,15 +299,8 @@ class AccountPartnerLedger(models.TransientModel):
                             account_type_domain),
                          ('date', '<=', end_date),
                          ('parent_state', 'in', option_domain)])
-                    company_opening_date = self.env['res.company'].search(
-                        [], limit=1).account_opening_date
-                    # account_opening_date is optional and often unset -
-                    # fall back to a safe, very early date instead of
-                    # crashing on .strftime() against a bool.
-                    if company_opening_date:
-                        fiscal_year = company_opening_date.strftime('%Y-%m-%d')
-                    else:
-                        fiscal_year = '1900-01-01'
+                    fiscal_year = self.env['res.company'].search([]).mapped(
+                        'account_opening_date')[0].strftime('%Y-%m-%d')
                     date_start = datetime.strptime(fiscal_year,
                                                           '%Y-%m-%d').date()
                     balance_move_line_ids = self.env[
@@ -329,7 +319,6 @@ class AccountPartnerLedger(models.TransientModel):
             total_debit_balance = 0
             total_credit_balance = 0
             balance = 0
-            running_balance = 0.0
             move_line_list = []
             # Batch-load account/journal codes once for this partner's
             # move lines, instead of one .browse() call per line.
@@ -347,14 +336,12 @@ class AccountPartnerLedger(models.TransientModel):
                 move_line_data = move_line.read(
                     ['date', 'move_name', 'account_type', 'debit', 'credit',
                      'date_maturity', 'account_id', 'journal_id', 'move_id',
-                     'matching_number', 'amount_currency', 'name'])
+                     'matching_number', 'amount_currency'])
                 account_code = account_code_by_id.get(move_line.account_id.id)
                 journal_code = journal_code_by_id.get(move_line.journal_id.id)
                 if account_code:
                     move_line_data[0]['jrnl'] = journal_code
                     move_line_data[0]['code'] = account_code
-                running_balance += (move_line.debit or 0.0) - (move_line.credit or 0.0)
-                move_line_data[0]['running_balance'] = running_balance
                 move_line_list.append(move_line_data)
             for remaining_move in balance_move_line_ids:
                 if remaining_move.invoice_date:

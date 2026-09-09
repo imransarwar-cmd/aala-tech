@@ -75,12 +75,16 @@
                                 <thead style="background:#808080;">
                                     <tr>
                                         <th style="width:10%" colspan="6"/>
-                                        <th style="width:10%">Journal</th>
+                                        <th style="width:10%">JRNL</th>
                                         <th style="width:10%">Account</th>
-                                        <th style="width:10%">Move</th>
-                                        <th style="width:10%">Entry Label</th>
+                                        <th style="width:10%">Ref</th>
+                                        <th style="width:10%">Due Date</th>
+                                        <th style="width:10%">Matching Number
+                                        </th>
                                         <th style="width:10%">Debit</th>
                                         <th style="width:10%">Credit</th>
+                                        <th style="width:10%">Amount Currency
+                                        </th>
                                         <th style="width:10%">Balance</th>
                                     </tr>
                                 </thead>
@@ -209,8 +213,14 @@
                                             </th>
                                             <th style="width:10%">
                                                 <span>
-                                                    <t t-if="valuelist[0]['name']"
-                                                       t-esc="valuelist[0]['name']"/>
+                                                    <t t-if="valuelist[0]['date_maturity']"
+                                                       t-esc="valuelist[0]['date_maturity']"/>
+                                                </span>
+                                            </th>
+                                            <th style="width:10%">
+                                                <span>
+                                                    <t t-if="valuelist[0]['matching_number']"
+                                                       t-esc="valuelist[0]['matching_number']"/>
                                                 </span>
                                             </th>
                                             <th style="width:10%">
@@ -231,10 +241,13 @@
                                             </th>
                                             <th style="width:10%">
                                                 <span>
-                                                    <t t-esc="total[partner]['currency_id']"/>
-                                                    <t t-esc="valuelist[0]['running_balance']"/>
+                                                    <t t-if="valuelist[0]['amount_currency']"
+                                                       t-esc="total[partner]['currency_id']"/>
+                                                    <t t-if="valuelist[0]['amount_currency']"
+                                                       t-esc="valuelist[0]['amount_currency']"/>
                                                 </span>
                                             </th>
+                                            <th style="width:10%"/>
                                         </tr>
                                     </t>
                                 </tbody>

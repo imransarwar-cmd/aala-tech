@@ -218,18 +218,18 @@
                                                  shown when the caret is clicked. -->
                                             <tr t-attf-class="collapse" t-attf-id="dvz-partner-{{i}}">
                                                 <td colspan="5" style="padding:0;">
-                                                    <table class="table table-sm mb-0" width="100%"
-                                                           style="border:1px solid #dee2e6;">
+                                                    <table class="table table-sm mb-0" width="100%">
                                                         <thead>
                                                             <tr style="background:#f0f0f0;">
-                                                                <th style="border:1px solid #dee2e6;">Date</th>
-                                                                <th style="border:1px solid #dee2e6;">Journal</th>
-                                                                <th style="border:1px solid #dee2e6;">Account</th>
-                                                                <th style="border:1px solid #dee2e6;">Move</th>
-                                                                <th style="border:1px solid #dee2e6;">Entry Label</th>
-                                                                <th class="text-end" style="border:1px solid #dee2e6;">Debit</th>
-                                                                <th class="text-end" style="border:1px solid #dee2e6;">Credit</th>
-                                                                <th class="text-end" style="border:1px solid #dee2e6;">Balance</th>
+                                                                <th>Date</th>
+                                                                <th>JRNL</th>
+                                                                <th>Account</th>
+                                                                <th>Ref</th>
+                                                                <th>Due Date</th>
+                                                                <th>Matching Number</th>
+                                                                <th class="text-end">Debit</th>
+                                                                <th class="text-end">Credit</th>
+                                                                <th class="text-end">Amount Currency</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -237,10 +237,10 @@
                                                                t-as="valuelist"
                                                                t-key="valuelist_index">
                                                                 <tr>
-                                                                    <td style="border:1px solid #dee2e6;"><t t-esc="valuelist[0]['date']"/></td>
-                                                                    <td style="border:1px solid #dee2e6;"><t t-esc="valuelist[0]['jrnl']"/></td>
-                                                                    <td style="border:1px solid #dee2e6;"><t t-esc="valuelist[0]['code']"/></td>
-                                                                    <td style="border:1px solid #dee2e6;">
+                                                                    <td><t t-esc="valuelist[0]['date']"/></td>
+                                                                    <td><t t-esc="valuelist[0]['jrnl']"/></td>
+                                                                    <td><t t-esc="valuelist[0]['code']"/></td>
+                                                                    <td>
                                                                         <t t-if="valuelist[0]['move_name']">
                                                                             <a href="#"
                                                                                style="text-decoration:underline;cursor:pointer;"
@@ -249,25 +249,31 @@
                                                                                t-esc="valuelist[0]['move_name']"/>
                                                                         </t>
                                                                     </td>
-                                                                    <td style="border:1px solid #dee2e6;">
-                                                                        <t t-if="valuelist[0]['name']"
-                                                                           t-esc="valuelist[0]['name']"/>
+                                                                    <td>
+                                                                        <t t-if="valuelist[0]['date_maturity']"
+                                                                           t-esc="valuelist[0]['date_maturity']"/>
                                                                     </td>
-                                                                    <td class="text-end" style="border:1px solid #dee2e6;">
+                                                                    <td>
+                                                                        <t t-if="valuelist[0]['matching_number']"
+                                                                           t-esc="valuelist[0]['matching_number']"/>
+                                                                    </td>
+                                                                    <td class="text-end">
                                                                         <t t-if="valuelist[0]['debit']"
                                                                            t-esc="state.total[partner]['currency_id']"/>
                                                                         <t t-if="valuelist[0]['debit']"
                                                                            t-esc="valuelist[0]['debit']"/>
                                                                     </td>
-                                                                    <td class="text-end" style="border:1px solid #dee2e6;">
+                                                                    <td class="text-end">
                                                                         <t t-if="valuelist[0]['credit']"
                                                                            t-esc="state.total[partner]['currency_id']"/>
                                                                         <t t-if="valuelist[0]['credit']"
                                                                            t-esc="valuelist[0]['credit']"/>
                                                                     </td>
-                                                                    <td class="text-end" style="border:1px solid #dee2e6;">
-                                                                        <t t-esc="state.total[partner]['currency_id']"/>
-                                                                        <t t-esc="valuelist[0]['running_balance']"/>
+                                                                    <td class="text-end">
+                                                                        <t t-if="valuelist[0]['amount_currency']"
+                                                                           t-esc="state.total[partner]['currency_id']"/>
+                                                                        <t t-if="valuelist[0]['amount_currency']"
+                                                                           t-esc="valuelist[0]['amount_currency']"/>
                                                                     </td>
                                                                 </tr>
                                                             </t>
