@@ -95,7 +95,7 @@ class AccountPartnerLedger(models.TransientModel):
                     move_line_data[0]['jrnl'] = journal_code
                     move_line_data[0]['code'] = account_code
                 running_balance += (move_line.debit or 0.0) - (move_line.credit or 0.0)
-                move_line_data[0]['running_balance'] = round(running_balance, 2)
+                move_line_data[0]['running_balance'] = running_balance
                 move_line_list.append(move_line_data)
             partner_dict[partner.name] = move_line_list
             currency_id = self.env.company.currency_id.symbol
@@ -161,175 +161,188 @@ class AccountPartnerLedger(models.TransientModel):
                 ('parent_state', 'in', option_domain)]).mapped(
                 'partner_id').ids
         balance_move_line_ids = []
-        # All of the branches below depend only on `data_range` (a single,
-        # global filter value chosen once by the user) - never on which
-        # partner is currently being processed. Previously, every single
-        # one of these searches ran INSIDE the per-partner loop below,
-        # meaning a report with 200 partners fired 200+ separate database
-        # queries for what is actually the exact same underlying data.
-        # This was the main cause of multi-minute load times. Now, each
-        # query runs exactly ONCE here, fetching every matching move line
-        # for ALL partners at once - the loop below then just filters
-        # this already-fetched data in memory per partner, which is fast.
-        move_line_ids_all = self.env['account.move.line']
-        balance_move_line_ids_all = self.env['account.move.line']
-        date_start = None
-
-        if data_range:
-            if data_range == 'month':
-                move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain)]).filtered(
-                    lambda x: x.date.month == fields.Date.today().month)
-                date_start = fields.Date.today().replace(day=1)
-                balance_move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain),
-                     ('invoice_date', '<', date_start)])
-            elif data_range == 'year':
-                move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain)]).filtered(
-                    lambda x: x.date.year == fields.Date.today().year)
-                date_start = fields.Date.today().replace(month=1, day=1)
-                balance_move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain),
-                     ('invoice_date', '<', date_start)])
-            elif data_range == 'quarter':
-                move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('date', '>=', quarter_start),
-                     ('date', '<=', quarter_end),
-                     ('parent_state', 'in', option_domain)])
-                date_start = quarter_start
-                balance_move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain),
-                     ('invoice_date', '<', date_start)])
-            elif data_range == 'last-month':
-                move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain)]).filtered(
-                    lambda x: x.date.month == fields.Date.today().month - 1)
-                date_start = fields.Date.today().replace(day=1, month=fields.Date.today().month - 1)
-                balance_move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain),
-                     ('invoice_date', '<', date_start)])
-            elif data_range == 'last-year':
-                move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain)]).filtered(
-                    lambda x: x.date.year == fields.Date.today().year - 1)
-                date_start = fields.Date.today().replace(day=1, month=1)
-                balance_move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain),
-                     ('invoice_date', '<', date_start)])
-            elif data_range == 'last-quarter':
-                move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('date', '>=', previous_quarter_start),
-                     ('date', '<=', previous_quarter_end),
-                     ('parent_state', 'in', option_domain)])
-                date_start = previous_quarter_start
-                balance_move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain),
-                     ('invoice_date', '<', date_start)])
-            elif 'start_date' in data_range and 'end_date' in data_range:
-                start_date = datetime.strptime(data_range['start_date'], '%Y-%m-%d').date()
-                end_date = datetime.strptime(data_range['end_date'], '%Y-%m-%d').date()
-                move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('date', '>=', start_date),
-                     ('date', '<=', end_date),
-                     ('parent_state', 'in', option_domain)])
-                date_start = start_date
-                balance_move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain),
-                     ('invoice_date', '<', date_start)])
-            elif 'start_date' in data_range:
-                start_date = datetime.strptime(data_range['start_date'], '%Y-%m-%d').date()
-                move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('date', '>=', start_date),
-                     ('parent_state', 'in', option_domain)])
-                date_start = start_date
-                balance_move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain),
-                     ('invoice_date', '<', date_start)])
-            elif 'end_date' in data_range:
-                end_date = datetime.strptime(data_range['end_date'], '%Y-%m-%d').date()
-                move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('date', '<=', end_date),
-                     ('parent_state', 'in', option_domain)])
-                company_opening_date = self.env['res.company'].search(
-                    [], limit=1).account_opening_date
-                if company_opening_date:
-                    fiscal_year = company_opening_date.strftime('%Y-%m-%d')
-                else:
-                    fiscal_year = '1900-01-01'
-                date_start = datetime.strptime(fiscal_year, '%Y-%m-%d').date()
-                balance_move_line_ids_all = self.env['account.move.line'].search(
-                    [('partner_id', 'in', partner_id),
-                     ('account_type', 'in', account_type_domain),
-                     ('parent_state', 'in', option_domain),
-                     ('invoice_date', '<', date_start)])
-        else:
-            move_line_ids_all = self.env['account.move.line'].search(
-                [('partner_id', 'in', partner_id),
-                 ('account_type', 'in', account_type_domain),
-                 ('parent_state', 'in', option_domain)])
-
-        # Batch-load account/journal codes ONCE for every account/journal
-        # referenced across ALL partners' move lines, instead of
-        # re-fetching per partner inside the loop below.
-        account_code_by_id = {
-            a.id: a.code
-            for a in self.env['account.account'].browse(
-                move_line_ids_all.mapped('account_id').ids)
-        }
-        journal_code_by_id = {
-            j.id: j.code
-            for j in self.env['account.journal'].browse(
-                move_line_ids_all.mapped('journal_id').ids)
-        }
-
         for partners in partner_id:
             partner = self.env['res.partner'].browse(partners).name
-            # In-memory filtering of the already-fetched batch above -
-            # no additional database query per partner.
-            move_line_ids = move_line_ids_all.filtered(
-                lambda x: x.partner_id.id == partners)
-            balance_move_line_ids = balance_move_line_ids_all.filtered(
-                lambda x: x.partner_id.id == partners)
+            if data_range:
+                if data_range == 'month':
+                    move_line_ids = self.env['account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain)]).filtered(
+                        lambda x: x.date.month == fields.Date.today().month)
+                    date_start = fields.Date.today().replace(day=1)
+                    balance_move_line_ids = self.env[
+                        'account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain),
+                         ('invoice_date', '<', date_start)])
+                elif data_range == 'year':
+                    move_line_ids = self.env['account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain)]).filtered(
+                        lambda x: x.date.year == fields.Date.today().year)
+                    date_start = fields.Date.today().replace(month=1, day=1)
+                    balance_move_line_ids = self.env[
+                        'account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain),
+                         ('invoice_date', '<', date_start)])
+                elif data_range == 'quarter':
+                    move_line_ids = self.env['account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('date', '>=', quarter_start),
+                         ('date', '<=', quarter_end),
+                         ('parent_state', 'in', option_domain)])
+                    date_start = quarter_start
+                    balance_move_line_ids = self.env[
+                        'account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain),
+                         ('invoice_date', '<', date_start)])
+                elif data_range == 'last-month':
+                    move_line_ids = self.env['account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain)]).filtered(
+                        lambda x: x.date.month == fields.Date.today().month - 1)
+                    date_start = fields.Date.today().replace(day=1,month=fields.Date.today().month - 1)
+                    balance_move_line_ids = self.env[
+                        'account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain),
+                         ('invoice_date', '<', date_start)])
+                elif data_range == 'last-year':
+                    move_line_ids = self.env['account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain)]).filtered(
+                        lambda x: x.date.year == fields.Date.today().year - 1)
+                    date_start = fields.Date.today().replace(day=1,month=1,)
+                    balance_move_line_ids = self.env[
+                        'account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain),
+                         ('invoice_date', '<', date_start)])
+                elif data_range == 'last-quarter':
+                    move_line_ids = self.env['account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('date', '>=', previous_quarter_start),
+                         ('date', '<=', previous_quarter_end),
+                         ('parent_state', 'in', option_domain)])
+                    date_start = previous_quarter_start
+                    balance_move_line_ids = self.env[
+                        'account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain),
+                         ('invoice_date', '<', date_start)])
+                elif 'start_date' in data_range and 'end_date' in data_range:
+                    start_date = datetime.strptime(data_range['start_date'],
+                                                   '%Y-%m-%d').date()
+                    end_date = datetime.strptime(data_range['end_date'],
+                                                 '%Y-%m-%d').date()
+                    move_line_ids = self.env['account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('date', '>=', start_date),
+                         ('date', '<=', end_date),
+                         ('parent_state', 'in', option_domain)])
+                    date_start = start_date
+                    balance_move_line_ids = self.env[
+                        'account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain),
+                         ('invoice_date', '<', date_start)])
+                elif 'start_date' in data_range:
+                    start_date = datetime.strptime(data_range['start_date'],
+                                                   '%Y-%m-%d').date()
+                    move_line_ids = self.env['account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('date', '>=', start_date),
+                         ('parent_state', 'in', option_domain)])
+                    date_start = start_date
+                    balance_move_line_ids = self.env[
+                        'account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain),
+                         ('invoice_date', '<', date_start)])
+                elif 'end_date' in data_range:
+                    end_date = datetime.strptime(data_range['end_date'],
+                                                 '%Y-%m-%d').date()
+                    move_line_ids = self.env['account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('date', '<=', end_date),
+                         ('parent_state', 'in', option_domain)])
+                    company_opening_date = self.env['res.company'].search(
+                        [], limit=1).account_opening_date
+                    # account_opening_date is optional and often unset -
+                    # fall back to a safe, very early date instead of
+                    # crashing on .strftime() against a bool.
+                    if company_opening_date:
+                        fiscal_year = company_opening_date.strftime('%Y-%m-%d')
+                    else:
+                        fiscal_year = '1900-01-01'
+                    date_start = datetime.strptime(fiscal_year,
+                                                          '%Y-%m-%d').date()
+                    balance_move_line_ids = self.env[
+                        'account.move.line'].search(
+                        [('partner_id', '=', partners), (
+                            'account_type', 'in',
+                            account_type_domain),
+                         ('parent_state', 'in', option_domain),
+                         ('invoice_date', '<', date_start)])
+            else:
+                move_line_ids = self.env['account.move.line'].search(
+                    [('partner_id', '=', partners), (
+                        'account_type', 'in',
+                        account_type_domain),
+                     ('parent_state', 'in', option_domain)])
             total_debit_balance = 0
             total_credit_balance = 0
             balance = 0
             running_balance = 0.0
             move_line_list = []
+            # Batch-load account/journal codes once for this partner's
+            # move lines, instead of one .browse() call per line.
+            account_code_by_id = {
+                a.id: a.code
+                for a in self.env['account.account'].browse(
+                    move_line_ids.mapped('account_id').ids)
+            }
+            journal_code_by_id = {
+                j.id: j.code
+                for j in self.env['account.journal'].browse(
+                    move_line_ids.mapped('journal_id').ids)
+            }
             for move_line in move_line_ids:
                 move_line_data = move_line.read(
                     ['date', 'move_name', 'account_type', 'debit', 'credit',
@@ -341,7 +354,7 @@ class AccountPartnerLedger(models.TransientModel):
                     move_line_data[0]['jrnl'] = journal_code
                     move_line_data[0]['code'] = account_code
                 running_balance += (move_line.debit or 0.0) - (move_line.credit or 0.0)
-                move_line_data[0]['running_balance'] = round(running_balance, 2)
+                move_line_data[0]['running_balance'] = running_balance
                 move_line_list.append(move_line_data)
             for remaining_move in balance_move_line_ids:
                 if remaining_move.invoice_date:
