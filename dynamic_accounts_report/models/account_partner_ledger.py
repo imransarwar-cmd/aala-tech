@@ -33,6 +33,19 @@ class AccountPartnerLedger(models.TransientModel):
     _name = 'account.partner.ledger'
     _description = 'Partner Ledger Report'
 
+    @staticmethod
+    def _dvz_format_amount(value):
+        """Format a number as '1,234.56' - comma thousands separator,
+        always 2 decimal places. Used for every currency amount in this
+        report (debit, credit, running balance, etc.) so the PDF and the
+        web view both show consistently formatted numbers, with the
+        currency symbol placed AFTER the number in the templates rather
+        than before it."""
+        try:
+            return "{:,.2f}".format(float(value or 0.0))
+        except (TypeError, ValueError):
+            return "0.00"
+
     @api.model
     def view_report(self, option, tag):
         """
@@ -96,18 +109,27 @@ class AccountPartnerLedger(models.TransientModel):
                     move_line_data[0]['code'] = account_code
                 running_balance += (move_line.debit or 0.0) - (move_line.credit or 0.0)
                 move_line_data[0]['running_balance'] = round(running_balance, 2)
+                move_line_data[0]['running_balance_display'] = self._dvz_format_amount(running_balance)
+                move_line_data[0]['debit_display'] = self._dvz_format_amount(move_line_data[0].get('debit'))
+                move_line_data[0]['credit_display'] = self._dvz_format_amount(move_line_data[0].get('credit'))
+                move_line_data[0]['amount_currency_display'] = self._dvz_format_amount(move_line_data[0].get('amount_currency'))
                 move_line_list.append(move_line_data)
             partner_dict[partner.name] = move_line_list
             currency_id = self.env.company.currency_id.symbol
             partner_totals[partner.name] = {
                 'total_debit': round(sum(move_line_id.mapped('debit')), 2),
                 'total_credit': round(sum(move_line_id.mapped('credit')), 2),
+                'total_debit_display': self._dvz_format_amount(sum(move_line_id.mapped('debit'))),
+                'total_credit_display': self._dvz_format_amount(sum(move_line_id.mapped('credit'))),
                 'currency_id': currency_id,
                 'initial_balance': balance,
+                'initial_balance_display': self._dvz_format_amount(balance),
                 'partner_id': partner.id,
                 'move_name': 'Initial Balance',
                 'initial_debit': total_debit_balance,
                 'initial_credit': total_credit_balance,
+                'initial_debit_display': self._dvz_format_amount(total_debit_balance),
+                'initial_credit_display': self._dvz_format_amount(total_credit_balance),
             }
             partner_dict['partner_totals'] = partner_totals
         return partner_dict
@@ -342,6 +364,10 @@ class AccountPartnerLedger(models.TransientModel):
                     move_line_data[0]['code'] = account_code
                 running_balance += (move_line.debit or 0.0) - (move_line.credit or 0.0)
                 move_line_data[0]['running_balance'] = round(running_balance, 2)
+                move_line_data[0]['running_balance_display'] = self._dvz_format_amount(running_balance)
+                move_line_data[0]['debit_display'] = self._dvz_format_amount(move_line_data[0].get('debit'))
+                move_line_data[0]['credit_display'] = self._dvz_format_amount(move_line_data[0].get('credit'))
+                move_line_data[0]['amount_currency_display'] = self._dvz_format_amount(move_line_data[0].get('amount_currency'))
                 move_line_list.append(move_line_data)
             for remaining_move in balance_move_line_ids:
                 if remaining_move.invoice_date:
@@ -354,12 +380,17 @@ class AccountPartnerLedger(models.TransientModel):
             partner_totals[partner] = {
                 'total_debit': round(sum(move_line_ids.mapped('debit')), 2),
                 'total_credit': round(sum(move_line_ids.mapped('credit')), 2),
+                'total_debit_display': self._dvz_format_amount(sum(move_line_ids.mapped('debit'))),
+                'total_credit_display': self._dvz_format_amount(sum(move_line_ids.mapped('credit'))),
                 'currency_id': currency_id,
                 'partner_id': partners,
                 'initial_balance': balance,
+                'initial_balance_display': self._dvz_format_amount(balance),
                 'move_name': 'Initial Balance',
                 'initial_debit': total_debit_balance,
                 'initial_credit': total_credit_balance,
+                'initial_debit_display': self._dvz_format_amount(total_debit_balance),
+                'initial_credit_display': self._dvz_format_amount(total_credit_balance),
             }
             partner_dict['partner_totals'] = partner_totals
         return partner_dict

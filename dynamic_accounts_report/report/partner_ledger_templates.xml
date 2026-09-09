@@ -112,9 +112,9 @@
                                             <strong>
                                                 <span>
                                                     <t t-if="total[partner]['total_debit']"
-                                                       t-esc="total[partner]['currency_id']"/>
+                                                       t-esc="total[partner]['total_debit_display']"/>
                                                     <t t-if="total[partner]['total_debit']"
-                                                       t-esc="total[partner]['total_debit']"/>
+                                                       t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </strong>
                                         </th>
@@ -122,9 +122,9 @@
                                             <strong>
                                                 <span>
                                                     <t t-if="total[partner]['total_credit']"
-                                                       t-esc="total[partner]['currency_id']"/>
+                                                       t-esc="total[partner]['total_credit_display']"/>
                                                     <t t-if="total[partner]['total_credit']"
-                                                       t-esc="total[partner]['total_credit']"/>
+                                                       t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </strong>
                                         </th>
@@ -132,8 +132,8 @@
                                         <th style="width:10% border:0px solid transparent;border-right: thin solid #dee2e6;">
                                             <strong>
                                                 <span class="fw-bolder">
-                                                    <t t-esc="total[partner]['currency_id']"/>
-                                                    <t t-esc="total[partner]['total_debit'] - total[partner]['total_credit']"/>
+                                                    <t t-esc="'{:,.2f}'.format(total[partner]['total_debit'] - total[partner]['total_credit'])"/>
+                                                    <t t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </strong>
                                         </th>
@@ -162,21 +162,21 @@
                                             <th>
                                             </th>
                                             <th>
-                                            </th>
-                                            <th>
                                                 <span>
-                                                    <t t-esc="total[partner]['initial_debit']"/>
+                                                    <t t-esc="total[partner]['initial_debit_display']"/>
+                                                    <t t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </th>
                                             <th>
                                                 <span>
-                                                    <t t-esc="total[partner]['initial_credit']"/>
+                                                    <t t-esc="total[partner]['initial_credit_display']"/>
+                                                    <t t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </th>
-                                            <th/>
                                             <th>
                                                 <span>
-                                                    <t t-esc="total[partner]['initial_balance']"/>
+                                                    <t t-esc="total[partner]['initial_balance_display']"/>
+                                                    <t t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </th>
                                         </t>
@@ -216,23 +216,23 @@
                                             <th style="width:10%">
                                                 <span>
                                                     <t t-if="valuelist[0]['debit']"
-                                                       t-esc="total[partner]['currency_id']"/>
+                                                       t-esc="valuelist[0]['debit_display']"/>
                                                     <t t-if="valuelist[0]['debit']"
-                                                       t-esc="valuelist[0]['debit']"/>
+                                                       t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </th>
                                             <th style="width:10%">
                                                 <span>
                                                     <t t-if="valuelist[0]['credit']"
-                                                       t-esc="total[partner]['currency_id']"/>
+                                                       t-esc="valuelist[0]['credit_display']"/>
                                                     <t t-if="valuelist[0]['credit']"
-                                                       t-esc="valuelist[0]['credit']"/>
+                                                       t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </th>
                                             <th style="width:10%">
                                                 <span>
-                                                    <t t-esc="total[partner]['currency_id']"/>
-                                                    <t t-esc="valuelist[0]['running_balance']"/>
+                                                    <t t-esc="valuelist[0]['running_balance_display']"/>
+                                                    <t t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </th>
                                         </tr>
@@ -246,18 +246,18 @@
                             <tr>
                                 <th style="width:60%;">Total</th>
                                 <th style="width:10%">
-                                    <t t-out="grand_total['currency']"/>
-                                    <t t-out="grand_total['total_debit']"/>
+                                    <t t-out="'{:,.2f}'.format(grand_total['total_debit'] or 0.0)"/>
+                                    <t t-out="' ' + grand_total['currency']"/>
                                 </th>
                                 <th style="width:10%">
-                                    <t t-out="grand_total['currency']"/>
-                                    <t t-out="grand_total['total_credit']"/>
+                                    <t t-out="'{:,.2f}'.format(grand_total['total_credit'] or 0.0)"/>
+                                    <t t-out="' ' + grand_total['currency']"/>
                                 </th>
                                 <th style="width:10%"/>
                                 <th style="width:10%">
-                                    <t t-out="grand_total['currency']"/>
                                     <t t-if="grand_total['total_debit'] and grand_total['total_credit']">
-                                    <t t-out="grand_total['total_debit'] - grand_total['total_credit']"/>
+                                        <t t-out="'{:,.2f}'.format(grand_total['total_debit'] - grand_total['total_credit'])"/>
+                                        <t t-out="' ' + grand_total['currency']"/>
                                     </t>
                                 </th>
                             </tr>

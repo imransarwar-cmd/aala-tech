@@ -8,10 +8,8 @@
         <field name="arch" type="xml">
             <xpath expr="//h1[field[@name='name']]" position="before">
                <h1 class="d-flex flex-row align-items-center">
-
                     <field name="dvz_employee_code" readonly="1"/>
                 </h1>
-
             </xpath>
         </field>
     </record>

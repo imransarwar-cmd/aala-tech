@@ -194,23 +194,23 @@
                                                 <th class="text-end">
                                                     <span>
                                                         <t t-if="state.total[partner]['total_debit']"
-                                                           t-esc="state.total[partner]['currency_id']"/>
+                                                           t-esc="state.total[partner]['total_debit_display']"/>
                                                         <t t-if="state.total[partner]['total_debit']"
-                                                           t-esc="state.total[partner]['total_debit']"/>
+                                                           t-esc="' ' + state.total[partner]['currency_id']"/>
                                                     </span>
                                                 </th>
                                                 <th class="text-end">
                                                     <span>
                                                         <t t-if="state.total[partner]['total_credit']"
-                                                           t-esc="state.total[partner]['currency_id']"/>
+                                                           t-esc="state.total[partner]['total_credit_display']"/>
                                                         <t t-if="state.total[partner]['total_credit']"
-                                                           t-esc="state.total[partner]['total_credit']"/>
+                                                           t-esc="' ' + state.total[partner]['currency_id']"/>
                                                     </span>
                                                 </th>
                                                 <th class="text-end">
                                                     <span class="fw-bolder">
-                                                        <t t-esc="state.total[partner]['currency_id']"/>
-                                                        <t t-esc="(state.total[partner]['total_debit'] - state.total[partner]['total_credit']).toFixed(2)"/>
+                                                        <t t-esc="formatNumberWithSeparators((state.total[partner]['total_debit'] - state.total[partner]['total_credit']).toFixed(2))"/>
+                                                        <t t-esc="' ' + state.total[partner]['currency_id']"/>
                                                     </span>
                                                 </th>
                                             </tr>
@@ -255,19 +255,19 @@
                                                                     </td>
                                                                     <td class="text-end" style="border:1px solid #dee2e6;">
                                                                         <t t-if="valuelist[0]['debit']"
-                                                                           t-esc="state.total[partner]['currency_id']"/>
+                                                                           t-esc="valuelist[0]['debit_display']"/>
                                                                         <t t-if="valuelist[0]['debit']"
-                                                                           t-esc="valuelist[0]['debit']"/>
+                                                                           t-esc="' ' + state.total[partner]['currency_id']"/>
                                                                     </td>
                                                                     <td class="text-end" style="border:1px solid #dee2e6;">
                                                                         <t t-if="valuelist[0]['credit']"
-                                                                           t-esc="state.total[partner]['currency_id']"/>
+                                                                           t-esc="valuelist[0]['credit_display']"/>
                                                                         <t t-if="valuelist[0]['credit']"
-                                                                           t-esc="valuelist[0]['credit']"/>
+                                                                           t-esc="' ' + state.total[partner]['currency_id']"/>
                                                                     </td>
                                                                     <td class="text-end" style="border:1px solid #dee2e6;">
-                                                                        <t t-esc="state.total[partner]['currency_id']"/>
-                                                                        <t t-esc="valuelist[0]['running_balance']"/>
+                                                                        <t t-esc="valuelist[0]['running_balance_display']"/>
+                                                                        <t t-esc="' ' + state.total[partner]['currency_id']"/>
                                                                     </td>
                                                                 </tr>
                                                             </t>
