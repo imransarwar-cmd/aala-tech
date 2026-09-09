@@ -129,6 +129,66 @@
                                 </div>
                             </div>
 
+                            <div class="dvz_filter_row">
+                                <span class="fa fa-book me-1"/>
+                                <a type="button" class="dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                    Journals:
+                                    <t t-if="state.selected_journals and state.selected_journals.length">
+                                        <t t-esc="state.selected_journals.length"/> selected
+                                    </t>
+                                    <t t-else="">All</t>
+                                </a>
+                                <div class="dropdown-menu p-2" role="menu" style="min-width:280px;">
+                                    <input type="text" class="form-control mb-2" placeholder="Search journals..." t-on-input="onJournalSearchInput"/>
+                                    <div style="max-height:220px;overflow-y:auto;">
+                                        <t t-foreach="state.journal_search_results" t-as="j" t-key="j.id">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input"
+                                                       t-att-id="'dvz_journal_' + j.id"
+                                                       t-att-checked="state.selected_journals and state.selected_journals.includes(j.id)"
+                                                       t-on-change="() => this.onJournalCheckToggle(j.id)"/>
+                                                <label class="form-check-label" t-att-for="'dvz_journal_' + j.id">
+                                                    <t t-esc="j.name"/>
+                                                </label>
+                                            </div>
+                                        </t>
+                                    </div>
+                                    <div class="dropdown-divider"/>
+                                    <button class="btn btn-sm btn-secondary me-2" type="button" t-on-click="clearJournalFilter">Clear</button>
+                                    <button class="btn btn-sm btn-primary" type="button" t-on-click="applyJournalFilter">Apply</button>
+                                </div>
+                            </div>
+
+                            <div class="dvz_filter_row">
+                                <span class="fa fa-tags me-1"/>
+                                <a type="button" class="dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                    Partner Tags:
+                                    <t t-if="state.selected_partner_tags and state.selected_partner_tags.length">
+                                        <t t-esc="state.selected_partner_tags.length"/> selected
+                                    </t>
+                                    <t t-else="">All</t>
+                                </a>
+                                <div class="dropdown-menu p-2" role="menu" style="min-width:280px;">
+                                    <input type="text" class="form-control mb-2" placeholder="Search tags..." t-on-input="onPartnerTagSearchInput"/>
+                                    <div style="max-height:220px;overflow-y:auto;">
+                                        <t t-foreach="state.partner_tag_search_results" t-as="tag" t-key="tag.id">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input"
+                                                       t-att-id="'dvz_tag_' + tag.id"
+                                                       t-att-checked="state.selected_partner_tags and state.selected_partner_tags.includes(tag.id)"
+                                                       t-on-change="() => this.onPartnerTagCheckToggle(tag.id)"/>
+                                                <label class="form-check-label" t-att-for="'dvz_tag_' + tag.id">
+                                                    <t t-esc="tag.name"/>
+                                                </label>
+                                            </div>
+                                        </t>
+                                    </div>
+                                    <div class="dropdown-divider"/>
+                                    <button class="btn btn-sm btn-secondary me-2" type="button" t-on-click="clearPartnerTagFilter">Clear</button>
+                                    <button class="btn btn-sm btn-primary" type="button" t-on-click="applyPartnerTagFilter">Apply</button>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>

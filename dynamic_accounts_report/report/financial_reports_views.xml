@@ -16,6 +16,24 @@
         <field name="report_name">dynamic_accounts_report.balance_sheet</field>
         <field name="report_file">dynamic_accounts_report.balance_sheet</field>
     </record>
+    <!-- Dedicated Portrait paper format used ONLY by the Partner Ledger
+         report - a fresh, standard A4 Portrait definition, not shared
+         with any other report, so this change can't affect anything
+         else in the system. -->
+    <record id="dvz_paperformat_partner_ledger_portrait" model="report.paperformat">
+        <field name="name">Partner Ledger - A4 Portrait</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">30</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">20</field>
+        <field name="dpi">90</field>
+    </record>
+
     <!--     Action record for Partner Ledger report -->
     <record id="action_print_partner_ledger" model="ir.actions.report">
         <field name="name">Partner Ledger</field>
@@ -23,6 +41,7 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">dynamic_accounts_report.partner_ledger</field>
         <field name="report_file">dynamic_accounts_report.partner_ledger</field>
+        <field name="paperformat_id" ref="dvz_paperformat_partner_ledger_portrait"/>
     </record>
     <!--     Action record for General Ledger report -->
     <record id="action_print_general_ledger" model="ir.actions.report">

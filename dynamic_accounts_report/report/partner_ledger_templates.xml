@@ -17,53 +17,56 @@
                     </h3>
                     <br/>
                     <br/>
-                    <div class="filters">
-                        <table class="table table-sm table-reports">
-                            <thead class="filter_table"
-                                   style="background:#808080;">
-                                <tr>
-                                    <th>Date Range</th>
-                                    <th>Partner</th>
-                                    <th>Account</th>
-                                    <th>Options</th>
-                                </tr>
-                            </thead>
-                            <tbody style="font-size:11px;font-weight:100;">
-                                <tr>
-                                    <th>
-                                        <t t-if="filters['start_date']"
-                                           t-out="filters['start_date']"/>
-                                        <t t-if="filters['end_date']">
-                                            to
-                                            <t t-out="filters['end_date']"/>
-                                        </t>
-                                    </th>
-                                    <th>
-                                        <t t-foreach="filters['partner']"
-                                           t-as="selected_partner"
-                                           t-key="partner_index">
-                                            <t t-out="selected_partner['display_name']"/>
-                                            ,
-                                        </t>
-                                    </th>
-                                    <th>
-                                        <t t-foreach="filters['account']"
-                                           t-as="selected_account"
-                                           t-key="account_index">
-                                            <t t-out="selected_account"/>,
-                                        </t>
-                                    </th>
-                                    <th>
-                                        <t t-foreach="filters['options']"
-                                           t-as="selected_options"
-                                           t-key="options_index">
-                                            <t t-out="selected_options"/>,
-                                        </t>
-                                    </th>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <table class="filters" style="font-size:12px;width:100%;">
+                        <tr>
+                            <td style="width:14%;vertical-align:top;">
+                                <strong>Journals:</strong>
+                                <ul style="margin:0;padding-left:16px;">
+                                    <li><t t-out="filters.get('journals_display') or 'All'"/></li>
+                                </ul>
+                            </td>
+                            <td style="width:14%;vertical-align:top;">
+                                <strong>Accounts:</strong>
+                                <ul style="margin:0;padding-left:16px;">
+                                    <li><t t-out="filters.get('account_display') or 'All Payable and Receivable'"/></li>
+                                </ul>
+                            </td>
+                            <td style="width:20%;vertical-align:top;">
+                                <strong>Partners:</strong>
+                                <ul style="margin:0;padding-left:16px;">
+                                    <li><t t-out="filters.get('partner_display') or 'All'"/></li>
+                                </ul>
+                            </td>
+                            <td style="width:14%;vertical-align:top;">
+                                <strong>Partner Tags:</strong>
+                                <ul style="margin:0;padding-left:16px;">
+                                    <li><t t-out="filters.get('partner_tags_display') or 'All'"/></li>
+                                </ul>
+                            </td>
+                            <td style="width:19%;vertical-align:top;">
+                                <strong>Account Type:</strong>
+                                <ul style="margin:0;padding-left:16px;">
+                                    <li>Receivable and Payable</li>
+                                </ul>
+                            </td>
+                            <td style="width:19%;vertical-align:top;">
+                                <strong>Target move:</strong>
+                                <ul style="margin:0;padding-left:16px;">
+                                    <li><t t-out="filters.get('target_move') or 'All Posted Entries'"/></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr t-if="filters['start_date'] or filters['end_date']">
+                            <td colspan="6">
+                                <strong>Date Range:</strong>
+                                <t t-if="filters['start_date']" t-out="filters['start_date']"/>
+                                <t t-if="filters['end_date']">
+                                    to
+                                    <t t-out="filters['end_date']"/>
+                                </t>
+                            </td>
+                        </tr>
+                    </table>
                     <br/>
                     <br/>
                     <br/>
@@ -71,24 +74,24 @@
                         <t t-foreach="partners"
                            t-as="partner"
                            t-key="partner_index">
-                            <table class="table table-sm table-reports">
-                                <thead style="background:#808080;">
+                            <table class="table table-sm table-reports" style="border:1px solid #dee2e6;table-layout:fixed;width:100%;">
+                                <thead style="background:#ffffff;border-bottom:2px solid #333;">
                                     <tr>
-                                        <th style="width:10%" colspan="6"/>
-                                        <th style="width:10%">Journal</th>
-                                        <th style="width:10%">Account</th>
-                                        <th style="width:10%">Move</th>
-                                        <th style="width:10%">Entry Label</th>
-                                        <th style="width:10%">Debit</th>
-                                        <th style="width:10%">Credit</th>
-                                        <th style="width:10%">Balance</th>
+                                        <th style="width:7%;border:1px solid #dee2e6;">Date</th>
+                                        <th style="width:8%;border:1px solid #dee2e6;">Journal</th>
+                                        <th style="width:8%;border:1px solid #dee2e6;">Account</th>
+                                        <th style="width:15%;border:1px solid #dee2e6;">Move</th>
+                                        <th style="width:38%;border:1px solid #dee2e6;">Entry Label</th>
+                                        <th style="width:8%;border:1px solid #dee2e6;">Debit</th>
+                                        <th style="width:8%;border:1px solid #dee2e6;">Credit</th>
+                                        <th style="width:8%;border:1px solid #dee2e6;">Balance</th>
                                     </tr>
                                 </thead>
-                                <tbody style="font-size:11px;font-weight:100;">
+                                <tbody style="font-size:12px;font-weight:100;">
                                     <tr class="border-bottom"
-                                        style="background:#D3D3D3;">
-                                        <th colspan="9"
-                                            style="border:0px solid transparent;border-left: thin solid #dee2e6;">
+                                        style="background:#ffffff;">
+                                        <th colspan="8"
+                                            style="border:1px solid #dee2e6;">
                                             <div class="ms-3">
                                                 <span class="fw-bolder">
                                                     <t t-if="partner != 'false'">
@@ -106,9 +109,15 @@
                                                 </span>
                                             </div>
                                         </th>
-                                        <th style="width:10% border:0px solid transparent;"/>
-                                        <th style="width:10% border:0px solid transparent;"/>
-                                        <th style="width:10% border:0px solid transparent;">
+                                    </tr>
+                                    <tr class="border-bottom"
+                                        style="background:#ffffff;">
+                                        <th style="width:7%;border:1px solid #dee2e6;"/>
+                                        <th style="width:8% border:0px solid transparent;"/>
+                                        <th style="width:8% border:0px solid transparent;"/>
+                                        <th style="width:15% border:0px solid transparent;"/>
+                                        <th style="width:38% border:0px solid transparent;"/>
+                                        <th style="width:8% border:0px solid transparent;">
                                             <strong>
                                                 <span>
                                                     <t t-if="total[partner]['total_debit']"
@@ -118,7 +127,7 @@
                                                 </span>
                                             </strong>
                                         </th>
-                                        <th style="width:10% border:0px solid transparent;">
+                                        <th style="width:8% border:0px solid transparent;">
                                             <strong>
                                                 <span>
                                                     <t t-if="total[partner]['total_credit']"
@@ -128,11 +137,10 @@
                                                 </span>
                                             </strong>
                                         </th>
-                                        <th style="width:10% border:0px solid transparent;"/>
-                                        <th style="width:10% border:0px solid transparent;border-right: thin solid #dee2e6;">
+                                        <th style="width:8% border:0px solid transparent;border-right: thin solid #dee2e6;">
                                             <strong>
                                                 <span class="fw-bolder">
-                                                    <t t-esc="'{:,.2f}'.format(total[partner]['total_debit'] - total[partner]['total_credit'])"/>
+                                                    <t t-esc="'{:,.2f}'.format((total[partner]['total_debit'] or 0.0) - (total[partner]['total_credit'] or 0.0))"/>
                                                     <t t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </strong>
@@ -145,35 +153,35 @@
                                        t-key="partner_initial_index">
                                         <t t-set="j" t-value="j + 1"/>
                                         <t t-if="j == 1 and total[partner]['initial_balance'] != 0">
-                                            <th colspan="6">
+                                            <th style="width:7%;">
                                                 <span style="gap: 12px;display: flex;">
 
                                                 </span>
                                             </th>
-                                            <th>
+                                            <th style="border:1px solid #dee2e6;">
                                             </th>
-                                            <th>
+                                            <th style="border:1px solid #dee2e6;">
                                             </th>
-                                            <th>
+                                            <th style="border:1px solid #dee2e6;">
                                                 <span>
                                                     <t t-esc="total[partner]['move_name']"/>
                                                 </span>
                                             </th>
-                                            <th>
+                                            <th style="border:1px solid #dee2e6;">
                                             </th>
-                                            <th>
+                                            <th style="border:1px solid #dee2e6;">
                                                 <span>
                                                     <t t-esc="total[partner]['initial_debit_display']"/>
                                                     <t t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </th>
-                                            <th>
+                                            <th style="border:1px solid #dee2e6;">
                                                 <span>
                                                     <t t-esc="total[partner]['initial_credit_display']"/>
                                                     <t t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </th>
-                                            <th>
+                                            <th style="border:1px solid #dee2e6;">
                                                 <span>
                                                     <t t-esc="total[partner]['initial_balance_display']"/>
                                                     <t t-esc="' ' + total[partner]['currency_id']"/>
@@ -186,34 +194,34 @@
                                        t-as="valuelist"
                                        t-key="valuelist_index">
                                         <tr class="border-bottom">
-                                            <th colspan="6" style="width:10%">
+                                            <th style="width:7%;border:1px solid #dee2e6;">
                                                 <span>
                                                     <t t-esc="valuelist[0]['date']"/>
                                                 </span>
                                             </th>
-                                            <th style="width:10%">
+                                            <th style="width:8%;border:1px solid #dee2e6;">
                                                 <span>
                                                     <t t-esc="valuelist[0]['jrnl']"/>
                                                 </span>
                                             </th>
-                                            <th style="width:10%">
+                                            <th style="width:8%;border:1px solid #dee2e6;">
                                                 <span>
                                                     <t t-esc="valuelist[0]['code']"/>
                                                 </span>
                                             </th>
-                                            <th style="width:10%">
+                                            <th style="width:15%;border:1px solid #dee2e6;">
                                                 <span>
                                                     <t t-if="valuelist[0]['move_name']"
                                                        t-esc="valuelist[0]['move_name']"/>
                                                 </span>
                                             </th>
-                                            <th style="width:10%">
-                                                <span>
+                                            <th style="width:38%;border:1px solid #dee2e6;">
+                                                <span style="max-height:2.6em;overflow:hidden;display:block;line-height:1.3em;">
                                                     <t t-if="valuelist[0]['name']"
                                                        t-esc="valuelist[0]['name']"/>
                                                 </span>
                                             </th>
-                                            <th style="width:10%">
+                                            <th style="width:8%;border:1px solid #dee2e6;">
                                                 <span>
                                                     <t t-if="valuelist[0]['debit']"
                                                        t-esc="valuelist[0]['debit_display']"/>
@@ -221,7 +229,7 @@
                                                        t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </th>
-                                            <th style="width:10%">
+                                            <th style="width:8%;border:1px solid #dee2e6;">
                                                 <span>
                                                     <t t-if="valuelist[0]['credit']"
                                                        t-esc="valuelist[0]['credit_display']"/>
@@ -229,7 +237,7 @@
                                                        t-esc="' ' + total[partner]['currency_id']"/>
                                                 </span>
                                             </th>
-                                            <th style="width:10%">
+                                            <th style="width:8%;border:1px solid #dee2e6;">
                                                 <span>
                                                     <t t-esc="valuelist[0]['running_balance_display']"/>
                                                     <t t-esc="' ' + total[partner]['currency_id']"/>
@@ -245,19 +253,18 @@
                         <tbody>
                             <tr>
                                 <th style="width:60%;">Total</th>
-                                <th style="width:10%">
-                                    <t t-out="'{:,.2f}'.format(grand_total['total_debit'] or 0.0)"/>
-                                    <t t-out="' ' + grand_total['currency']"/>
+                                <th style="width:8%">
+                                    <t t-out="'{:,.2f}'.format((grand_total and grand_total.get('total_debit')) or 0.0)"/>
+                                    <t t-out="' ' + ((grand_total and grand_total.get('currency')) or '')"/>
                                 </th>
-                                <th style="width:10%">
-                                    <t t-out="'{:,.2f}'.format(grand_total['total_credit'] or 0.0)"/>
-                                    <t t-out="' ' + grand_total['currency']"/>
+                                <th style="width:8%">
+                                    <t t-out="'{:,.2f}'.format((grand_total and grand_total.get('total_credit')) or 0.0)"/>
+                                    <t t-out="' ' + ((grand_total and grand_total.get('currency')) or '')"/>
                                 </th>
-                                <th style="width:10%"/>
-                                <th style="width:10%">
-                                    <t t-if="grand_total['total_debit'] and grand_total['total_credit']">
-                                        <t t-out="'{:,.2f}'.format(grand_total['total_debit'] - grand_total['total_credit'])"/>
-                                        <t t-out="' ' + grand_total['currency']"/>
+                                <th style="width:8%">
+                                    <t t-if="grand_total and grand_total.get('total_debit') and grand_total.get('total_credit')">
+                                        <t t-out="'{:,.2f}'.format(((grand_total and grand_total.get('total_debit')) or 0.0) - ((grand_total and grand_total.get('total_credit')) or 0.0))"/>
+                                        <t t-out="' ' + ((grand_total and grand_total.get('currency')) or '')"/>
                                     </t>
                                 </th>
                             </tr>

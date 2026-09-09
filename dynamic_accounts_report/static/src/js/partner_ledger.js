@@ -36,6 +36,12 @@ class PartnerLedger extends owl.Component {
             message_list : [],
             partner_search_results: [],
             row_search_text: '',
+            selected_journals: [],
+            selected_journals_rec: [],
+            journal_search_results: [],
+            selected_partner_tags: [],
+            selected_partner_tags_rec: [],
+            partner_tag_search_results: [],
         });
         this.load_data(self.initial_render = true);
     }
@@ -177,8 +183,23 @@ class PartnerLedger extends owl.Component {
         }
         let filters = {
             'partner': self.state.selected_partner_rec,
+            'partner_display': (self.state.selected_partner_rec && self.state.selected_partner_rec.length)
+                ? self.state.selected_partner_rec.map(p => p.display_name || p.name || '').join(', ')
+                : 'All',
             'account': self.state.account,
+            'account_display': (self.state.account && Object.keys(self.state.account).length)
+                ? Object.keys(self.state.account).join(', ')
+                : 'All Payable and Receivable',
             'options': self.state.options,
+            'journals': self.state.selected_journals_rec,
+            'journals_display': (self.state.selected_journals_rec && self.state.selected_journals_rec.length)
+                ? self.state.selected_journals_rec.map(j => j.name || '').join(', ')
+                : 'All',
+            'partner_tags': self.state.selected_partner_tags_rec,
+            'partner_tags_display': (self.state.selected_partner_tags_rec && self.state.selected_partner_tags_rec.length)
+                ? self.state.selected_partner_tags_rec.map(t => t.name || '').join(', ')
+                : 'All',
+            'target_move': (self.state.options && self.state.options.draft) ? 'All Entries' : 'All Posted Entries',
             'start_date': null,
             'end_date': null,
         };
@@ -374,7 +395,7 @@ class PartnerLedger extends owl.Component {
                 }
             }
         }
-        let filtered_data = await this.orm.call("account.partner.ledger", "get_filter_values", [this.state.selected_partner, this.state.date_range, this.state.account, this.state.options,]);
+        let filtered_data = await this.orm.call("account.partner.ledger", "get_filter_values", [this.state.selected_partner, this.state.date_range, this.state.account, this.state.options, this.state.selected_journals, this.state.selected_partner_tags,]);
         for (let index in filtered_data) {
             const value = filtered_data[index];
             if (index !== 'partner_totals') {
@@ -445,7 +466,7 @@ class PartnerLedger extends owl.Component {
         this.state.data = null;
         this.state.total = null;
         this.state.filter_applied = true;
-        let filtered_data = await this.orm.call("account.partner.ledger", "get_filter_values", [this.state.selected_partner, this.state.date_range, this.state.account, this.state.options,]);
+        let filtered_data = await this.orm.call("account.partner.ledger", "get_filter_values", [this.state.selected_partner, this.state.date_range, this.state.account, this.state.options, this.state.selected_journals, this.state.selected_partner_tags,]);
         for (let index in filtered_data) {
             const value = filtered_data[index];
             if (index !== 'partner_totals') {
@@ -469,6 +490,136 @@ class PartnerLedger extends owl.Component {
         this.state.selected_partner = [];
         this.state.selected_partner_rec = [];
         this.applyPartnerFilter();
+    }
+
+    async onJournalSearchInput(ev) {
+        /** Live-searches account.journal as the user types, same pattern
+         * as the Partners search box. */
+        const searchText = ev.target.value || "";
+        if (!searchText) {
+            this.state.journal_search_results = [];
+            return;
+        }
+        const results = await this.orm.searchRead(
+            "account.journal",
+            [["name", "ilike", searchText]],
+            ["id", "name"],
+            { limit: 20 }
+        );
+        this.state.journal_search_results = results;
+    }
+    onJournalCheckToggle(journalId) {
+        const idx = this.state.selected_journals.indexOf(journalId);
+        if (idx === -1) {
+            this.state.selected_journals.push(journalId);
+            const rec = this.state.journal_search_results.find(j => j.id === journalId);
+            if (rec) this.state.selected_journals_rec.push(rec);
+        } else {
+            this.state.selected_journals.splice(idx, 1);
+            const recIdx = this.state.selected_journals_rec.findIndex(j => j.id === journalId);
+            if (recIdx !== -1) this.state.selected_journals_rec.splice(recIdx, 1);
+        }
+    }
+    async applyJournalFilter() {
+        let partner_list = [];
+        let partner_totals = '';
+        let totalDebitSum = 0;
+        let totalCreditSum = 0;
+        this.state.partners = null;
+        this.state.data = null;
+        this.state.total = null;
+        this.state.filter_applied = true;
+        let filtered_data = await this.orm.call("account.partner.ledger", "get_filter_values", [
+            this.state.selected_partner, this.state.date_range, this.state.account,
+            this.state.options, this.state.selected_journals, this.state.selected_partner_tags,
+        ]);
+        for (let index in filtered_data) {
+            const value = filtered_data[index];
+            if (index !== 'partner_totals') {
+                partner_list.push(index);
+            } else {
+                partner_totals = value;
+                Object.values(partner_totals).forEach(partner_list => {
+                    totalDebitSum += partner_list.total_debit || 0;
+                    totalCreditSum += partner_list.total_credit || 0;
+                });
+            }
+        }
+        this.state.partners = partner_list;
+        this.state.data = filtered_data;
+        this.state.total = partner_totals;
+        this.state.total_debit = totalDebitSum;
+        this.state.total_credit = totalCreditSum;
+    }
+    clearJournalFilter() {
+        this.state.selected_journals = [];
+        this.state.selected_journals_rec = [];
+        this.applyJournalFilter();
+    }
+
+    async onPartnerTagSearchInput(ev) {
+        /** Live-searches res.partner.category (Partner Tags) as the user
+         * types, same pattern as the Partners search box. */
+        const searchText = ev.target.value || "";
+        if (!searchText) {
+            this.state.partner_tag_search_results = [];
+            return;
+        }
+        const results = await this.orm.searchRead(
+            "res.partner.category",
+            [["name", "ilike", searchText]],
+            ["id", "name"],
+            { limit: 20 }
+        );
+        this.state.partner_tag_search_results = results;
+    }
+    onPartnerTagCheckToggle(tagId) {
+        const idx = this.state.selected_partner_tags.indexOf(tagId);
+        if (idx === -1) {
+            this.state.selected_partner_tags.push(tagId);
+            const rec = this.state.partner_tag_search_results.find(t => t.id === tagId);
+            if (rec) this.state.selected_partner_tags_rec.push(rec);
+        } else {
+            this.state.selected_partner_tags.splice(idx, 1);
+            const recIdx = this.state.selected_partner_tags_rec.findIndex(t => t.id === tagId);
+            if (recIdx !== -1) this.state.selected_partner_tags_rec.splice(recIdx, 1);
+        }
+    }
+    async applyPartnerTagFilter() {
+        let partner_list = [];
+        let partner_totals = '';
+        let totalDebitSum = 0;
+        let totalCreditSum = 0;
+        this.state.partners = null;
+        this.state.data = null;
+        this.state.total = null;
+        this.state.filter_applied = true;
+        let filtered_data = await this.orm.call("account.partner.ledger", "get_filter_values", [
+            this.state.selected_partner, this.state.date_range, this.state.account,
+            this.state.options, this.state.selected_journals, this.state.selected_partner_tags,
+        ]);
+        for (let index in filtered_data) {
+            const value = filtered_data[index];
+            if (index !== 'partner_totals') {
+                partner_list.push(index);
+            } else {
+                partner_totals = value;
+                Object.values(partner_totals).forEach(partner_list => {
+                    totalDebitSum += partner_list.total_debit || 0;
+                    totalCreditSum += partner_list.total_credit || 0;
+                });
+            }
+        }
+        this.state.partners = partner_list;
+        this.state.data = filtered_data;
+        this.state.total = partner_totals;
+        this.state.total_debit = totalDebitSum;
+        this.state.total_credit = totalCreditSum;
+    }
+    clearPartnerTagFilter() {
+        this.state.selected_partner_tags = [];
+        this.state.selected_partner_tags_rec = [];
+        this.applyPartnerTagFilter();
     }
     onRowSearchInput(ev) {
         /** Live client-side filter on the already-loaded partner list -

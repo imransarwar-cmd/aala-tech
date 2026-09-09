@@ -135,7 +135,7 @@ class AccountPartnerLedger(models.TransientModel):
         return partner_dict
 
     @api.model
-    def get_filter_values(self, partner_id, data_range, account, options):
+    def get_filter_values(self, partner_id, data_range, account, options, journal_ids=None, partner_tag_ids=None):
         """
         Retrieve filtered partner-related data for generating a report.
 
@@ -182,6 +182,15 @@ class AccountPartnerLedger(models.TransientModel):
                 'account_type', 'in', account_type_domain),
                 ('parent_state', 'in', option_domain)]).mapped(
                 'partner_id').ids
+        if partner_tag_ids:
+            # Restrict to only partners that have at least one of the
+            # selected tags (res.partner.category) - applied here since
+            # this is a property of the PARTNER, not of individual move
+            # lines, so it narrows the partner list itself rather than
+            # filtering line-by-line later.
+            tagged_partner_ids = self.env['res.partner'].search(
+                [('category_id', 'in', partner_tag_ids)]).ids
+            partner_id = [p for p in partner_id if p in tagged_partner_ids]
         balance_move_line_ids = []
         # All of the branches below depend only on `data_range` (a single,
         # global filter value chosen once by the user) - never on which
@@ -324,6 +333,15 @@ class AccountPartnerLedger(models.TransientModel):
                 [('partner_id', 'in', partner_id),
                  ('account_type', 'in', account_type_domain),
                  ('parent_state', 'in', option_domain)])
+
+        if journal_ids:
+            # Applied once here, centrally, on the already-fetched batch -
+            # rather than adding this condition to every single one of
+            # the ~9 date-range branches above individually.
+            move_line_ids_all = move_line_ids_all.filtered(
+                lambda x: x.journal_id.id in journal_ids)
+            balance_move_line_ids_all = balance_move_line_ids_all.filtered(
+                lambda x: x.journal_id.id in journal_ids)
 
         # Batch-load account/journal codes ONCE for every account/journal
         # referenced across ALL partners' move lines, instead of
