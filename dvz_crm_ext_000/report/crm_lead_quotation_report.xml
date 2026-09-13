@@ -22,53 +22,43 @@
     <template id="report_crm_lead_quotation_document">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <t t-call="web.external_layout">
                 <div class="page dvz_quotation article"
                      t-att-data-oe-model="'crm.lead'" t-att-data-oe-id="o.id">
                     <style>
-                        .dvz_quotation { font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #222222; }
-                        .dvz_quotation h1 { font-size: 24px; margin-bottom: 0; }
-                        .dvz_quotation h2 { font-size: 18px; margin-top: 4px; }
-                        .dvz_quotation .dvz_sub { font-size: 15px; margin: 4px 0; }
+                        .dvz_quotation { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #222222; }
+                        .dvz_quotation h1 { font-size: 20px; margin-bottom: 0; }
+                        .dvz_quotation h2 { font-size: 16px; margin-top: 4px; }
+                        .dvz_quotation .dvz_sub { font-size: 13px; margin: 4px 0; }
                         .dvz_quotation table.dvz_items { width: 100%; border-collapse: collapse; margin-top: 10px; }
                         .dvz_quotation table.dvz_items th,
-                        .dvz_quotation table.dvz_items td { border: 1px solid #999999; padding: 6px 8px; font-size: 13px; }
+                        .dvz_quotation table.dvz_items td { border: 1px solid #999999; padding: 4px 6px; font-size: 11px; }
                         .dvz_quotation table.dvz_items th { background-color: #f2f2f2; text-align: center; }
                         .dvz_quotation td.num { text-align: right; }
-                        .dvz_quotation table.dvz_totals td { border: none; padding: 3px 8px; font-size: 14px; }
-                        .dvz_quotation .dvz_box { border: 1px solid #999999; padding: 10px; min-height: 90px; font-size: 13px; }
-                        .dvz_quotation .dvz_terms td { padding: 3px 8px; vertical-align: top; font-size: 13px; }
+                        .dvz_quotation table.dvz_totals td { border: none; padding: 2px 6px; }
+                        .dvz_quotation .dvz_box { border: 1px solid #999999; padding: 8px; min-height: 110px; }
+                        .dvz_quotation .dvz_terms td { padding: 2px 6px; vertical-align: top; }
                     </style>
 
                     <!-- ============ Cover block (matches Sheet '1') ============ -->
-                    <img t-att-src="'/dvz_crm_ext/static/src/img/aala_tech_logo.png'"
-                         style="height:55px; margin-bottom: 14px;"/>
-
-                    <!-- Banner - simplified flat-color version of the Excel
-                         sheet's triangular "COMMERCIAL OFFER" graphic
-                         (the wireframe/triangle artwork itself isn't
-                         reproduced here, just its role as a banner). -->
-                    <div style="background-color:#a9c4e3; color:#111111; font-weight:bold;
-                                font-size:26px; padding: 18px 20px; margin-bottom: 14px;">
-                        COMMERCIAL OFFER
-                    </div>
-
                     <table style="width:100%; margin-bottom: 10px;">
                         <tr>
-                            <td style="width:55%; vertical-align: middle; background-color:#dde8f5; padding: 14px;">
-                                <div class="text-center">
-                                    <strong><span t-field="o.quotation_title"/></strong><br/>
-                                    for<br/>
-                                    <strong><span t-field="o.quotation_site"/></strong>
-                                </div>
+                            <td style="width:60%; vertical-align: middle;">
+                                <img t-att-src="'/dvz_crm_ext/static/src/img/aala_tech_logo.png'"
+                                     style="height:55px;"/>
                             </td>
-                            <td style="width:45%; text-align:center; vertical-align: middle;">
+                            <td style="width:40%; text-align:right; vertical-align: middle;">
                                 <img t-if="o.quotation_client_logo"
                                      t-att-src="image_data_uri(o.quotation_client_logo)"
-                                     style="max-height:60px; max-width:240px;"/>
+                                     style="max-height:55px; max-width:220px;"/>
                             </td>
                         </tr>
                     </table>
+
+                    <div class="text-center" style="margin: 30px 0 20px 0;">
+                        <h1><span t-field="o.quotation_title"/></h1>
+                        <p class="dvz_sub">for</p>
+                        <h2><span t-field="o.quotation_site"/></h2>
+                    </div>
 
                     <table style="width:100%; margin-bottom: 15px;">
                         <tr>
@@ -187,7 +177,6 @@
                         </tr>
                     </table>
                 </div>
-                </t>
             </t>
         </t>
     </template>
