@@ -1,0 +1,232 @@
+# -*- coding: utf-8 -*-
+from odoo import api, fields, models
+
+STATUS_SELECTION = [
+    ("ongoing", "Ongoing"),
+    ("completed", "Completed"),
+]
+
+
+class CrmLead(models.Model):
+    _inherit = "crm.lead"
+
+    system_id = fields.Many2one("system.master", string="System")
+    activity = fields.Char(string="Activity")
+    sales_id = fields.Many2one("hr.employee", string="Sales")
+    # Presales is no longer manually picked: it always mirrors the
+    # Salesperson (user_id) shown at the top of the form, via the
+    # matching hr.employee record for that user. Kept as a stored
+    # Many2one (not a plain related char) so existing reports/filters
+    # that group or search on presales_id keep working unchanged.
+    presales_id = fields.Many2one(
+        "hr.employee", string="Presales",
+        compute="_compute_presales_id", store=True, readonly=True,
+        help="Automatically set to the Salesperson's employee record - "
+             "no longer manually selectable.",
+    )
+    inquiry_date = fields.Date(string="Inquiry")
+    due_date = fields.Date(string="Due Date")
+    est_closing_date = fields.Date(string="Est. Closing")
+
+    contact_email_from = fields.Char(string="Contact Email")
+    contact_phone = fields.Char(string="Contact Phone")
+
+    @api.onchange("customer_contact_id")
+    def _onchange_dvz_customer_contact_id(self):
+        """Auto-fetch Email/Phone from the selected contact into their
+        own dedicated fields (kept separate from email_from/phone)."""
+        for lead in self:
+            contact = lead.customer_contact_id
+            if not contact:
+                lead.contact_email_from = False
+                lead.contact_phone = False
+                continue
+            lead.contact_email_from = contact.email or False
+            lead.contact_phone = contact.phone or contact.mobile or False
+
+    # Customer already exists natively as partner_id - a view-level
+    # domain restricts it to actual customers (see views/crm_lead_views.xml).
+    # This new field lets a specific person at that customer's company be
+    # picked separately - e.g. Customer = "Company A" (which has 4
+    # contacts under it) shows exactly those 4 in this field's dropdown.
+    customer_contact_id = fields.Many2one(
+        "res.partner", string="Customer's Contact",
+        domain="[('parent_id', '=', partner_id)]",
+        help="A specific person at the selected Customer's company - "
+             "only that company's own contacts are listed here. "
+             "Selecting one auto-fills the Email and Phone fields.",
+    )
+    dvz_project = fields.Many2one("project.project", string="Project")
+    dvz_system_id = fields.Many2one(
+        "system.master", string="System",
+        help="Header-level default System, used on the Kanban quick-"
+             "create card. The Project Lines tab below can still record "
+             "a different System per individual line if needed.",
+    )
+    dvz_status = fields.Selection(STATUS_SELECTION, string="Status", default="ongoing")
+    dvz_line_ids = fields.One2many(
+        "crm.lead.line", "lead_id", string="System/Activity Lines",
+    )
+
+    dvz_amount_untaxed = fields.Float(
+        string="Untaxed Amount", compute="_compute_dvz_amounts", store=True,
+    )
+    dvz_amount_tax = fields.Float(
+        string="Taxes", compute="_compute_dvz_amounts", store=True,
+    )
+    dvz_amount_total = fields.Float(
+        string="Total", compute="_compute_dvz_amounts", store=True,
+    )
+    dvz_margin_total = fields.Float(
+        string="Total Margin", compute="_compute_dvz_amounts", store=True,
+        help="Sum of every line's (Total Price - Total Cost) - the actual "
+             "profit amount baked in via each line's Profit %age.",
+    )
+
+    # --- Fields for the Excel-style quotation PDF (see
+    # report/crm_lead_quotation_report.xml). Kept optional/manual since
+    # this information doesn't otherwise exist on crm.lead. ---
+    quotation_no = fields.Char(string="Quotation No.")
+    quotation_title = fields.Char(
+        string="Quotation Title",
+        help="Short project/product title shown at the top of the "
+             "quotation PDF, e.g. 'Honeywell Trend Thermostats'.",
+    )
+    quotation_site = fields.Char(
+        string="Quotation Site",
+        help="Site/building shown under 'for' on the quotation PDF, e.g. "
+             "'Al-Kayan Business Park, Riyadh'.",
+    )
+    prepared_by_id = fields.Many2one(
+        "hr.employee", string="Prepared By",
+        help="Shown in the 'Prepared by' box on the quotation PDF, using "
+             "that employee's Job Position, Work Mobile and Work Email.",
+    )
+    estimation_engineer_id = fields.Many2one(
+        "hr.employee", string="Estimation Engineer",
+        help="Shown as the left-hand signature on the quotation PDF.",
+    )
+    validity = fields.Char(string="Validity", default="4 weeks")
+    payment_terms = fields.Char(string="Payment Terms", default="100% advance")
+    delivery_terms = fields.Char(string="Delivery Terms")
+    bank_details = fields.Text(string="Bank Account")
+    quotation_intro = fields.Text(
+        string="Quotation Intro",
+        default="Thank you for considering Aala Tech Company for your "
+                "project. Offer summary is as follows:",
+    )
+    quotation_outro = fields.Text(
+        string="Quotation Closing Note",
+        default="We hope our proposal will meet your requirements but "
+                "feel free to contact us for any clarifications.",
+    )
+    quotation_client_logo = fields.Image(
+        string="Client/Product Logo", max_width=1024, max_height=1024,
+        help="Optional - e.g. the manufacturer's logo (Honeywell, etc). "
+             "Shown on the cover page next to the Aala Tech logo, which "
+             "is always included automatically.",
+    )
+
+    @api.depends("user_id")
+    def _compute_presales_id(self):
+        """Presales always mirrors the Salesperson (user_id): looks up
+        the hr.employee record linked to that user rather than letting
+        anyone pick a different employee by hand."""
+        Employee = self.env["hr.employee"]
+        for lead in self:
+            employee = Employee
+            if lead.user_id:
+                employee = Employee.search(
+                    [("user_id", "=", lead.user_id.id)], limit=1,
+                )
+            lead.presales_id = employee
+
+    @api.onchange("partner_id")
+    def _onchange_dvz_customer_contact_domain(self):
+        """Keep Customer's Contact consistent with Customer: drop it if
+        it no longer belongs to the newly selected company, and
+        auto-select it when the customer itself has no separate
+        contacts (i.e. the customer record IS the contact)."""
+        for lead in self:
+            if not lead.partner_id:
+                lead.customer_contact_id = False
+                continue
+            company = lead.partner_id.commercial_partner_id
+            if (
+                lead.customer_contact_id
+                and lead.customer_contact_id.commercial_partner_id != company
+            ):
+                lead.customer_contact_id = False
+            if not lead.customer_contact_id and not lead.partner_id.child_ids:
+                lead.customer_contact_id = lead.partner_id
+
+
+
+    @api.depends(
+        "dvz_line_ids.quantity", "dvz_line_ids.price_unit",
+        "dvz_line_ids.tax_ids", "dvz_line_ids.product_id",
+        "dvz_line_ids.amount", "dvz_line_ids.total_cost",
+    )
+    def _compute_dvz_amounts(self):
+        for lead in self:
+            untaxed = 0.0
+            tax_amount = 0.0
+            margin_total = 0.0
+            currency = lead.env.company.currency_id
+            for line in lead.dvz_line_ids:
+                margin_total += (line.amount or 0.0) - (line.total_cost or 0.0)
+                if not line.product_id:
+                    continue
+                # Uses Odoo's own tax engine (the same one sale.order.line
+                # relies on) rather than a naive percentage sum, so
+                # price-included taxes, tax groups, and rounding all
+                # behave the same way they would on a real quotation.
+                taxes_res = line.tax_ids.compute_all(
+                    line.price_unit,
+                    currency=currency,
+                    quantity=line.quantity,
+                    product=line.product_id,
+                    partner=lead.partner_id,
+                )
+                untaxed += taxes_res["total_excluded"]
+                tax_amount += taxes_res["total_included"] - taxes_res["total_excluded"]
+            lead.dvz_amount_untaxed = untaxed
+            lead.dvz_amount_tax = tax_amount
+            lead.dvz_amount_total = untaxed + tax_amount
+            lead.dvz_margin_total = margin_total
+
+    def _dvz_build_order_line_commands(self):
+        """Build order_line create-commands from every dvz_line_ids row
+        that has a product set - shared by both the "New Quotation"
+        button (below) and sale.order's own create() override, so the
+        exact same logic runs regardless of which path actually creates
+        the quotation.
+        """
+        self.ensure_one()
+        line_vals = []
+        for lead_line in self.dvz_line_ids:
+            if not lead_line.product_id:
+                continue
+            line_vals.append((0, 0, {
+                "product_id": lead_line.product_id.id,
+                "name": lead_line.name or lead_line.product_id.name,
+                "product_uom_qty": lead_line.quantity or 1.0,
+                "price_unit": lead_line.price_unit or lead_line.product_id.list_price,
+                "tax_ids": [(6, 0, lead_line.tax_ids.ids)],
+            }))
+        return line_vals
+
+    def action_sale_quotations_new(self):
+        """Extends the real "New Quotation" button (confirmed method
+        name from Odoo core's sale_crm module) so the new quotation form
+        opens with order_line already pre-filled from this lead's
+        Project Lines table - visible immediately, before the user even
+        saves the form, rather than only appearing after save (which is
+        what the sale.order create() override alone would give)."""
+        action = super().action_sale_quotations_new()
+        order_lines = self._dvz_build_order_line_commands()
+        if order_lines and isinstance(action, dict):
+            action.setdefault("context", {})
+            if isinstance(action["context"], dict):
+                action["context"]["default_order_line"] = order_lines
+        return action

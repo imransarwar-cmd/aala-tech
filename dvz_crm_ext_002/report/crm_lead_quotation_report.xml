@@ -26,31 +26,32 @@
                 <div class="page dvz_quotation article"
                      t-att-data-oe-model="'crm.lead'" t-att-data-oe-id="o.id">
                     <style>
-                        .dvz_quotation { font-family: Calibri, Arial, sans-serif; font-size: 15px; color: #000000; }
-                        .dvz_quotation h1 { font-size: 26px; margin-bottom: 0; }
-                        .dvz_quotation h2 { font-size: 19px; margin-top: 4px; }
-                        .dvz_quotation .dvz_sub { font-size: 16px; margin: 4px 0; }
+                        .dvz_quotation { font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #222222; }
+                        .dvz_quotation h1 { font-size: 24px; margin-bottom: 0; }
+                        .dvz_quotation h2 { font-size: 18px; margin-top: 4px; }
+                        .dvz_quotation .dvz_sub { font-size: 15px; margin: 4px 0; }
                         .dvz_quotation table.dvz_items { width: 100%; border-collapse: collapse; margin-top: 10px; }
                         .dvz_quotation table.dvz_items th,
-                        .dvz_quotation table.dvz_items td { border: 1px solid #999999; padding: 6px 8px; font-size: 15px; vertical-align: middle; }
-                        .dvz_quotation table.dvz_items th { background-color: #ddebf7; text-align: center; font-weight: bold; }
+                        .dvz_quotation table.dvz_items td { border: 1px solid #999999; padding: 6px 8px; font-size: 13px; }
+                        .dvz_quotation table.dvz_items th { background-color: #f2f2f2; text-align: center; }
                         .dvz_quotation td.num { text-align: right; }
-                        .dvz_quotation td.ctr { text-align: center; }
-                        .dvz_quotation table.dvz_totals td { border: none; padding: 4px 8px; font-size: 15px; font-weight: bold; }
-                        .dvz_quotation table.dvz_totals tr.dvz_total_row td { background-color: #ddebf7; }
-                        .dvz_quotation table.dvz_totals tr.dvz_grand_total td { background-color: #ddebf7; font-size: 17px; }
-                        .dvz_quotation .dvz_box { border: 1px solid #999999; padding: 10px; min-height: 90px; font-size: 15px; }
-                        .dvz_quotation .dvz_terms td { padding: 4px 8px; vertical-align: top; font-size: 15px; }
+                        .dvz_quotation table.dvz_totals td { border: none; padding: 3px 8px; font-size: 14px; }
+                        .dvz_quotation .dvz_box { border: 1px solid #999999; padding: 10px; min-height: 90px; font-size: 13px; }
+                        .dvz_quotation .dvz_terms td { padding: 3px 8px; vertical-align: top; font-size: 13px; }
                     </style>
 
                     <!-- ============ Cover block (matches Sheet '1') ============ -->
                     <img t-att-src="'/dvz_crm_ext/static/src/img/aala_tech_logo.png'"
                          style="height:55px; margin-bottom: 14px;"/>
 
-                    <!-- Banner - the actual "COMMERCIAL OFFER" graphic
-                         from the company's Excel template. -->
-                    <img t-att-src="'/dvz_crm_ext/static/src/img/commercial_offer_banner.jpg'"
-                         style="width:100%; margin-bottom: 14px;"/>
+                    <!-- Banner - simplified flat-color version of the Excel
+                         sheet's triangular "COMMERCIAL OFFER" graphic
+                         (the wireframe/triangle artwork itself isn't
+                         reproduced here, just its role as a banner). -->
+                    <div style="background-color:#a9c4e3; color:#111111; font-weight:bold;
+                                font-size:26px; padding: 18px 20px; margin-bottom: 14px;">
+                        COMMERCIAL OFFER
+                    </div>
 
                     <table style="width:100%; margin-bottom: 10px;">
                         <tr>
@@ -126,10 +127,10 @@
                         <tbody>
                             <t t-foreach="o.dvz_line_ids" t-as="line">
                                 <tr>
-                                    <td class="ctr" t-esc="line_index + 1"/>
+                                    <td class="num" t-esc="line_index + 1"/>
                                     <td><span t-field="line.code"/></td>
                                     <td><span t-field="line.name"/></td>
-                                    <td class="ctr" t-esc="'%.2f' % line.quantity"/>
+                                    <td class="num" t-esc="'%.2f' % line.quantity"/>
                                     <td class="num" t-esc="'%.2f' % line.price_unit"/>
                                     <td class="num" t-esc="'%.2f' % line.amount"/>
                                 </tr>
@@ -138,19 +139,23 @@
                     </table>
 
                     <table class="dvz_totals" style="width:100%; margin-top: 10px;">
-                        <tr class="dvz_total_row">
-                            <td style="text-align:right; width:80%;">TOTAL VALUE</td>
-                            <td style="text-align:right; width:20%;" t-esc="'%.2f' % o.dvz_amount_untaxed"/>
+                        <tr>
+                            <td style="text-align:right; width:80%;"><strong>TOTAL VALUE</strong></td>
+                            <td style="text-align:right; width:20%;">
+                                <strong t-esc="'%.2f' % o.dvz_amount_untaxed"/>
+                            </td>
                         </tr>
                         <tr>
                             <td style="text-align:right;">15% VAT</td>
                             <td style="text-align:right;" t-esc="'%.2f' % (o.dvz_amount_untaxed * 0.15)"/>
                         </tr>
-                        <tr class="dvz_grand_total">
+                        <tr>
                             <td style="text-align:right;">
-                                TOTAL VALUE IN SAUDI RIYALS (INCLUDING VAT)
+                                <strong>TOTAL VALUE IN SAUDI RIYALS (INCLUDING VAT)</strong>
                             </td>
-                            <td style="text-align:right;" t-esc="'%.2f' % (o.dvz_amount_untaxed * 1.15)"/>
+                            <td style="text-align:right;">
+                                <strong t-esc="'%.2f' % (o.dvz_amount_untaxed * 1.15)"/>
+                            </td>
                         </tr>
                     </table>
 
