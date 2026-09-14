@@ -13,6 +13,13 @@ class CrmLead(models.Model):
     system_id = fields.Many2one("system.master", string="System")
     activity = fields.Char(string="Activity")
     sales_id = fields.Many2one("hr.employee", string="Sales")
+    # From the legacy tracking spreadsheet: Brand/Area as dropdowns
+    # (dvz.brand / dvz.area, defined in dvz_master_data.py), plus two
+    # plain fields that don't need a dropdown.
+    brand_id = fields.Many2one("dvz.brand", string="Brand")
+    area_id = fields.Many2one("dvz.area", string="Area")
+    po_ref = fields.Char(string="PO - Ref #")
+    remarks = fields.Text(string="Remarks")
     # Presales is no longer manually picked: it always mirrors the
     # Salesperson (user_id) shown at the top of the form, via the
     # matching hr.employee record for that user. Kept as a stored
@@ -197,12 +204,53 @@ class CrmLead(models.Model):
             lead.dvz_amount_total = untaxed + tax_amount
             lead.dvz_margin_total = margin_total
 
+    def _dvz_get_quotation_defaults(self):
+        """Every sale.order field value derived from this lead, in one
+        place - used to (a) pre-fill the "New Quotation" popup's context
+        when it opens a blank form, (b) directly patch an already-
+        created order if the native action creates one server-side
+        immediately instead (context defaults only affect an unsaved
+        NEW record, so they'd silently do nothing in that case), and
+        (c) sale.order's own create() override, for any other creation
+        path (API, imports, etc). Single source of truth so these three
+        callers can't drift out of sync."""
+        self.ensure_one()
+        defaults = {}
+        if self.dvz_project:
+            defaults["project"] = self.dvz_project.name
+        if self.dvz_status:
+            defaults["dvz_status"] = self.dvz_status
+        if self.brand_id:
+            defaults["brand_id"] = self.brand_id.id
+        if self.area_id:
+            defaults["area_id"] = self.area_id.id
+        if self.po_ref:
+            defaults["po_ref"] = self.po_ref
+        if self.remarks:
+            defaults["remarks"] = self.remarks
+        if self.priority:
+            defaults["priority"] = self.priority
+        if self.estimation_engineer_id:
+            defaults["estimation_engineer_id"] = self.estimation_engineer_id.id
+        if self.quotation_client_logo:
+            defaults["quotation_client_logo"] = self.quotation_client_logo
+        first_line = self.dvz_line_ids[:1]
+        if first_line:
+            if first_line.system_id:
+                defaults["system"] = first_line.system_id.id
+            if first_line.sales_id:
+                defaults["dvz_sales_engineer_id"] = first_line.sales_id.id
+        return defaults
+
     def _dvz_build_order_line_commands(self):
         """Build order_line create-commands from every dvz_line_ids row
         that has a product set - shared by both the "New Quotation"
         button (below) and sale.order's own create() override, so the
         exact same logic runs regardless of which path actually creates
-        the quotation.
+        the quotation. Carries the full cost breakdown (Code, List
+        Price, Discount, Freight, Exchange Rate, Profit%) onto the real
+        sale.order.line too (see SaleOrderLine in sale_order.py) rather
+        than leaving it behind on the crm.lead.line.
         """
         self.ensure_one()
         line_vals = []
@@ -215,20 +263,53 @@ class CrmLead(models.Model):
                 "product_uom_qty": lead_line.quantity or 1.0,
                 "price_unit": lead_line.price_unit or lead_line.product_id.list_price,
                 "tax_ids": [(6, 0, lead_line.tax_ids.ids)],
+                "code": lead_line.code,
+                "list_price": lead_line.list_price,
+                "discount": lead_line.discount,
+                "freight_percent": lead_line.freight_percent,
+                "exchange_rate": lead_line.exchange_rate,
+                "profit_percent": lead_line.profit_percent,
             }))
         return line_vals
 
     def action_sale_quotations_new(self):
         """Extends the real "New Quotation" button (confirmed method
-        name from Odoo core's sale_crm module) so the new quotation form
-        opens with order_line already pre-filled from this lead's
-        Project Lines table - visible immediately, before the user even
-        saves the form, rather than only appearing after save (which is
-        what the sale.order create() override alone would give)."""
+        name from Odoo core's sale_crm module). Handles BOTH possible
+        native behaviors defensively:
+        - If it opens a blank/unsaved quotation form (target=new, no
+          res_id yet): merge our defaults into the action's context as
+          default_<field> entries, so the form shows them pre-filled.
+        - If it creates the order server-side immediately and returns
+          an action pointing at that existing res_id: context defaults
+          do nothing for an existing record, so write() the values onto
+          it directly instead - this is what was silently failing
+          before (only the sale.order.create() override was firing,
+          and only for fields it was told about at creation time).
+        Either way, only ever fills fields that are still empty - never
+        overwrites something already set on the order.
+        """
         action = super().action_sale_quotations_new()
         order_lines = self._dvz_build_order_line_commands()
-        if order_lines and isinstance(action, dict):
-            action.setdefault("context", {})
-            if isinstance(action["context"], dict):
-                action["context"]["default_order_line"] = order_lines
+        defaults = self._dvz_get_quotation_defaults()
+
+        if isinstance(action, dict):
+            res_id = action.get("res_id")
+            if res_id:
+                order = self.env["sale.order"].browse(res_id)
+                if order.exists():
+                    write_vals = {
+                        field: value for field, value in defaults.items()
+                        if not order[field]
+                    }
+                    if order_lines and not order.order_line:
+                        write_vals["order_line"] = order_lines
+                    if write_vals:
+                        order.write(write_vals)
+            else:
+                action.setdefault("context", {})
+                if isinstance(action["context"], dict):
+                    for field, value in defaults.items():
+                        action["context"]["default_%s" % field] = value
+                    if order_lines:
+                        action["context"]["default_order_line"] = order_lines
         return action

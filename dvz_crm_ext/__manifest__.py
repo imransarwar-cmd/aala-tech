@@ -28,8 +28,11 @@
     ],
     "data": [
         "security/ir.model.access.csv",
+        "data/dvz_brand_area_data.xml",
+        "views/dvz_master_data_views.xml",
         "report/crm_lead_quotation_report.xml",
         "views/crm_lead_views.xml",
+        "views/dvz_sale_order_views.xml",
     ],
     "installable": True,
     "auto_install": False,

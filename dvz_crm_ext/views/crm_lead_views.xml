@@ -40,6 +40,7 @@
                  partner_id specifically, not custom field names. -->
             <xpath expr="//field[@name='user_id']" position="before">
                 <field name="customer_contact_id"
+                       string="Contact"
                        widget="res_partner_many2one"
                        context="{'default_parent_id': partner_id, 'default_company_name': False}"/>
                 <field name="contact_email_from" readonly="1" force_save="1"/>
@@ -64,6 +65,32 @@
                     <field name="sales_id"/>
                     <field name="presales_id" invisible="1"/>
                 <field name="activity"/>
+            </xpath>
+
+            <!-- Brand/Area/PO Ref#/Estimation Engineer/Remarks/Cover
+                 Logo moved to their own FULL-WIDTH group between the
+                 header and the tabs, rather than squeezed inside the
+                 header's existing narrow half-column (which was
+                 forcing "Estimation Engineer"/"Client/Product Logo"
+                 to wrap across 3 lines - there wasn't enough room for
+                 a second 2-column split inside an already-half-width
+                 column). Here they get the full page width to work
+                 with, so the 2-column grouping actually looks clean. -->
+            <xpath expr="//notebook" position="before">
+                <group>
+                    <group>
+                        <field name="brand_id"/>
+                        <field name="area_id"/>
+                        <field name="po_ref"/>
+                    </group>
+                    <group>
+                        <field name="estimation_engineer_id"/>
+                        <field name="remarks"/>
+                    </group>
+                </group>
+                <group>
+                    <field name="quotation_client_logo" widget="image" class="oe_avatar"/>
+                </group>
             </xpath>
 
             <!-- Inquiry and Due Date appear BEFORE Expected Closing
@@ -117,14 +144,6 @@
                             <field name="quotation_no"/>
                             <field name="quotation_title"/>
                             <field name="quotation_site"/>
-                        </group>
-                        <group string="Signatories">
-                            <field name="estimation_engineer_id"/>
-                        </group>
-                    </group>
-                    <group>
-                        <group string="Cover Page Logo">
-                            <field name="quotation_client_logo" widget="image" class="oe_avatar"/>
                         </group>
                     </group>
                     <group>

@@ -26,6 +26,16 @@
                 <div class="page dvz_quotation">
                     <style>
                         .dvz_quotation { font-family: Calibri, Arial, sans-serif; font-size: 15px; color: #000000; }
+                        /* Hard reset: kill any border Odoo's own report
+                           stylesheet might apply to plain tables/cells by
+                           default, so ONLY the rules below (items table,
+                           info boxes, signature underline) draw a border -
+                           everything else (Terms and Conditions, totals,
+                           date/quote-no row, signature layout table, etc.)
+                           stays borderless regardless of any global CSS. */
+                        .dvz_quotation table,
+                        .dvz_quotation table td,
+                        .dvz_quotation table th { border: 0; }
                         .dvz_quotation h1 { font-size: 26px; margin-bottom: 0; }
                         .dvz_quotation h2 { font-size: 19px; margin-top: 4px; }
                         .dvz_quotation .dvz_sub { font-size: 16px; margin: 4px 0; }
@@ -68,13 +78,29 @@
                                     <strong><span t-esc="o.quotation_site or o.partner_id.name or 'Client / Site Name'"/></strong>
                                 </div>
                             </td>
-                            <td style="width:45%; text-align:center; vertical-align: middle;">
-                                <img t-if="o.quotation_client_logo"
-                                     t-att-src="image_data_uri(o.quotation_client_logo)"
-                                     style="max-height:60px; max-width:240px;"/>
-                                <div t-else="" style="border: 1px dashed #999999; color:#999999;
-                                            display:inline-block; padding: 16px 30px; font-size:13px;">
-                                    CLIENT / PRODUCT LOGO
+                            <td style="width:45%; text-align:center; vertical-align: middle;
+                                       background-color:#dde8f5; padding: 14px;">
+                                <!-- Fixed-size box regardless of the
+                                     uploaded image's own dimensions, so
+                                     every quotation's logo area looks the
+                                     same size. Manual upload wins if
+                                     present; otherwise falls back to the
+                                     selected Brand's own logo; otherwise
+                                     just shows the Brand's name as text. -->
+                                <div style="width:220px; height:70px; margin:0 auto;
+                                            display:table-cell; text-align:center; vertical-align:middle;">
+                                    <img t-if="o.quotation_client_logo"
+                                         t-att-src="image_data_uri(o.quotation_client_logo)"
+                                         style="max-width:220px; max-height:70px; object-fit:contain;"/>
+                                    <img t-elif="o.brand_id.logo"
+                                         t-att-src="image_data_uri(o.brand_id.logo)"
+                                         style="max-width:220px; max-height:70px; object-fit:contain;"/>
+                                    <strong t-elif="o.brand_id.name" t-esc="o.brand_id.name"
+                                            style="font-size:20px;"/>
+                                    <div t-else="" style="border: 1px dashed #999999; color:#999999;
+                                                display:inline-block; padding: 16px 30px; font-size:13px;">
+                                        CLIENT / PRODUCT LOGO
+                                    </div>
                                 </div>
                             </td>
                         </tr>

@@ -1,9 +1,39 @@
 # -*- coding: utf-8 -*-
-from odoo import models
+from odoo import api, fields, models
+from odoo.exceptions import UserError
+
+# Same selection values as crm.lead's own native "priority" field, so a
+# quotation created from an Opportunity carries the same meaning across.
+PRIORITY_SELECTION = [
+    ("0", "Low"),
+    ("1", "Medium"),
+    ("2", "High"),
+    ("3", "Very High"),
+]
 
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
+
+    # From the legacy tracking spreadsheet, mirroring the same fields
+    # added to crm.lead (dvz_master_data.py / crm_lead.py) so a
+    # quotation created from an Opportunity keeps this data instead of
+    # losing it.
+    brand_id = fields.Many2one("dvz.brand", string="Brand")
+    area_id = fields.Many2one("dvz.area", string="Area")
+    po_ref = fields.Char(string="PO - Ref #")
+    remarks = fields.Text(string="Remarks")
+    estimation_engineer_id = fields.Many2one(
+        "hr.employee", string="Estimation Engineer",
+    )
+    quotation_client_logo = fields.Image(
+        string="Client/Product Logo", max_width=1024, max_height=1024,
+    )
+    # Selection widget (plain dropdown) rather than crm.lead's star
+    # rating, per request - still the same underlying values/meaning.
+    priority = fields.Selection(
+        PRIORITY_SELECTION, string="Priority", default="0",
+    )
 
     def _dvz_build_order_lines_from_opportunity(self, lead):
         """Delegates to crm.lead's own _dvz_build_order_line_commands()
@@ -20,11 +50,10 @@ class SaleOrder(models.Model):
         lines from every crm.lead.line row - but only for fields/lines
         the caller didn't already explicitly provide, so this never
         overwrites values someone typed on the quotation creation form.
-
-        NOTE: System/Sales Engineer on the order are single-value fields,
-        while a lead can have several lines - the FIRST line's System/
-        Sales values populate those header fields; every line (with a
-        product set) becomes its own order line regardless.
+        Field list itself comes from crm.lead's own
+        _dvz_get_quotation_defaults() (single source of truth shared
+        with the "New Quotation" button override) rather than being
+        duplicated here.
         """
         opportunity_id = vals.get("opportunity_id")
         if not opportunity_id:
@@ -34,17 +63,9 @@ class SaleOrder(models.Model):
         if not lead.exists():
             return vals
 
-        if "project" not in vals and lead.dvz_project:
-            vals["project"] = lead.dvz_project.name
-        if "dvz_status" not in vals and lead.dvz_status:
-            vals["dvz_status"] = lead.dvz_status
-
-        first_line = lead.dvz_line_ids[:1]
-        if first_line:
-            if "system" not in vals and first_line.system_id:
-                vals["system"] = first_line.system_id.id
-            if "dvz_sales_engineer_id" not in vals and first_line.sales_id:
-                vals["dvz_sales_engineer_id"] = first_line.sales_id.id
+        for field, value in lead._dvz_get_quotation_defaults().items():
+            if field not in vals:
+                vals[field] = value
 
         if "order_line" not in vals:
             built_lines = self._dvz_build_order_lines_from_opportunity(lead)
@@ -58,3 +79,61 @@ class SaleOrder(models.Model):
             vals_list = [vals_list]
         vals_list = [self._dvz_apply_opportunity_defaults(v) for v in vals_list]
         return super().create(vals_list)
+
+    def action_print_dvz_quotation(self):
+        """Prints the same Excel-style quotation report used on the
+        Opportunity, sourced from this order's linked opportunity_id -
+        the report's own template (crm_lead_quotation_report.xml) reads
+        crm.lead fields (Project Lines, Quotation Info, etc.) that don't
+        exist on sale.order itself, so there isn't a separate sale.order
+        version of this report; this just re-opens the same one against
+        the originating lead."""
+        self.ensure_one()
+        if not self.opportunity_id:
+            raise UserError(
+                "This quotation isn't linked to an Opportunity, so "
+                "there's no Project Lines/Quotation Info data to print "
+                "from. Print it from the Opportunity itself instead, or "
+                "link one via the 'Opportunity' field first."
+            )
+        report = self.env.ref("dvz_crm_ext.action_report_crm_lead_quotation")
+        return report.report_action(self.opportunity_id)
+
+
+class SaleOrderLine(models.Model):
+    """Extends the actual order line (not just crm.lead.line) with the
+    same cost-breakdown columns, so the List Price/Discount/Freight/
+    Profit%/Cost detail from the Opportunity's Project Lines survives
+    onto the real Quotation lines instead of being lost the moment a
+    quotation is created (order_line only has product/qty/price_unit
+    natively - none of that breakdown)."""
+    _inherit = "sale.order.line"
+
+    code = fields.Char(string="Code")
+    list_price = fields.Float(string="List Price")
+    # Reuses the native "discount" field (already a %-based Float on
+    # sale.order.line) instead of adding a second, competing one.
+    freight_percent = fields.Float(string="Freight & Custom")
+    exchange_rate = fields.Float(string="Exchange Rate", default=3.75)
+    profit_percent = fields.Float(string="Profit %age")
+    unit_cost = fields.Float(
+        string="Unit Cost In SR", compute="_compute_dvz_costs", store=True,
+    )
+    total_cost = fields.Float(
+        string="Total Cost In SR", compute="_compute_dvz_costs", store=True,
+    )
+
+    @api.depends(
+        "product_uom_qty", "list_price", "discount", "freight_percent",
+        "exchange_rate",
+    )
+    def _compute_dvz_costs(self):
+        for line in self:
+            cost = (
+                (line.list_price or 0.0)
+                * (1 - (line.discount or 0.0) / 100.0)
+                * (line.exchange_rate or 0.0)
+                * (1 + (line.freight_percent or 0.0) / 100.0)
+            )
+            line.unit_cost = cost
+            line.total_cost = (line.product_uom_qty or 0.0) * cost
