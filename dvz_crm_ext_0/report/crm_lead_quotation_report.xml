@@ -44,7 +44,7 @@
                         .dvz_quotation .dvz_intro { font-size: 18px; }
                         .dvz_quotation .dvz_signature_name {
                             font-family: 'Brush Script MT', 'Segoe Script', cursive;
-                            font-size: 22px; border-bottom: 1px solid #000000;
+                            font-size: 32px; border-bottom: 1px solid #000000;
                             padding-bottom: 2px; margin-bottom: 6px; display: inline-block;
                         }
                     </style>
@@ -64,19 +64,15 @@
                         <tr>
                             <td style="width:55%; vertical-align: middle; background-color:#dde8f5; padding: 14px;">
                                 <div class="text-center">
-                                    <strong><span t-esc="o.quotation_title or o.name or 'Project Title'"/></strong><br/>
+                                    <strong><span t-esc="o.quotation_title or o.name"/></strong><br/>
                                     for<br/>
-                                    <strong><span t-esc="o.quotation_site or o.partner_id.name or 'Client / Site Name'"/></strong>
+                                    <strong><span t-esc="o.quotation_site or o.partner_id.name or '-'"/></strong>
                                 </div>
                             </td>
                             <td style="width:45%; text-align:center; vertical-align: middle;">
                                 <img t-if="o.quotation_client_logo"
                                      t-att-src="image_data_uri(o.quotation_client_logo)"
                                      style="max-height:60px; max-width:240px;"/>
-                                <div t-else="" style="border: 1px dashed #999999; color:#999999;
-                                            display:inline-block; padding: 16px 30px; font-size:13px;">
-                                    CLIENT / PRODUCT LOGO
-                                </div>
                             </td>
                         </tr>
                     </table>
@@ -117,7 +113,7 @@
                                         <span t-field="o.user_id.name"/><br/>
                                         <span t-field="o.user_id.partner_id.function"/><br/>
                                         <span t-field="o.company_id.name"/><br/>
-                                        Mobile: <span t-esc="o.user_id.partner_id.phone or o.user_id.partner_id.mobile or ''"/><br/>
+                                        Mobile: <span t-field="o.user_id.partner_id.mobile"/><br/>
                                         Email: <span t-field="o.user_id.email"/>
                                     </div>
                                 </td>
@@ -190,18 +186,22 @@
                     <table style="width:100%; margin-top:40px;">
                         <tr>
                             <td style="width:50%; vertical-align: top;">
-                                <div class="dvz_signature_name">Fasih U Din Yazdani</div><br/>
-                                Fasih U Din Yazdani<br/>
-                                Estimation Engineer<br/>
-                                Aala Tech Company Ltd.<br/>
-                                Mobile: +92 304 499 5659
+                                <div class="dvz_signature_name">
+                                    <span t-field="o.estimation_engineer_id.name"/>
+                                </div><br/>
+                                <span t-field="o.estimation_engineer_id.name"/><br/>
+                                <span t-field="o.estimation_engineer_id.job_title"/><br/>
+                                <span t-field="o.company_id.name"/><br/>
+                                Mobile: <span t-field="o.estimation_engineer_id.mobile_phone"/>
                             </td>
                             <td style="width:50%; vertical-align: top;">
-                                <div class="dvz_signature_name">Amr Elkeshk</div><br/>
-                                Amr Elkeshk<br/>
-                                Head of BMS &amp; Automation Division<br/>
-                                Aala Tech Company Ltd.<br/>
-                                Mobile: +966 50 067 9697
+                                <div class="dvz_signature_name">
+                                    <span t-field="o.user_id.name"/>
+                                </div><br/>
+                                <span t-field="o.user_id.name"/><br/>
+                                <span t-field="o.user_id.partner_id.function"/><br/>
+                                <span t-field="o.company_id.name"/><br/>
+                                Mobile: <span t-field="o.user_id.partner_id.mobile"/>
                             </td>
                         </tr>
                     </table>
