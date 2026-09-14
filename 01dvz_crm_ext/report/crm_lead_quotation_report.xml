@@ -41,19 +41,11 @@
                         .dvz_quotation table.dvz_totals tr.dvz_grand_total td { background-color: #ddebf7; font-size: 17px; }
                         .dvz_quotation .dvz_box { border: 1px solid #999999; padding: 10px; min-height: 90px; font-size: 15px; }
                         .dvz_quotation .dvz_terms td { padding: 4px 8px; vertical-align: top; font-size: 15px; }
-                        .dvz_quotation .dvz_intro { font-size: 18px; }
-                        .dvz_quotation .dvz_signature_name {
-                            font-family: 'Brush Script MT', 'Segoe Script', cursive;
-                            font-size: 32px; border-bottom: 1px solid #000000;
-                            padding-bottom: 2px; margin-bottom: 6px; display: inline-block;
-                        }
                     </style>
 
-                    <!-- ============ Cover block (matches Sheet '1') ============
-                         No separate logo image here - web.external_layout's
-                         own header already shows the company logo (set on
-                         Settings > Companies), so adding a second one here
-                         would just duplicate it. -->
+                    <!-- ============ Cover block (matches Sheet '1') ============ -->
+                    <img t-att-src="'/dvz_crm_ext/static/src/img/aala_tech_logo.png'"
+                         style="height:55px; margin-bottom: 14px;"/>
 
                     <!-- Banner - the actual "COMMERCIAL OFFER" graphic
                          from the company's Excel template. -->
@@ -64,9 +56,9 @@
                         <tr>
                             <td style="width:55%; vertical-align: middle; background-color:#dde8f5; padding: 14px;">
                                 <div class="text-center">
-                                    <strong><span t-esc="o.quotation_title or o.name"/></strong><br/>
+                                    <strong><span t-field="o.quotation_title"/></strong><br/>
                                     for<br/>
-                                    <strong><span t-esc="o.quotation_site or o.partner_id.name or '-'"/></strong>
+                                    <strong><span t-field="o.quotation_site"/></strong>
                                 </div>
                             </td>
                             <td style="width:45%; text-align:center; vertical-align: middle;">
@@ -83,52 +75,42 @@
                                 <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d-%b-%Y')"/>
                             </td>
                             <td style="width:50%; text-align:right;">
-                                <strong t-esc="o.quotation_no or '-'"/>
+                                <strong t-field="o.quotation_no"/>
                             </td>
                         </tr>
                     </table>
 
-                    <!-- Bottom-anchored: sits ~10px above the footer rather
-                         than right under the date/quote-no row, matching
-                         the Excel layout where these boxes sit near the
-                         bottom of the cover page. 23cm approximates the
-                         printable area left after web.external_layout's
-                         own header/footer bands on an A4 page. -->
-                    <div style="position:relative; min-height: 23cm;">
-                        <table style="width:100%; position:absolute; bottom:10px; left:0;">
-                            <tr>
-                                <td style="width:50%; vertical-align: top; padding-right: 8px;">
-                                    <div class="dvz_box">
-                                        <strong>Submitted to:</strong><br/>
-                                        <span t-field="o.customer_contact_id.name"/><br/>
-                                        <span t-field="o.customer_contact_id.function"/><br/>
-                                        <span t-field="o.partner_id.name"/><br/>
-                                        Mobile: <span t-field="o.contact_phone"/><br/>
-                                        Email: <span t-field="o.contact_email_from"/>
-                                    </div>
-                                </td>
-                                <td style="width:50%; vertical-align: top; padding-left: 8px;">
-                                    <div class="dvz_box">
-                                        <strong>Prepared by:</strong><br/>
-                                        <span t-field="o.user_id.name"/><br/>
-                                        <span t-field="o.user_id.partner_id.function"/><br/>
-                                        <span t-field="o.company_id.name"/><br/>
-                                        Mobile: <span t-field="o.user_id.partner_id.mobile"/><br/>
-                                        Email: <span t-field="o.user_id.email"/>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                    <table style="width:100%; margin-bottom:20px;">
+                        <tr>
+                            <td style="width:50%; vertical-align: top; padding-right: 8px;">
+                                <div class="dvz_box">
+                                    <strong>Submitted to:</strong><br/>
+                                    <span t-field="o.customer_contact_id.name"/><br/>
+                                    <span t-field="o.customer_contact_id.function"/><br/>
+                                    <span t-field="o.partner_id.name"/><br/>
+                                    Mobile: <span t-field="o.contact_phone"/><br/>
+                                    Email: <span t-field="o.contact_email_from"/>
+                                </div>
+                            </td>
+                            <td style="width:50%; vertical-align: top; padding-left: 8px;">
+                                <div class="dvz_box">
+                                    <strong>Prepared by:</strong><br/>
+                                    <span t-field="o.prepared_by_id.name"/><br/>
+                                    <span t-field="o.prepared_by_id.job_title"/><br/>
+                                    <span t-field="o.company_id.name"/><br/>
+                                    Mobile: <span t-field="o.prepared_by_id.mobile_phone"/><br/>
+                                    Email: <span t-field="o.prepared_by_id.work_email"/>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
 
                     <div style="page-break-before: always;"/>
 
                     <!-- ============ Quotation body (matches Sheet '2') ============ -->
-                    <div class="dvz_intro">
-                        <p><span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d-%b-%Y')"/></p>
-                        <p>Dear <span t-field="o.customer_contact_id.name"/>,</p>
-                        <p t-field="o.quotation_intro"/>
-                    </div>
+                    <p><span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d-%b-%Y')"/></p>
+                    <p>Dear <span t-field="o.customer_contact_id.name"/>,</p>
+                    <p t-field="o.quotation_intro"/>
 
                     <table class="dvz_items">
                         <thead>
@@ -157,15 +139,15 @@
 
                     <table class="dvz_totals" style="width:100%; margin-top: 10px;">
                         <tr class="dvz_total_row">
-                            <td style="text-align:left; width:80%;">TOTAL VALUE</td>
+                            <td style="text-align:right; width:80%;">TOTAL VALUE</td>
                             <td style="text-align:right; width:20%;" t-esc="'%.2f' % o.dvz_amount_untaxed"/>
                         </tr>
                         <tr>
-                            <td style="text-align:left;">15% VAT</td>
+                            <td style="text-align:right;">15% VAT</td>
                             <td style="text-align:right;" t-esc="'%.2f' % (o.dvz_amount_untaxed * 0.15)"/>
                         </tr>
                         <tr class="dvz_grand_total">
-                            <td style="text-align:left;">
+                            <td style="text-align:right;">
                                 TOTAL VALUE IN SAUDI RIYALS (INCLUDING VAT)
                             </td>
                             <td style="text-align:right;" t-esc="'%.2f' % (o.dvz_amount_untaxed * 1.15)"/>
@@ -176,8 +158,8 @@
                     <table style="width:100%;" class="dvz_terms">
                         <tr><td style="width:20%;">Validity:</td><td><span t-field="o.validity"/></td></tr>
                         <tr><td>Payment:</td><td><span t-field="o.payment_terms"/></td></tr>
-                        <tr><td>Delivery:</td><td>06 - 09 Weeks</td></tr>
-                        <tr><td>Bank Account:</td><td>Aala Tech Company Ltd, SAB - Saudi Awwal Bank, IBAN SA63 4500 0000 2214 7957 9001</td></tr>
+                        <tr><td>Delivery:</td><td><span t-field="o.delivery_terms"/></td></tr>
+                        <tr><td>Bank Account:</td><td><span t-field="o.bank_details"/></td></tr>
                     </table>
 
                     <p style="margin-top: 20px;" t-field="o.quotation_outro"/>
@@ -186,22 +168,16 @@
                     <table style="width:100%; margin-top:40px;">
                         <tr>
                             <td style="width:50%; vertical-align: top;">
-                                <div class="dvz_signature_name">
-                                    <span t-field="o.estimation_engineer_id.name"/>
-                                </div><br/>
                                 <span t-field="o.estimation_engineer_id.name"/><br/>
                                 <span t-field="o.estimation_engineer_id.job_title"/><br/>
                                 <span t-field="o.company_id.name"/><br/>
                                 Mobile: <span t-field="o.estimation_engineer_id.mobile_phone"/>
                             </td>
                             <td style="width:50%; vertical-align: top;">
-                                <div class="dvz_signature_name">
-                                    <span t-field="o.user_id.name"/>
-                                </div><br/>
-                                <span t-field="o.user_id.name"/><br/>
-                                <span t-field="o.user_id.partner_id.function"/><br/>
+                                <span t-field="o.prepared_by_id.name"/><br/>
+                                <span t-field="o.prepared_by_id.job_title"/><br/>
                                 <span t-field="o.company_id.name"/><br/>
-                                Mobile: <span t-field="o.user_id.partner_id.mobile"/>
+                                Mobile: <span t-field="o.prepared_by_id.mobile_phone"/>
                             </td>
                         </tr>
                     </table>

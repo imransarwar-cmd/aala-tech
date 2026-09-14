@@ -97,18 +97,19 @@ class CrmLead(models.Model):
         help="Site/building shown under 'for' on the quotation PDF, e.g. "
              "'Al-Kayan Business Park, Riyadh'.",
     )
+    prepared_by_id = fields.Many2one(
+        "hr.employee", string="Prepared By",
+        help="Shown in the 'Prepared by' box on the quotation PDF, using "
+             "that employee's Job Position, Work Mobile and Work Email.",
+    )
     estimation_engineer_id = fields.Many2one(
         "hr.employee", string="Estimation Engineer",
         help="Shown as the left-hand signature on the quotation PDF.",
     )
     validity = fields.Char(string="Validity", default="4 weeks")
     payment_terms = fields.Char(string="Payment Terms", default="100% advance")
-    delivery_terms = fields.Char(string="Delivery Terms", default="06 - 09 Weeks")
-    bank_details = fields.Text(
-        string="Bank Account",
-        default="Aala Tech Company Ltd, SAB - Saudi Awwal Bank, "
-                "IBAN SA63 4500 0000 2214 7957 9001",
-    )
+    delivery_terms = fields.Char(string="Delivery Terms")
+    bank_details = fields.Text(string="Bank Account")
     quotation_intro = fields.Text(
         string="Quotation Intro",
         default="Thank you for considering Aala Tech Company for your "
@@ -131,17 +132,14 @@ class CrmLead(models.Model):
         """Presales always mirrors the Salesperson (user_id): looks up
         the hr.employee record linked to that user rather than letting
         anyone pick a different employee by hand."""
+        Employee = self.env["hr.employee"]
         for lead in self:
-            lead.presales_id = lead._dvz_employee_for_user(lead.user_id)
-
-    def _dvz_employee_for_user(self, user):
-        """hr.employee record linked to the given res.users, or an empty
-        recordset if there isn't one / no user is set."""
-        if not user:
-            return self.env["hr.employee"]
-        return self.env["hr.employee"].search(
-            [("user_id", "=", user.id)], limit=1,
-        )
+            employee = Employee
+            if lead.user_id:
+                employee = Employee.search(
+                    [("user_id", "=", lead.user_id.id)], limit=1,
+                )
+            lead.presales_id = employee
 
     @api.onchange("partner_id")
     def _onchange_dvz_customer_contact_domain(self):

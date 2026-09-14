@@ -114,6 +114,7 @@
                             <field name="quotation_site"/>
                         </group>
                         <group string="Signatories">
+                            <field name="prepared_by_id"/>
                             <field name="estimation_engineer_id"/>
                         </group>
                     </group>
