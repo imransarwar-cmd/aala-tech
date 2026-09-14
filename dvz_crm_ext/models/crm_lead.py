@@ -42,7 +42,7 @@ class CrmLead(models.Model):
                 lead.contact_phone = False
                 continue
             lead.contact_email_from = contact.email or False
-            lead.contact_phone = contact.phone or contact.mobile or False
+            lead.contact_phone = contact.phone or False
 
     # Customer already exists natively as partner_id - a view-level
     # domain restricts it to actual customers (see views/crm_lead_views.xml).

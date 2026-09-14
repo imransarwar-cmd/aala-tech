@@ -147,22 +147,5 @@
         </field>
     </record>
 
-    <!-- Kanban quick-create card (the small inline "Add" form shown when
-         creating a lead directly from a Kanban column). Customer
-         (partner_id) is already the first field on this card by default
-         - this inserts Project, System, and a Date field (date_deadline,
-         a real native field already on crm.lead) immediately after it. -->
-    <record id="dvz_crm_lead_quick_create_form" model="ir.ui.view">
-        <field name="name">crm.lead.form.dvz.quick.create</field>
-        <field name="model">crm.lead</field>
-        <field name="inherit_id" ref="crm.quick_create_opportunity_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='phone']" position="after">
-                <field name="dvz_project"/>
-                <field name="dvz_system_id"/>
-                <field name="date_deadline" string="Date"/>
-            </xpath>
-        </field>
-    </record>
 
 </odoo>
