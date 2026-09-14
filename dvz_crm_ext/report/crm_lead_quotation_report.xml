@@ -10,21 +10,20 @@
         <field name="print_report_name">'Quotation - %s' % (object.quotation_no or object.name)</field>
         <field name="binding_model_id" ref="crm.model_crm_lead"/>
         <field name="binding_type">report</field>
-        <!-- Saves the generated PDF as an ir.attachment on the
-             Opportunity itself (visible in the chatter's attachment
-             list), instead of only being a one-off download. Re-printing
-             after the underlying data changes creates a fresh dated copy
-             rather than silently overwriting the old one. -->
-        <field name="attachment_use">True</field>
-        <field name="attachment">'Quotation - %s - %s.pdf' % (object.quotation_no or object.name, time.strftime('%Y-%m-%d'))</field>
+        <!-- attachment_use is intentionally OFF: its per-record PDF-
+             splitting mechanism (needed to know which physical pages
+             belong to which record) was appending a second, unwrapped
+             copy of the whole document as an extra page. The "Print
+             Quotation" button instead calls action_print_dvz_quotation
+             (crm_lead.py), which renders this same report once and
+             saves the attachment by hand. -->
     </record>
 
     <template id="report_crm_lead_quotation_document">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
-                <div class="page dvz_quotation article"
-                     t-att-data-oe-model="'crm.lead'" t-att-data-oe-id="o.id">
+                <div class="page dvz_quotation">
                     <style>
                         .dvz_quotation { font-family: Calibri, Arial, sans-serif; font-size: 15px; color: #000000; }
                         .dvz_quotation h1 { font-size: 26px; margin-bottom: 0; }
@@ -183,16 +182,16 @@
                     <p style="margin-top: 20px;" t-field="o.quotation_outro"/>
                     <p>Thank you and best regards.</p>
 
-                    <table style="width:100%; margin-top:40px;">
+                    <table style="width:100%; margin-top:40px; border:none;">
                         <tr>
-                            <td style="width:50%; vertical-align: top;">
+                            <td style="width:50%; vertical-align: top; border:none;">
                                 <div class="dvz_signature_name">Fasih U Din Yazdani</div><br/>
                                 Fasih U Din Yazdani<br/>
                                 Estimation Engineer<br/>
                                 Aala Tech Company Ltd.<br/>
                                 Mobile: +92 304 499 5659
                             </td>
-                            <td style="width:50%; vertical-align: top;">
+                            <td style="width:50%; vertical-align: top; border:none;">
                                 <div class="dvz_signature_name">Amr Elkeshk</div><br/>
                                 Amr Elkeshk<br/>
                                 Head of BMS &amp; Automation Division<br/>

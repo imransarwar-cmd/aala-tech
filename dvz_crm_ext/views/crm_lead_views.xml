@@ -32,13 +32,18 @@
 
             <!-- New field: a specific person at the Customer's company,
                  restricted (via the field's own domain, defined in
-                 crm_lead.py) to contacts of that same company. Selecting
-                 one auto-fills Email/Phone above via onchange. -->
+                 crm_lead.py) to contacts of that same company. Uses the
+                 same res_partner_many2one widget as the native Customer
+                 field above (company + contact two-line search), and our
+                 own onchange still auto-fills Email/Phone below it since
+                 that widget's own built-in auto-fill is wired to
+                 partner_id specifically, not custom field names. -->
             <xpath expr="//field[@name='user_id']" position="before">
                 <field name="customer_contact_id"
+                       widget="res_partner_many2one"
                        context="{'default_parent_id': partner_id, 'default_company_name': False}"/>
-                <field name="contact_email_from" readonly="1"/>
-                <field name="contact_phone" readonly="1"/>
+                <field name="contact_email_from" readonly="1" force_save="1"/>
+                <field name="contact_phone" readonly="1" force_save="1"/>
             </xpath>
 
             <!-- Native "Properties" widget ("Property 1" placeholder) -
@@ -138,7 +143,8 @@
             </xpath>
 
             <!-- "Print Quotation" button next to the statusbar, producing
-                 the Excel-style PDF (see report/crm_lead_quotation_report.xml). -->
+                 the Excel-style PDF (see report/crm_lead_quotation_report.xml).
+                 Just downloads/opens the PDF - no auto-attach. -->
             <xpath expr="//header" position="inside">
                 <button name="%(dvz_crm_ext.action_report_crm_lead_quotation)d"
                         string="Print Quotation" type="action"
