@@ -61,37 +61,35 @@
             </xpath>
 
             <xpath expr="//field[@name='lost_reason_id']" position="before">
-                <field name="system_ids" widget="many2many_tags"/>
-                    <field name="sales_ids" widget="many2many_tags"/>
+                <field name="system_id"/>
+                    <field name="sales_id"/>
                     <field name="presales_id" invisible="1"/>
+                <field name="activity"/>
             </xpath>
 
-            <!-- Brand/Area/Project/PO Ref#/Estimation Engineer/Remarks/
-                 Activity/Cover Logo/Status moved to their own FULL-WIDTH
-                 group between the header and the tabs, rather than
-                 squeezed inside the header's existing narrow half-column
-                 (which was forcing "Estimation Engineer"/"Client/Product
-                 Logo" to wrap across 3 lines - there wasn't enough room
-                 for a second 2-column split inside an already-half-width
+            <!-- Brand/Area/PO Ref#/Estimation Engineer/Remarks/Cover
+                 Logo moved to their own FULL-WIDTH group between the
+                 header and the tabs, rather than squeezed inside the
+                 header's existing narrow half-column (which was
+                 forcing "Estimation Engineer"/"Client/Product Logo"
+                 to wrap across 3 lines - there wasn't enough room for
+                 a second 2-column split inside an already-half-width
                  column). Here they get the full page width to work
                  with, so the 2-column grouping actually looks clean. -->
             <xpath expr="//notebook" position="before">
                 <group>
                     <group>
-                        <field name="brand_ids" widget="many2many_tags"/>
-                        <field name="area_ids" widget="many2many_tags"/>
-                        <field name="dvz_project" widget="many2many_tags"/>
+                        <field name="brand_id"/>
+                        <field name="area_id"/>
+                        <field name="po_ref"/>
                     </group>
                     <group>
                         <field name="estimation_engineer_id"/>
                         <field name="remarks"/>
-                        <field name="activity"/>
-                        <field name="po_ref" invisible="1"/>
                     </group>
                 </group>
                 <group>
                     <field name="quotation_client_logo" widget="image" class="oe_avatar"/>
-                    <field name="dvz_status"/>
                 </group>
             </xpath>
 
@@ -106,6 +104,14 @@
 
             <xpath expr="//page[@name='internal_notes']" position="before">
                 <page string="Lines" name="dvz_project_lines">
+                    <group>
+                        <group><field name="dvz_project"/></group>
+                        <group>
+                            <field name="dvz_status"/>
+                        </group>
+
+
+                    </group>
                     <field name="dvz_line_ids">
                         <list editable="bottom">
                             <field name="product_id" optional="show"/>

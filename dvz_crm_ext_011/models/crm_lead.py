@@ -10,14 +10,14 @@ STATUS_SELECTION = [
 class CrmLead(models.Model):
     _inherit = "crm.lead"
 
-    system_ids = fields.Many2many("system.master", string="System")
+    system_id = fields.Many2one("system.master", string="System")
     activity = fields.Char(string="Activity")
-    sales_ids = fields.Many2many("hr.employee", string="Sales")
+    sales_id = fields.Many2one("hr.employee", string="Sales")
     # From the legacy tracking spreadsheet: Brand/Area as dropdowns
     # (dvz.brand / dvz.area, defined in dvz_master_data.py), plus two
     # plain fields that don't need a dropdown.
-    brand_ids = fields.Many2many("dvz.brand", string="Brand")
-    area_ids = fields.Many2many("dvz.area", string="Area")
+    brand_id = fields.Many2one("dvz.brand", string="Brand")
+    area_id = fields.Many2one("dvz.area", string="Area")
     po_ref = fields.Char(string="PO - Ref #")
     remarks = fields.Text(string="Remarks")
     # Presales is no longer manually picked: it always mirrors the
@@ -63,7 +63,7 @@ class CrmLead(models.Model):
              "only that company's own contacts are listed here. "
              "Selecting one auto-fills the Email and Phone fields.",
     )
-    dvz_project = fields.Many2many("project.project", string="Project")
+    dvz_project = fields.Many2one("project.project", string="Project")
     dvz_system_id = fields.Many2one(
         "system.master", string="System",
         help="Header-level default System, used on the Kanban quick-"
@@ -217,13 +217,13 @@ class CrmLead(models.Model):
         self.ensure_one()
         defaults = {}
         if self.dvz_project:
-            defaults["project"] = ', '.join(self.dvz_project.mapped('name'))
+            defaults["project"] = self.dvz_project.name
         if self.dvz_status:
             defaults["dvz_status"] = self.dvz_status
-        if self.brand_ids:
-            defaults["brand_ids"] = [(6, 0, self.brand_ids.ids)]
-        if self.area_ids:
-            defaults["area_ids"] = [(6, 0, self.area_ids.ids)]
+        if self.brand_id:
+            defaults["brand_id"] = self.brand_id.id
+        if self.area_id:
+            defaults["area_id"] = self.area_id.id
         if self.po_ref:
             defaults["po_ref"] = self.po_ref
         if self.remarks:
@@ -234,15 +234,15 @@ class CrmLead(models.Model):
             defaults["estimation_engineer_id"] = self.estimation_engineer_id.id
         if self.quotation_client_logo:
             defaults["quotation_client_logo"] = self.quotation_client_logo
-        # System: prefer the HEADER-level field (system_ids, top of the
+        # System: prefer the HEADER-level field (system_id, top of the
         # Opportunity form - what the user actually sees/fills in) over
-        # the per-LINE one. The target field on sale.order ("system",
-        # from the separate dvz_sale_report_fields module) is a single
-        # Many2one, not Many2many, so only the FIRST selected System
-        # carries over even though several can now be picked here.
+        # the per-LINE one, which was the bug here - it was only ever
+        # reading the first Project Line's own System, staying empty
+        # forever if that particular line's System was never set even
+        # though the header one was.
         first_line = self.dvz_line_ids[:1]
-        if self.system_ids:
-            defaults["system"] = self.system_ids[:1].id
+        if self.system_id:
+            defaults["system"] = self.system_id.id
         elif first_line and first_line.system_id:
             defaults["system"] = first_line.system_id.id
         if first_line and first_line.sales_id:

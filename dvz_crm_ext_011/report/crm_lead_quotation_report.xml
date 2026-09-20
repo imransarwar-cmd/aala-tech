@@ -89,7 +89,7 @@
                         <tr>
                             <td style="width:55%; vertical-align: middle; background-color:#dde8f5; padding: 14px;">
                                 <div class="text-center">
-                                    <strong><span t-esc="o.quotation_title or (', '.join(o.system_ids.mapped('name')) if o.system_ids else False) or 'Project Title'"/></strong><br/>
+                                    <strong><span t-esc="o.quotation_title or (o.system_id.name if o.system_id else False) or 'Project Title'"/></strong><br/>
                                     for<br/>
                                     <strong><span t-esc="o.quotation_site or o.partner_id.name or 'Client / Site Name'"/></strong>
                                 </div>
@@ -108,10 +108,10 @@
                                     <img t-if="o.quotation_client_logo"
                                          t-att-src="image_data_uri(o.quotation_client_logo)"
                                          style="max-width:220px; max-height:70px; object-fit:contain;"/>
-                                    <img t-elif="o.brand_ids[:1].logo"
-                                         t-att-src="image_data_uri(o.brand_ids[:1].logo)"
+                                    <img t-elif="o.brand_id.logo"
+                                         t-att-src="image_data_uri(o.brand_id.logo)"
                                          style="max-width:220px; max-height:70px; object-fit:contain;"/>
-                                    <strong t-elif="o.brand_ids" t-esc="', '.join(o.brand_ids.mapped('name'))"
+                                    <strong t-elif="o.brand_id.name" t-esc="o.brand_id.name"
                                             style="font-size:20px;"/>
                                     <div t-else="" style="border: 1px dashed #999999; color:#999999;
                                                 display:inline-block; padding: 16px 30px; font-size:13px;">

@@ -19,8 +19,8 @@ class SaleOrder(models.Model):
     # added to crm.lead (dvz_master_data.py / crm_lead.py) so a
     # quotation created from an Opportunity keeps this data instead of
     # losing it.
-    brand_ids = fields.Many2many("dvz.brand", string="Brand")
-    area_ids = fields.Many2many("dvz.area", string="Area")
+    brand_id = fields.Many2one("dvz.brand", string="Brand")
+    area_id = fields.Many2one("dvz.area", string="Area")
     po_ref = fields.Char(string="PO - Ref #")
     remarks = fields.Text(string="Remarks")
     estimation_engineer_id = fields.Many2one(

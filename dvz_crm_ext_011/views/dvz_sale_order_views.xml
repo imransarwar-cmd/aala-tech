@@ -21,14 +21,14 @@
             <xpath expr="//notebook" position="before">
                 <group>
                     <group>
-                        <field name="brand_ids" widget="many2many_tags"/>
-                        <field name="area_ids" widget="many2many_tags"/>
+                        <field name="brand_id"/>
+                        <field name="area_id"/>
+                        <field name="po_ref"/>
                         <field name="priority"/>
                     </group>
                     <group>
                         <field name="estimation_engineer_id"/>
                         <field name="remarks"/>
-                        <field name="po_ref" invisible="1"/>
                     </group>
                 </group>
                 <group>

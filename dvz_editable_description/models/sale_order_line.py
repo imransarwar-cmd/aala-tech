@@ -58,6 +58,7 @@ class SaleOrderLine(models.Model):
         if self.name:
             vals["description_picking"] = self.name
         return vals
+PYEOFcat > /Users/apple/Documents/odoo-19.0/aala-tech/dvz_editable_description/models/sale_order_line.py << 'PYEOF'
 # -*- coding: utf-8 -*-
 from odoo import models
 

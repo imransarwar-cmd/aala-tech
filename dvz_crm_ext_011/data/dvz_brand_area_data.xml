@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- noupdate="1": these are starter/reference values from the
+         company's legacy tracking spreadsheet - once installed, users
+         are free to rename/delete/add to them without a later module
+         upgrade silently reverting their edits. -->
+    <data noupdate="1">
+
+        <!-- ===== Brands ===== -->
+        <record id="dvz_brand_trend" model="dvz.brand">
+            <field name="name">Trend</field>
+        </record>
+        <record id="dvz_brand_netix" model="dvz.brand">
+            <field name="name">Netix</field>
+            <field name="logo" type="base64"
+                   file="dvz_crm_ext/static/src/img/brands/netix.jpeg"/>
+        </record>
+        <record id="dvz_brand_gent" model="dvz.brand">
+            <field name="name">Gent</field>
+        </record>
+        <record id="dvz_brand_installation" model="dvz.brand">
+            <field name="name">Installation</field>
+        </record>
+        <record id="dvz_brand_danfoss" model="dvz.brand">
+            <field name="name">Danfoss</field>
+        </record>
+        <record id="dvz_brand_multiple" model="dvz.brand">
+            <field name="name">Multiple brands</field>
+        </record>
+        <record id="dvz_brand_notifier_d1" model="dvz.brand">
+            <field name="name">Notifier, D1</field>
+        </record>
+        <record id="dvz_brand_ves" model="dvz.brand">
+            <field name="name">VES</field>
+        </record>
+        <record id="dvz_brand_honeywell_sony" model="dvz.brand">
+            <field name="name">Honeywell, Sony</field>
+        </record>
+        <record id="dvz_brand_sony_panasonic" model="dvz.brand">
+            <field name="name">Sony, Panasonic</field>
+        </record>
+        <record id="dvz_brand_antec" model="dvz.brand">
+            <field name="name">Antec Controls</field>
+        </record>
+        <record id="dvz_brand_honeywell" model="dvz.brand">
+            <field name="name">Honeywell</field>
+            <field name="logo" type="base64"
+                   file="dvz_crm_ext/static/src/img/brands/honeywell.jpeg"/>
+        </record>
+        <record id="dvz_brand_hikvision" model="dvz.brand">
+            <field name="name">Hikvision</field>
+        </record>
+        <record id="dvz_brand_schneider" model="dvz.brand">
+            <field name="name">Schneider Electric</field>
+            <field name="logo" type="base64"
+                   file="dvz_crm_ext/static/src/img/brands/schneider_electric.jpeg"/>
+        </record>
+        <record id="dvz_brand_siemens" model="dvz.brand">
+            <field name="name">Siemens</field>
+            <field name="logo" type="base64"
+                   file="dvz_crm_ext/static/src/img/brands/siemens.jpeg"/>
+        </record>
+
+        <!-- ===== Areas ===== -->
+        <record id="dvz_area_riyadh" model="dvz.area">
+            <field name="name">Riyadh</field>
+        </record>
+        <record id="dvz_area_jeddah" model="dvz.area">
+            <field name="name">Jeddah</field>
+        </record>
+        <record id="dvz_area_dammam" model="dvz.area">
+            <field name="name">Dammam</field>
+        </record>
+        <record id="dvz_area_makkah" model="dvz.area">
+            <field name="name">Makkah</field>
+        </record>
+        <record id="dvz_area_jubail" model="dvz.area">
+            <field name="name">Jubail</field>
+        </record>
+
+    </data>
+</odoo>
