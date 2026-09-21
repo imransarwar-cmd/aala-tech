@@ -33,7 +33,7 @@
             <xpath expr="//field[@name='email_from']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
-            <xpath expr="//group[@name='opportunity_partner']/field[@name='phone']" position="attributes">
+            <xpath expr="//field[@name='phone']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
 
@@ -67,6 +67,15 @@
                 <field name="inquiry_date" invisible="is_lead_stage"/>
             </xpath>
 
+            <xpath expr="//field[@name='date_deadline']" position="attributes">
+                <attribute name="invisible">is_lead_stage</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='tag_ids']" position="before">
+                <field name="quotation_client_logo" widget="image" class="oe_avatar"
+                       invisible="is_lead_stage"/>
+            </xpath>
+
             <!-- Expected Closing (native date_deadline) - same
                  past-Lead-stage visibility as the rest of this group. -->
             <xpath expr="//field[@name='date_deadline']" position="attributes">
@@ -76,10 +85,7 @@
             <!-- Product Logo - hidden while still in the Lead stage,
                  since this early there usually isn't a quotation/brand
                  logo yet. -->
-            <xpath expr="//field[@name='user_id']" position="after">
-                <field name="quotation_client_logo" widget="image" class="oe_avatar"
-                       invisible="is_lead_stage"/>
-            </xpath>
+
 
             <!-- ================= LEFT COLUMN (always visible, both
                  Lead and Opportunity types) =================
@@ -109,7 +115,7 @@
                 <field name="due_date"/>
                 <field name="sales_ids" widget="many2many_tags"/>
                 <field name="user_id" string="Sale Person"/>
-                <field name="activity"/>
+                <field name="dvz_activity_ids" widget="many2many_tags"/>
                 <field name="remarks"/>
             </xpath>
 

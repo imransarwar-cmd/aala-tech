@@ -50,6 +50,23 @@
         <field name="view_mode">list</field>
     </record>
 
+    <!-- Activity -->
+    <record id="dvz_activity_view_list" model="ir.ui.view">
+        <field name="name">dvz.activity.list</field>
+        <field name="model">dvz.activity</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="dvz_activity_action" model="ir.actions.act_window">
+        <field name="name">Activities</field>
+        <field name="res_model">dvz.activity</field>
+        <field name="view_mode">list</field>
+    </record>
+
     <!-- Menu entries under CRM > Configuration -->
     <menuitem id="dvz_brand_menu" name="Brands"
               parent="crm.crm_menu_config" action="dvz_brand_action"
@@ -57,5 +74,8 @@
     <menuitem id="dvz_area_menu" name="Areas"
               parent="crm.crm_menu_config" action="dvz_area_action"
               sequence="51"/>
+    <menuitem id="dvz_activity_menu" name="Activities"
+              parent="crm.crm_menu_config" action="dvz_activity_action"
+              sequence="52"/>
 
 </odoo>

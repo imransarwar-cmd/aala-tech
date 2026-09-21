@@ -38,3 +38,21 @@ class DvzArea(models.Model):
     _sql_constraints = [
         ("name_uniq", "unique(name)", "This area already exists."),
     ]
+
+
+class DvzActivity(models.Model):
+    """Simple, user-editable list of activity types (e.g. Site Visit,
+    Call, Meeting) - replaces the earlier hardcoded Selection list on
+    crm.lead's own Activity field, same pattern as Brand/Area above so
+    it's managed from Configuration instead of needing a code change
+    every time a new activity type comes up."""
+    _name = "dvz.activity"
+    _description = "Lead Activity Type"
+    _order = "name"
+
+    name = fields.Char(required=True)
+    active = fields.Boolean(default=True)
+
+    _sql_constraints = [
+        ("name_uniq", "unique(name)", "This activity type already exists."),
+    ]

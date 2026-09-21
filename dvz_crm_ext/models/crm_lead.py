@@ -6,24 +6,22 @@ STATUS_SELECTION = [
     ("completed", "Completed"),
 ]
 
-# Best-guess starter list for the Activity dropdown - easy to extend/
-# edit later (just add more tuples here), swap for whatever set of
-# activity types actually matches how the team works day to day.
-ACTIVITY_SELECTION = [
-    ("site_visit", "Site Visit"),
-    ("call", "Call"),
-    ("meeting", "Meeting"),
-    ("email", "Email"),
-    ("follow_up", "Follow-up"),
-    ("other", "Other"),
-]
-
 
 class CrmLead(models.Model):
     _inherit = "crm.lead"
 
     system_ids = fields.Many2many("system.master", string="System")
-    activity = fields.Selection(ACTIVITY_SELECTION, string="Activity")
+    # Was a hardcoded Selection list - now its own model (dvz.activity,
+    # in dvz_master_data.py), managed under CRM > Configuration >
+    # Activities like Brand/Area/System, so new activity types don't
+    # need a code change. Many2many for consistency with the other
+    # multi-select fields on this form (System/Sales/Brand/Area).
+    # NAMED dvz_activity_ids, NOT activity_ids - that name is already
+    # taken by mail.activity.mixin's own native field (the Chatter's
+    # "Schedule an activity" feature, a completely different concept -
+    # a One2many to mail.activity). Reusing that name broke a related
+    # field elsewhere in Odoo core that depends on the native one.
+    dvz_activity_ids = fields.Many2many("dvz.activity", string="Activity")
     sales_ids = fields.Many2many("hr.employee", string="Sales")
     # From the legacy tracking spreadsheet: Brand/Area as dropdowns
     # (dvz.brand / dvz.area, defined in dvz_master_data.py), plus two
@@ -155,7 +153,7 @@ class CrmLead(models.Model):
                 "feel free to contact us for any clarifications.",
     )
     quotation_client_logo = fields.Image(
-        string="Client/Product Logo", max_width=1024, max_height=1024,
+        string="Product Logo", max_width=1024, max_height=1024,
         help="Optional - e.g. the manufacturer's logo (Honeywell, etc). "
              "Shown on the cover page next to the Aala Tech logo, which "
              "is always included automatically.",
