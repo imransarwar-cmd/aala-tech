@@ -26,25 +26,91 @@
                 <attribute name="domain">[('customer_rank', '&gt;', 0)]</attribute>
             </xpath>
 
-             <xpath expr="//field[@name='user_id']" position="attributes">
-                <attribute name="string">Presale</attribute>
+            <!-- Native Email/Phone hidden - superseded by Contact Email/
+                 Contact Phone below (which come from the selected
+                 Contact, not typed in separately), so showing both
+                 pairs at once was just confusing/redundant. -->
+            <xpath expr="//field[@name='email_from']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='opportunity_partner']/field[@name='phone']" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
 
-            <!-- New field: a specific person at the Customer's company,
-                 restricted (via the field's own domain, defined in
-                 crm_lead.py) to contacts of that same company. Uses the
-                 same res_partner_many2one widget as the native Customer
-                 field above (company + contact two-line search), and our
-                 own onchange still auto-fills Email/Phone below it since
-                 that widget's own built-in auto-fill is wired to
-                 partner_id specifically, not custom field names. -->
+            <!-- Native Salesperson field hidden where it natively sits -
+                 shown instead as "Sale Person" in the left column below.
+                 This runs BEFORE that insertion (not after) - once a
+                 second field named user_id exists in the tree, further
+                 xpaths targeting //field[@name='user_id'] would become
+                 ambiguous (matching both instances). -->
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- ================= RIGHT COLUMN - hidden entirely while
+                 this record's pipeline STAGE is named "Lead" (not based
+                 on the record's type field), shown once it moves past
+                 that stage: Presale, Inquiry Date, Expected Closing,
+                 Product Logo. =================
+                 is_lead_stage (crm_lead.py) is loaded here invisibly so
+                 the conditions below can actually reference it.
+                 Presale (presales_id) was previously force-hidden
+                 (invisible="1" unconditionally) - now shown, but only
+                 past the Lead stage, matching the rest of this group.
+                 Positioned before/after the native Salesperson field
+                 (user_id) - this MUST run here, before the "Sale
+                 Person" duplicate of user_id gets inserted below,
+                 while user_id is still a single, unambiguous match. -->
             <xpath expr="//field[@name='user_id']" position="before">
+                <field name="is_lead_stage" invisible="1"/>
+                <field name="presales_id" string="Presale" invisible="is_lead_stage"/>
+                <field name="inquiry_date" invisible="is_lead_stage"/>
+            </xpath>
+
+            <!-- Expected Closing (native date_deadline) - same
+                 past-Lead-stage visibility as the rest of this group. -->
+            <xpath expr="//field[@name='date_deadline']" position="attributes">
+                <attribute name="invisible">is_lead_stage</attribute>
+            </xpath>
+
+            <!-- Product Logo - hidden while still in the Lead stage,
+                 since this early there usually isn't a quotation/brand
+                 logo yet. -->
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="quotation_client_logo" widget="image" class="oe_avatar"
+                       invisible="is_lead_stage"/>
+            </xpath>
+
+            <!-- ================= LEFT COLUMN (always visible, both
+                 Lead and Opportunity types) =================
+                 Everything below is inserted right after Customer, in
+                 the SAME group/column Customer is already in - Contact,
+                 Contact Email, Contact Phone, System, Project, Area,
+                 Brand, Due Date, Sales, then a second, relabeled
+                 instance of the native Salesperson field ("Sale
+                 Person"), Activity (now a dropdown), and Remarks. Odoo
+                 allows a field to appear more than once, bound to the
+                 same underlying value, which is how it gets "moved"
+                 into this column without disturbing whatever group it
+                 natively lives in (hidden there, just above). This
+                 inserts the SECOND user_id - everything above that also
+                 targets //field[@name='user_id'] must run first. -->
+            <xpath expr="//group[@name='opportunity_partner']/field[@name='partner_id']" position="after">
                 <field name="customer_contact_id"
                        string="Contact"
                        widget="res_partner_many2one"
                        context="{'default_parent_id': partner_id, 'default_company_name': False}"/>
                 <field name="contact_email_from" readonly="1" force_save="1"/>
                 <field name="contact_phone" readonly="1" force_save="1"/>
+                <field name="system_ids" widget="many2many_tags"/>
+                <field name="dvz_project" widget="many2many_tags"/>
+                <field name="area_ids" widget="many2many_tags"/>
+                <field name="brand_ids" widget="many2many_tags"/>
+                <field name="due_date"/>
+                <field name="sales_ids" widget="many2many_tags"/>
+                <field name="user_id" string="Sale Person"/>
+                <field name="activity"/>
+                <field name="remarks"/>
             </xpath>
 
             <!-- Native "Properties" widget ("Property 1" placeholder) -
@@ -60,48 +126,12 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
 
-            <xpath expr="//field[@name='lost_reason_id']" position="before">
-                <field name="system_ids" widget="many2many_tags"/>
-                    <field name="sales_ids" widget="many2many_tags"/>
-                    <field name="presales_id" invisible="1"/>
-            </xpath>
-
-            <!-- Brand/Area/Project/PO Ref#/Estimation Engineer/Remarks/
-                 Activity/Cover Logo/Status moved to their own FULL-WIDTH
-                 group between the header and the tabs, rather than
-                 squeezed inside the header's existing narrow half-column
-                 (which was forcing "Estimation Engineer"/"Client/Product
-                 Logo" to wrap across 3 lines - there wasn't enough room
-                 for a second 2-column split inside an already-half-width
-                 column). Here they get the full page width to work
-                 with, so the 2-column grouping actually looks clean. -->
-            <xpath expr="//notebook" position="before">
-                <group>
-                    <group>
-                        <field name="brand_ids" widget="many2many_tags"/>
-                        <field name="area_ids" widget="many2many_tags"/>
-                        <field name="dvz_project" widget="many2many_tags"/>
-                    </group>
-                    <group>
-                        <field name="estimation_engineer_id"/>
-                        <field name="remarks"/>
-                        <field name="activity"/>
-                        <field name="po_ref" invisible="1"/>
-                    </group>
-                </group>
-                <group>
-                    <field name="quotation_client_logo" widget="image" class="oe_avatar"/>
-                    <field name="dvz_status"/>
-                </group>
-            </xpath>
-
-            <!-- Inquiry and Due Date appear BEFORE Expected Closing
-                 (date_deadline). Est. Closing is no longer added at all
-                 (removed per request) - only its per-line equivalent in
-                 the table below remains, which is unaffected. -->
-            <xpath expr="//field[@name='user_id']" position="after">
-                <field name="inquiry_date"/>
-                <field name="due_date"/>
+            <!-- Status - removed from the form per request (the
+                 underlying dvz_status field itself is untouched, since
+                 sale_order.py's quotation-defaults copy still reads it -
+                 this only hides it from view). -->
+            <xpath expr="//field[@name='lost_reason_id']" position="after">
+                <field name="dvz_status" invisible="1"/>
             </xpath>
 
             <xpath expr="//page[@name='internal_notes']" position="before">

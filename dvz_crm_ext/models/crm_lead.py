@@ -6,12 +6,24 @@ STATUS_SELECTION = [
     ("completed", "Completed"),
 ]
 
+# Best-guess starter list for the Activity dropdown - easy to extend/
+# edit later (just add more tuples here), swap for whatever set of
+# activity types actually matches how the team works day to day.
+ACTIVITY_SELECTION = [
+    ("site_visit", "Site Visit"),
+    ("call", "Call"),
+    ("meeting", "Meeting"),
+    ("email", "Email"),
+    ("follow_up", "Follow-up"),
+    ("other", "Other"),
+]
+
 
 class CrmLead(models.Model):
     _inherit = "crm.lead"
 
     system_ids = fields.Many2many("system.master", string="System")
-    activity = fields.Char(string="Activity")
+    activity = fields.Selection(ACTIVITY_SELECTION, string="Activity")
     sales_ids = fields.Many2many("hr.employee", string="Sales")
     # From the legacy tracking spreadsheet: Brand/Area as dropdowns
     # (dvz.brand / dvz.area, defined in dvz_master_data.py), plus two
@@ -35,8 +47,28 @@ class CrmLead(models.Model):
     due_date = fields.Date(string="Due Date")
     est_closing_date = fields.Date(string="Est. Closing")
 
+    # Drives whether Presale/Inquiry Date/Expected Closing/Product Logo
+    # show on the form - hidden while this lead sits in whatever pipeline
+    # stage is actually named "Lead" (case-insensitive), NOT based on the
+    # record's own type field. A plain Boolean here (rather than
+    # referencing stage_id.name directly in the view) because view
+    # invisible conditions need a field already loaded on the form, and
+    # dotted relational lookups like stage_id.name aren't reliably
+    # available there.
+    is_lead_stage = fields.Boolean(
+        string="Is Lead Stage", compute="_compute_is_lead_stage",
+        help="True while this record's pipeline stage is named 'Lead'.",
+    )
+
     contact_email_from = fields.Char(string="Contact Email")
     contact_phone = fields.Char(string="Contact Phone")
+
+    @api.depends("stage_id.name")
+    def _compute_is_lead_stage(self):
+        for lead in self:
+            lead.is_lead_stage = bool(
+                lead.stage_id and (lead.stage_id.name or "").strip().lower() == "lead"
+            )
 
     @api.onchange("customer_contact_id")
     def _onchange_dvz_customer_contact_id(self):
@@ -103,10 +135,6 @@ class CrmLead(models.Model):
         string="Quotation Site",
         help="Site/building shown under 'for' on the quotation PDF, e.g. "
              "'Al-Kayan Business Park, Riyadh'.",
-    )
-    estimation_engineer_id = fields.Many2one(
-        "hr.employee", string="Estimation Engineer",
-        help="Shown as the left-hand signature on the quotation PDF.",
     )
     validity = fields.Char(string="Validity", default="4 weeks")
     payment_terms = fields.Char(string="Payment Terms", default="100% advance")
@@ -230,8 +258,6 @@ class CrmLead(models.Model):
             defaults["remarks"] = self.remarks
         if self.priority:
             defaults["priority"] = self.priority
-        if self.estimation_engineer_id:
-            defaults["estimation_engineer_id"] = self.estimation_engineer_id.id
         if self.quotation_client_logo:
             defaults["quotation_client_logo"] = self.quotation_client_logo
         # System: prefer the HEADER-level field (system_ids, top of the
