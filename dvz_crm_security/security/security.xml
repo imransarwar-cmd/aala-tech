@@ -2,31 +2,58 @@
 <odoo>
     <data noupdate="0">
 
-        <!-- New group: CRM Team Leader.
-             Extends the native "Sales / My Pipeline" group
-             (sales_team.group_sale_salesman) rather than replacing it,
-             so a Team Leader keeps normal salesperson access (create/
-             edit their own leads, etc.) on top of the wider visibility
-             below. Deliberately does NOT imply
-             sales_team.group_sale_salesman_all_leads - that would grant
-             visibility into EVERY team's leads, which is reserved for
-             "Head" (the native Sales Manager group), not a Team
-             Leader. -->
+        <!-- ================= Salesperson ================= -->
+        <!-- Sees ONLY their own leads. Implies the native "Sales / My
+             Pipeline" group (sales_team.group_sale_salesman) for basic
+             CRM menu/action access - that native group already carries
+             its own "own leads only" rule, and the explicit rule below
+             does the same thing again under OUR own group so this
+             module's behavior doesn't silently depend on native config
+             you can't see in this file.
+             NOTE: category_id is NOT set here - Odoo 19 removed that
+             field from res.groups entirely (replaced with privilege_id,
+             a link to a new res.groups.privilege model). Leaving it out
+             just means this group shows as "uncategorized" in the
+             Settings > Users > Groups list - purely cosmetic, no
+             functional effect. -->
+        <record id="group_crm_salesperson" model="res.groups">
+            <field name="name">CRM: Salesperson</field>
+            <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="comment">Sees only their own leads (where they are set as Salesperson).</field>
+        </record>
+
+        <record id="dvz_crm_salesperson_rule" model="ir.rule">
+            <field name="name">CRM Salesperson: see own leads only</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="groups" eval="[(4, ref('group_crm_salesperson'))]"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- ================= Team Leader ================= -->
+        <!-- Extends Salesperson (above) rather than replacing it, so a
+             Team Leader keeps normal salesperson access on top of the
+             wider visibility below. Deliberately does NOT imply
+             sales_team.group_sale_salesman_all_leads or Head (below) -
+             that would grant visibility into EVERY team's leads, which
+             is reserved for Head, not a Team Leader. -->
         <record id="group_crm_team_leader" model="res.groups">
             <field name="name">CRM: Team Leader</field>
-            <field name="category_id" ref="base.module_category_sales_sales"/>
-            <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="implied_ids" eval="[(4, ref('group_crm_salesperson'))]"/>
             <field name="comment">Sees every lead belonging to any Sales Team where they are set as that team's own Team Leader (crm.team's user_id field) - not just their own leads, but not other teams' leads either.</field>
         </record>
 
         <!-- The actual visibility rule: a lead is visible to this group
              if the lead's OWN Sales Team has this user set as that
-             team's Team Leader. Combines via OR with the native
-             Salesperson rule (their own leads) that this group also
-             carries via implied_ids above - Odoo ORs together every
-             rule that applies via any group a user belongs to, so a
-             Team Leader ends up seeing (their own leads) OR (their
-             team's leads), which is exactly the intended behavior. -->
+             team's Team Leader. Combines via OR with the Salesperson
+             rule (their own leads) that this group also carries via
+             implied_ids above - Odoo ORs together every rule that
+             applies via any group a user belongs to, so a Team Leader
+             ends up seeing (their own leads) OR (their team's leads),
+             which is exactly the intended behavior. -->
         <record id="dvz_crm_team_leader_rule" model="ir.rule">
             <field name="name">CRM Team Leader: see own team's leads</field>
             <field name="model_id" ref="crm.model_crm_lead"/>
@@ -36,6 +63,34 @@
             <field name="perm_write">1</field>
             <field name="perm_create">0</field>
             <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- ================= Head ================= -->
+        <!-- Sees EVERY lead, every team, no restriction. Also implies
+             the native "Sales / Administrator" group
+             (sales_team.group_sale_manager), which grants full CRM
+             admin capability (managing teams, stages, etc.) alongside
+             the visibility - this is meant to be the top-level role, so
+             getting full admin rights along with full visibility is
+             intentional. If you'd rather Head only get the VISIBILITY
+             without the extra admin permissions that native group
+             brings, remove that implied_ids line and this group will
+             just have the explicit rule below on its own. -->
+        <record id="group_crm_head" model="res.groups">
+            <field name="name">CRM: Head</field>
+            <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
+            <field name="comment">Sees every lead across every Sales Team, with no restriction.</field>
+        </record>
+
+        <record id="dvz_crm_head_rule" model="ir.rule">
+            <field name="name">CRM Head: see every team's leads</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="groups" eval="[(4, ref('group_crm_head'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
         </record>
 
     </data>
