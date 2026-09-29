@@ -37,7 +37,7 @@ class CrmLead(models.Model):
     # that group or search on presales_id keep working unchanged.
     presales_id = fields.Many2one(
         "hr.employee", string="Presales",
-        compute="_compute_presales_id", store=True, readonly=True,
+        compute="_compute_presales_id", store=True,
         help="Automatically set to the Salesperson's employee record - "
              "no longer manually selectable.",
     )

@@ -113,7 +113,7 @@
                 <field name="area_ids" widget="many2many_tags"/>
                 <field name="brand_ids" widget="many2many_tags"/>
                 <field name="due_date"/>
-                <field name="sales_ids" widget="many2many_tags"/>
+                <field name="sales_ids" widget="many2many_tags" invisible="1"/>
                 <field name="user_id" string="Sale Person"/>
                 <field name="dvz_activity_ids" widget="many2many_tags"/>
                 <field name="remarks"/>
