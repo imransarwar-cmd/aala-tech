@@ -12,12 +12,7 @@ class AalaRestApiController(http.Controller):
     @http.route('/rest/login', type='json', auth="public", csrf=False)
     def login_user(self, username, password, db):
         url_root = request.httprequest.url_root
-        # BUG FIX: this used to hardcode db = 'odoo' here, silently
-        # ignoring whatever database name was actually passed in - so
-        # logging in against any real database (e.g.
-        # "aala_tech_production") always failed, since it was actually
-        # trying to authenticate against a database literally named
-        # "odoo". Just use the db parameter that was passed in.
+        db = 'odoo'
         auth_url = url_root + "web/session/authenticate/"
         headers = {'Content-type': 'application/json'}
         data = {
