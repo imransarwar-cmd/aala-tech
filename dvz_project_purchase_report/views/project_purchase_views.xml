@@ -7,8 +7,6 @@
     <menuitem id="menu_dvz_sales_section" name="Sales" parent="menu_dvz_project_purchase_root" sequence="5"/>
     <menuitem id="menu_dvz_purchase_section" name="Procurement" parent="menu_dvz_project_purchase_root" sequence="10"/>
     <menuitem id="menu_dvz_finance_section" name="Invoicing" parent="menu_dvz_project_purchase_root" sequence="20"/>
-    <menuitem id="menu_dvz_config_section" name="Configuration" parent="menu_dvz_project_purchase_root"
-              sequence="90" groups="account.group_account_user"/>
 
     <!-- ======================= Project Purchase Orders ======================= -->
     <record id="view_dvz_project_purchase_report_list" model="ir.ui.view">

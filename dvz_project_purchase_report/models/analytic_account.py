@@ -1,17 +1,8 @@
-from odoo import _, fields, models
-from odoo.exceptions import UserError
+from odoo import fields, models
 
 
 class AccountAnalyticAccount(models.Model):
     _inherit = 'account.analytic.account'
-
-    dvz_budget = fields.Float(
-        string='Estimated Budget',
-        digits=(16, 2),
-        help='Planned total COST for this project, in company currency. '
-             'Used by Project Reporting to show budget used / remaining and '
-             'the planned margin (agreed price minus this budget).',
-    )
 
     # Display the EXACT native Odoo count, not the count from the wider PO-line report.
     dvz_project_purchase_count = fields.Integer(
@@ -37,20 +28,4 @@ class AccountAnalyticAccount(models.Model):
         })
         # Always show the list, even when native Odoo would open one PO directly.
         action.pop('res_id', None)
-        return action
-
-    def action_dvz_open_project_pnl(self):
-        """Open this project's Profit & Loss summary (form if one row, else list)."""
-        self.ensure_one()
-        rows = self.env['dvz.project.dashboard'].search([('analytic_account_id', '=', self.id)])
-        if not rows:
-            raise UserError(_('Nothing has been booked to this project yet '
-                              '(no sale orders, purchase orders, bills or invoices).'))
-        action = self.env.ref('dvz_project_purchase_report.action_dvz_project_dashboard').read()[0]
-        action['context'] = {}
-        if len(rows) == 1:
-            form = self.env.ref('dvz_project_purchase_report.view_dvz_project_dashboard_form')
-            action.update({'res_id': rows.id, 'view_mode': 'form', 'views': [(form.id, 'form')]})
-        else:
-            action['domain'] = [('analytic_account_id', '=', self.id)]
         return action
