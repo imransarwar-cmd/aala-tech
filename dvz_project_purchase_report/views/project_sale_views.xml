@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ======================= Project Sale Orders (agreed price) ======================= -->
+    <record id="view_dvz_project_sale_report_list" model="ir.ui.view">
+        <field name="name">dvz.project.sale.report.list</field>
+        <field name="model">dvz.project.sale.report</field>
+        <field name="arch" type="xml">
+            <list string="Project Sale Orders" create="false" edit="false" delete="false"
+                  default_order="date_order desc">
+                <field name="sale_id"/>
+                <field name="date_order"/>
+                <field name="analytic_account_id" string="Project"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="user_id" string="Salesperson" optional="show"/>
+                <field name="line_count" string="Lines" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="company_currency_id" column_invisible="True"/>
+                <field name="project_amount_untaxed" optional="hide"/>
+                <field name="project_amount_company" string="Agreed Price" sum="Total"/>
+                <field name="so_amount_total" optional="hide"/>
+                <field name="invoice_status" optional="show"
+                       decoration-success="invoice_status == 'invoiced'"
+                       decoration-warning="invoice_status == 'to invoice'"/>
+                <field name="state" widget="badge"
+                       decoration-success="state in ('sale', 'done')"
+                       decoration-info="state in ('draft', 'sent')"
+                       decoration-danger="state == 'cancel'"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dvz_project_sale_report_form" model="ir.ui.view">
+        <field name="name">dvz.project.sale.report.form</field>
+        <field name="model">dvz.project.sale.report</field>
+        <field name="arch" type="xml">
+            <form string="Project Sale Order" create="false" edit="false" delete="false">
+                <header>
+                    <button name="action_open_sale_order" type="object"
+                            string="Open Original Sale Order" class="btn-primary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,sale"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="sale_id"/></h1>
+                        <h3><field name="analytic_account_id" string="Project"/></h3>
+                    </div>
+                    <group>
+                        <group string="Order">
+                            <field name="partner_id" string="Customer"/>
+                            <field name="date_order"/>
+                            <field name="user_id" string="Salesperson"/>
+                            <field name="invoice_status"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Agreed price (untaxed, this project's share)">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_currency_id" invisible="1"/>
+                            <field name="project_amount_company" string="In company currency"/>
+                            <field name="project_amount_untaxed" string="In order currency"/>
+                            <field name="so_amount_total" string="Full order total (tax incl.)"/>
+                            <field name="line_count" string="Lines on this project"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dvz_project_sale_report_search" model="ir.ui.view">
+        <field name="name">dvz.project.sale.report.search</field>
+        <field name="model">dvz.project.sale.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Project Sale Orders">
+                <field name="sale_id"/>
+                <field name="analytic_account_id" string="Project"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="user_id" string="Salesperson"/>
+                <field name="date_order"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', 'in', ['sale', 'done'])]"/>
+                <filter string="Quotations" name="quotations" domain="[('state', 'in', ['draft', 'sent'])]"/>
+                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancel')]"/>
+                <separator/>
+                <filter string="To Invoice" name="to_invoice" domain="[('invoice_status', '=', 'to invoice')]"/>
+                <filter string="This Year" name="date_this_year"
+                        domain="[('date_order', '&gt;=', context_today().strftime('%Y-01-01'))]"/>
+                <separator/>
+                <filter string="Project" name="group_project" context="{'group_by': 'analytic_account_id'}"/>
+                <filter string="Customer" name="group_customer" context="{'group_by': 'partner_id'}"/>
+                <filter string="Salesperson" name="group_user" context="{'group_by': 'user_id'}"/>
+                <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                <filter string="Order Month" name="group_month" context="{'group_by': 'date_order:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_dvz_project_sale_report" model="ir.actions.act_window">
+        <field name="name">Project Sale Orders</field>
+        <field name="res_model">dvz.project.sale.report</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_dvz_project_sale_report_search"/>
+        <field name="context">{'search_default_confirmed': 1, 'search_default_group_project': 1}</field>
+        <field name="help" type="html">
+            <p>Sale orders per project, calculated from the analytic distribution on each sale order line.
+               Set the project on the sale order lines to see them here.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_dvz_project_sale_report" name="Project Sale Orders"
+              parent="menu_dvz_sales_section" action="action_dvz_project_sale_report" sequence="10"/>
+
+    <!-- ======================= Sale Order Lines ======================= -->
+    <record id="view_dvz_project_sale_line_list" model="ir.ui.view">
+        <field name="name">dvz.project.sale.line.list</field>
+        <field name="model">dvz.project.sale.line</field>
+        <field name="arch" type="xml">
+            <list string="Sale Order Lines" create="false" edit="false" delete="false">
+                <field name="sale_id"/>
+                <field name="date_order"/>
+                <field name="analytic_account_id" string="Project"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="product_id"/>
+                <field name="product_qty"/>
+                <field name="qty_delivered" optional="hide"/>
+                <field name="qty_invoiced" optional="hide"/>
+                <field name="price_unit" optional="hide"/>
+                <field name="allocation_percent" optional="hide"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="company_currency_id" column_invisible="True"/>
+                <field name="project_amount_company" string="Agreed Price" sum="Total"/>
+                <field name="state"
+                       decoration-success="state in ('sale', 'done')"
+                       decoration-danger="state == 'cancel'"/>
+                <field name="user_id" string="Salesperson" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dvz_project_sale_line_form" model="ir.ui.view">
+        <field name="name">dvz.project.sale.line.form</field>
+        <field name="model">dvz.project.sale.line</field>
+        <field name="arch" type="xml">
+            <form string="Sale Order Line" create="false" edit="false" delete="false">
+                <header>
+                    <button name="action_open_sale_order" type="object"
+                            string="Open Original Sale Order" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="sale_id"/></h1>
+                        <h3><field name="analytic_account_id" string="Project"/></h3>
+                    </div>
+                    <group>
+                        <group string="Order">
+                            <field name="partner_id" string="Customer"/>
+                            <field name="date_order"/>
+                            <field name="user_id" string="Salesperson"/>
+                            <field name="state"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Product">
+                            <field name="product_id"/>
+                            <field name="product_qty"/>
+                            <field name="qty_delivered"/>
+                            <field name="qty_invoiced"/>
+                        </group>
+                    </group>
+                    <group string="Amounts">
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_currency_id" invisible="1"/>
+                            <field name="price_unit"/>
+                            <field name="price_subtotal" string="Line subtotal"/>
+                        </group>
+                        <group>
+                            <field name="allocation_percent" string="This project's share %"/>
+                            <field name="project_amount_company" string="Agreed price (company currency)"/>
+                            <field name="project_amount" string="Agreed price (order currency)"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dvz_project_sale_line_search" model="ir.ui.view">
+        <field name="name">dvz.project.sale.line.search</field>
+        <field name="model">dvz.project.sale.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Sale Order Lines">
+                <field name="analytic_account_id" string="Project"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="product_id"/>
+                <field name="sale_id"/>
+                <field name="date_order"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', 'in', ['sale', 'done'])]"/>
+                <separator/>
+                <filter string="Project" name="group_project" context="{'group_by': 'analytic_account_id'}"/>
+                <filter string="Customer" name="group_customer" context="{'group_by': 'partner_id'}"/>
+                <filter string="Product" name="group_product" context="{'group_by': 'product_id'}"/>
+                <filter string="Sale Order" name="group_so" context="{'group_by': 'sale_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_dvz_project_sale_line" model="ir.actions.act_window">
+        <field name="name">Sale Order Lines</field>
+        <field name="res_model">dvz.project.sale.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_dvz_project_sale_line_search"/>
+        <field name="context">{'search_default_confirmed': 1}</field>
+    </record>
+
+    <menuitem id="menu_dvz_project_sale_line" name="Sale Order Lines"
+              parent="menu_dvz_sales_section" action="action_dvz_project_sale_line" sequence="20"/>
+
+</odoo>

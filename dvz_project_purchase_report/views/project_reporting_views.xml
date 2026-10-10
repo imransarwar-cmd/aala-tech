@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ======================= PO Product Lines ======================= -->
+    <record id="view_po_line_list" model="ir.ui.view">
+        <field name="name">po_line.list</field>
+        <field name="model">dvz.project.purchase.line</field>
+        <field name="arch" type="xml">
+            <list string="PO Product Lines" create="false" edit="false" delete="false">
+                <field name="purchase_id"/>
+                <field name="date_order"/>
+                <field name="analytic_account_id" string="Project"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="product_id"/>
+                <field name="product_qty"/>
+                <field name="qty_received"/>
+                <field name="qty_invoiced" optional="hide"/>
+                <field name="price_unit" optional="hide"/>
+                <field name="allocation_percent" optional="hide"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="company_currency_id" column_invisible="True"/>
+                <field name="project_amount" optional="hide"/>
+                <field name="project_amount_company" sum="Total"/>
+                <field name="state"
+                       decoration-success="state in ('purchase', 'done')"
+                       decoration-danger="state == 'cancel'"/>
+                <field name="user_id" string="Buyer" optional="show"/>
+                <field name="owner_user_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_po_line_form" model="ir.ui.view">
+        <field name="name">po_line.form</field>
+        <field name="model">dvz.project.purchase.line</field>
+        <field name="arch" type="xml">
+            <form string="PO Product Line" create="false" edit="false" delete="false">
+                <header>
+                    <button name="action_open_purchase_order" type="object"
+                            string="Open Original PO" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="purchase_id"/></h1>
+                        <h3><field name="analytic_account_id" string="Project"/></h3>
+                    </div>
+                    <group>
+                        <group string="Order">
+                            <field name="partner_id" string="Vendor"/>
+                            <field name="date_order"/>
+                            <field name="user_id" string="Buyer"/>
+                            <field name="state"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Product and quantities">
+                            <field name="product_id"/>
+                            <field name="product_qty"/>
+                            <field name="qty_received"/>
+                            <field name="qty_invoiced"/>
+                        </group>
+                    </group>
+                    <group string="Amounts">
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_currency_id" invisible="1"/>
+                            <field name="price_unit"/>
+                            <field name="price_subtotal" string="Line subtotal"/>
+                        </group>
+                        <group>
+                            <field name="allocation_percent" string="This project's share %"/>
+                            <field name="project_amount_company" string="Project amount (company currency)"/>
+                            <field name="project_amount" string="Project amount (PO currency)"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_po_line_search" model="ir.ui.view">
+        <field name="name">po_line.search</field>
+        <field name="model">dvz.project.purchase.line</field>
+        <field name="arch" type="xml">
+            <search string="Search PO Product Lines">
+                <field name="analytic_account_id" string="Project"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="product_id"/>
+                <field name="purchase_id"/>
+                <field name="date_order"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', 'in', ['purchase', 'done'])]"/>
+                <separator/>
+                <filter string="Project" name="group_project" context="{'group_by': 'analytic_account_id'}"/>
+                <filter string="Vendor" name="group_vendor" context="{'group_by': 'partner_id'}"/>
+                <filter string="Product" name="group_product" context="{'group_by': 'product_id'}"/>
+                <filter string="Purchase Order" name="group_po" context="{'group_by': 'purchase_id'}"/>
+                <filter string="Order Month" name="group_month" context="{'group_by': 'date_order:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_po_line" model="ir.actions.act_window">
+        <field name="name">PO Product Lines</field>
+        <field name="res_model">dvz.project.purchase.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_po_line_search"/>
+        <field name="context">{'search_default_confirmed': 1}</field>
+        <field name="domain">[]</field>
+    </record>
+
+    <menuitem id="menu_po_line" name="PO Product Lines" parent="menu_dvz_purchase_section"
+              action="action_po_line" sequence="20"/>
+
+    <!-- ======================= Vendor Bills / Customer Invoices (per document) ======================= -->
+    <record id="view_vendor_bills_list" model="ir.ui.view">
+        <field name="name">vendor_bills.list</field>
+        <field name="model">dvz.project.invoice.report</field>
+        <field name="arch" type="xml">
+            <list string="Bills and Invoices" create="false" edit="false" delete="false">
+                <field name="move_id"/>
+                <field name="invoice_date"/>
+                <field name="invoice_date_due" optional="hide"/>
+                <field name="analytic_account_id" string="Project"/>
+                <field name="partner_id" string="Partner"/>
+                <field name="move_type" optional="hide"/>
+                <field name="line_count" string="Lines" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="company_currency_id" column_invisible="True"/>
+                <field name="project_amount" optional="hide"/>
+                <field name="project_amount_company" sum="Total"/>
+                <field name="full_invoice_total" optional="hide"/>
+                <field name="payment_state" optional="show"/>
+                <field name="state"
+                       decoration-success="state == 'posted'"
+                       decoration-muted="state == 'draft'"
+                       decoration-danger="state == 'cancel'"/>
+                <field name="owner_user_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vendor_bills_form" model="ir.ui.view">
+        <field name="name">vendor_bills.form</field>
+        <field name="model">dvz.project.invoice.report</field>
+        <field name="arch" type="xml">
+            <form string="Bill / Invoice" create="false" edit="false" delete="false">
+                <header>
+                    <button name="action_open_invoice" type="object"
+                            string="Open Original Document" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="move_id"/></h1>
+                        <h3><field name="analytic_account_id" string="Project"/></h3>
+                    </div>
+                    <group>
+                        <group string="Document">
+                            <field name="move_type"/>
+                            <field name="partner_id" string="Partner"/>
+                            <field name="invoice_date"/>
+                            <field name="invoice_date_due"/>
+                            <field name="state"/>
+                            <field name="payment_state"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Amounts (untaxed, this project's share)">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_currency_id" invisible="1"/>
+                            <field name="project_amount_company" string="In company currency"/>
+                            <field name="project_amount" string="In document currency"/>
+                            <field name="full_invoice_total" string="Full document total"/>
+                            <field name="line_count" string="Lines on this project"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_vendor_bills_search" model="ir.ui.view">
+        <field name="name">vendor_bills.search</field>
+        <field name="model">dvz.project.invoice.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Bills and Invoices">
+                <field name="move_id"/>
+                <field name="analytic_account_id" string="Project"/>
+                <field name="partner_id" string="Partner"/>
+                <field name="invoice_date"/>
+                <filter string="Posted" name="posted" domain="[('state', '=', 'posted')]"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Not Paid" name="not_paid"
+                        domain="[('state', '=', 'posted'), ('payment_state', 'in', ['not_paid', 'partial'])]"/>
+                <separator/>
+                <filter string="This Year" name="date_this_year"
+                        domain="[('invoice_date', '&gt;=', context_today().strftime('%Y-01-01'))]"/>
+                <separator/>
+                <filter string="Project" name="group_project" context="{'group_by': 'analytic_account_id'}"/>
+                <filter string="Partner" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                <filter string="Invoice Month" name="group_month" context="{'group_by': 'invoice_date:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_vendor_bills" model="ir.actions.act_window">
+        <field name="name">Vendor Bills</field>
+        <field name="res_model">dvz.project.invoice.report</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_vendor_bills_search"/>
+        <field name="domain">[('move_type', 'in', ['in_invoice', 'in_refund'])]</field>
+        <field name="context">{'search_default_group_project': 1}</field>
+    </record>
+    <menuitem id="menu_vendor_bills" name="Vendor Bills" parent="menu_dvz_finance_section"
+              action="action_vendor_bills" sequence="20"/>
+
+    <record id="action_customer_invoices" model="ir.actions.act_window">
+        <field name="name">Customer Invoices</field>
+        <field name="res_model">dvz.project.invoice.report</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_vendor_bills_search"/>
+        <field name="domain">[('move_type', 'in', ['out_invoice', 'out_refund'])]</field>
+        <field name="context">{'search_default_group_project': 1}</field>
+    </record>
+    <menuitem id="menu_customer_invoices" name="Customer Invoices" parent="menu_dvz_finance_section"
+              action="action_customer_invoices" sequence="30"/>
+
+    <!-- ======================= Bill / Invoice Lines ======================= -->
+    <record id="view_invoice_lines_list" model="ir.ui.view">
+        <field name="name">invoice_lines.list</field>
+        <field name="model">dvz.project.invoice.line</field>
+        <field name="arch" type="xml">
+            <list string="Bill and Invoice Lines" create="false" edit="false" delete="false">
+                <field name="move_id"/>
+                <field name="invoice_date"/>
+                <field name="analytic_account_id" string="Project"/>
+                <field name="move_type" optional="hide"/>
+                <field name="partner_id" string="Partner"/>
+                <field name="product_id"/>
+                <field name="quantity"/>
+                <field name="price_unit" optional="hide"/>
+                <field name="allocation_percent" optional="hide"/>
+                <field name="line_subtotal" optional="hide"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="company_currency_id" column_invisible="True"/>
+                <field name="project_amount" optional="hide"/>
+                <field name="project_amount_company" sum="Total"/>
+                <field name="payment_state" optional="show"/>
+                <field name="state"
+                       decoration-success="state == 'posted'"
+                       decoration-muted="state == 'draft'"/>
+                <field name="owner_user_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_invoice_lines_form" model="ir.ui.view">
+        <field name="name">invoice_lines.form</field>
+        <field name="model">dvz.project.invoice.line</field>
+        <field name="arch" type="xml">
+            <form string="Bill / Invoice Line" create="false" edit="false" delete="false">
+                <header>
+                    <button name="action_open_invoice" type="object"
+                            string="Open Original Document" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="move_id"/></h1>
+                        <h3><field name="analytic_account_id" string="Project"/></h3>
+                    </div>
+                    <group>
+                        <group string="Document">
+                            <field name="move_type"/>
+                            <field name="partner_id" string="Partner"/>
+                            <field name="invoice_date"/>
+                            <field name="state"/>
+                            <field name="payment_state"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Product">
+                            <field name="product_id"/>
+                            <field name="quantity"/>
+                            <field name="price_unit"/>
+                        </group>
+                    </group>
+                    <group string="Amounts">
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_currency_id" invisible="1"/>
+                            <field name="line_subtotal" string="Line subtotal"/>
+                            <field name="allocation_percent" string="This project's share %"/>
+                        </group>
+                        <group>
+                            <field name="project_amount_company" string="Project amount (company currency)"/>
+                            <field name="project_amount" string="Project amount (document currency)"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_invoice_lines_search" model="ir.ui.view">
+        <field name="name">invoice_lines.search</field>
+        <field name="model">dvz.project.invoice.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Bill and Invoice Lines">
+                <field name="analytic_account_id" string="Project"/>
+                <field name="partner_id" string="Partner"/>
+                <field name="product_id"/>
+                <field name="move_id"/>
+                <field name="invoice_date"/>
+                <filter string="Posted" name="posted" domain="[('state', '=', 'posted')]"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <separator/>
+                <filter string="Project" name="group_project" context="{'group_by': 'analytic_account_id'}"/>
+                <filter string="Partner" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                <filter string="Product" name="group_product" context="{'group_by': 'product_id'}"/>
+                <filter string="Document" name="group_move" context="{'group_by': 'move_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_invoice_lines" model="ir.actions.act_window">
+        <field name="name">Vendor Bill Lines</field>
+        <field name="res_model">dvz.project.invoice.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_invoice_lines_search"/>
+        <field name="domain">[('move_type', 'in', ['in_invoice', 'in_refund'])]</field>
+    </record>
+    <menuitem id="menu_invoice_lines" name="Vendor Bill Lines" parent="menu_dvz_finance_section"
+              action="action_invoice_lines" sequence="40"/>
+
+    <record id="action_customer_invoice_lines" model="ir.actions.act_window">
+        <field name="name">Customer Invoice Lines</field>
+        <field name="res_model">dvz.project.invoice.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_invoice_lines_search"/>
+        <field name="domain">[('move_type', 'in', ['out_invoice', 'out_refund'])]</field>
+    </record>
+    <menuitem id="menu_customer_invoice_lines" name="Customer Invoice Lines" parent="menu_dvz_finance_section"
+              action="action_customer_invoice_lines" sequence="50"/>
+
+</odoo>

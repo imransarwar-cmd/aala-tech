@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ======================= App + menu skeleton ======================= -->
+    <menuitem id="menu_dvz_project_purchase_root" name="Project Reporting" sequence="55"
+              web_icon="dvz_project_purchase_report,static/description/icon.png"/>
+    <menuitem id="menu_dvz_sales_section" name="Sales" parent="menu_dvz_project_purchase_root" sequence="5"/>
+    <menuitem id="menu_dvz_purchase_section" name="Procurement" parent="menu_dvz_project_purchase_root" sequence="10"/>
+    <menuitem id="menu_dvz_finance_section" name="Invoicing" parent="menu_dvz_project_purchase_root" sequence="20"/>
+    <menuitem id="menu_dvz_config_section" name="Configuration" parent="menu_dvz_project_purchase_root"
+              sequence="90" groups="account.group_account_user"/>
+
+    <!-- ======================= Project Purchase Orders ======================= -->
+    <record id="view_dvz_project_purchase_report_list" model="ir.ui.view">
+        <field name="name">dvz.project.purchase.report.list</field>
+        <field name="model">dvz.project.purchase.report</field>
+        <field name="arch" type="xml">
+            <list string="Project Purchase Orders" create="false" edit="false" delete="false"
+                  default_order="date_order desc">
+                <field name="purchase_id"/>
+                <field name="date_order"/>
+                <field name="analytic_account_id" string="Project"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="user_id" string="Buyer" optional="show"/>
+                <field name="product_line_count" string="Lines" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="company_currency_id" column_invisible="True"/>
+                <field name="project_amount_untaxed" optional="hide"/>
+                <field name="project_amount_company" sum="Total"/>
+                <field name="po_amount_total" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-success="state in ('purchase', 'done')"
+                       decoration-info="state in ('draft', 'sent', 'to approve')"
+                       decoration-danger="state == 'cancel'"/>
+                <field name="owner_user_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dvz_project_purchase_report_form" model="ir.ui.view">
+        <field name="name">dvz.project.purchase.report.form</field>
+        <field name="model">dvz.project.purchase.report</field>
+        <field name="arch" type="xml">
+            <form string="Project Purchase Order" create="false" edit="false" delete="false">
+                <header>
+                    <button name="action_open_purchase_order" type="object"
+                            string="Open Original PO" class="btn-primary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,purchase"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="purchase_id"/></h1>
+                        <h3><field name="analytic_account_id" string="Project"/></h3>
+                    </div>
+                    <group>
+                        <group string="Order">
+                            <field name="partner_id" string="Vendor"/>
+                            <field name="date_order"/>
+                            <field name="user_id" string="Buyer"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="product_line_count" string="Lines on this project"/>
+                        </group>
+                        <group string="Amounts (untaxed, this project's share)">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_currency_id" invisible="1"/>
+                            <field name="project_amount_company" string="In company currency"/>
+                            <field name="project_amount_untaxed" string="In PO currency"/>
+                            <field name="po_amount_total" string="Full PO total (tax incl.)"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dvz_project_purchase_report_search" model="ir.ui.view">
+        <field name="name">dvz.project.purchase.report.search</field>
+        <field name="model">dvz.project.purchase.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Project Purchase Orders">
+                <field name="purchase_id"/>
+                <field name="analytic_account_id" string="Project"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="user_id" string="Buyer"/>
+                <field name="date_order"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', 'in', ['purchase', 'done'])]"/>
+                <filter string="RFQs" name="rfqs" domain="[('state', 'in', ['draft', 'sent', 'to approve'])]"/>
+                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancel')]"/>
+                <separator/>
+                <filter string="This Month" name="date_this_month"
+                        domain="[('date_order', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                <filter string="This Year" name="date_this_year"
+                        domain="[('date_order', '&gt;=', context_today().strftime('%Y-01-01'))]"/>
+                <separator/>
+                <filter string="Project" name="group_project" context="{'group_by': 'analytic_account_id'}"/>
+                <filter string="Vendor" name="group_vendor" context="{'group_by': 'partner_id'}"/>
+                <filter string="Purchase Order" name="group_po" context="{'group_by': 'purchase_id'}"/>
+                <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                <filter string="Order Month" name="group_month" context="{'group_by': 'date_order:month'}"/>
+                <filter string="Order Year" name="group_year" context="{'group_by': 'date_order:year'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_dvz_project_purchase_report_pivot" model="ir.ui.view">
+        <field name="name">dvz.project.purchase.report.pivot</field>
+        <field name="model">dvz.project.purchase.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Project Purchases">
+                <field name="analytic_account_id" type="row"/>
+                <field name="date_order" interval="year" type="col"/>
+                <field name="project_amount_company" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_dvz_project_purchase_report" model="ir.actions.act_window">
+        <field name="name">Project Purchase Orders</field>
+        <field name="res_model">dvz.project.purchase.report</field>
+        <field name="view_mode">list,pivot,form</field>
+        <field name="search_view_id" ref="view_dvz_project_purchase_report_search"/>
+        <field name="context">{'search_default_group_project': 1}</field>
+        <field name="help" type="html">
+            <p>Project-wise purchase orders, calculated from the analytic distribution on each PO line.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_dvz_project_purchase_report" name="Project Purchase Orders"
+              parent="menu_dvz_purchase_section" action="action_dvz_project_purchase_report" sequence="10"/>
+
+</odoo>

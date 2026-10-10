@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Analytic account form: P&L + PO buttons, and the Estimated Budget -->
+    <record id="view_account_analytic_account_form_dvz_project_purchase" model="ir.ui.view">
+        <field name="name">account.analytic.account.form.dvz.project.purchase</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_dvz_open_project_pnl" type="object"
+                        class="oe_stat_button" icon="fa-line-chart" string="Profit &amp; Loss"/>
+                <button name="action_dvz_project_purchase_orders"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-shopping-cart">
+                    <field name="dvz_project_purchase_count" widget="statinfo" string="Project PO Amount"/>
+                </button>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <group string="Project Budget" name="dvz_budget_group">
+                    <field name="dvz_budget"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Quick editable list to type budgets for many projects at once -->
+    <record id="view_dvz_analytic_budget_list" model="ir.ui.view">
+        <field name="name">account.analytic.account.dvz.budget.list</field>
+        <field name="model">account.analytic.account</field>
+        <field name="arch" type="xml">
+            <list string="Project Budgets" editable="bottom" create="false" delete="false">
+                <field name="name" readonly="1"/>
+                <field name="plan_id" readonly="1"/>
+                <field name="company_id" readonly="1" groups="base.group_multi_company"/>
+                <field name="dvz_budget"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dvz_analytic_budget_search" model="ir.ui.view">
+        <field name="name">account.analytic.account.dvz.budget.search</field>
+        <field name="model">account.analytic.account</field>
+        <field name="arch" type="xml">
+            <search string="Project Budgets">
+                <field name="name"/>
+                <field name="plan_id"/>
+                <filter string="Budget set" name="has_budget" domain="[('dvz_budget', '&gt;', 0)]"/>
+                <filter string="No budget yet" name="no_budget" domain="[('dvz_budget', '=', 0)]"/>
+                <separator/>
+                <filter string="Plan" name="group_plan" context="{'group_by': 'plan_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_dvz_analytic_budget" model="ir.actions.act_window">
+        <field name="name">Project Budgets</field>
+        <field name="res_model">account.analytic.account</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="view_dvz_analytic_budget_search"/>
+        <field name="help" type="html">
+            <p>Type the estimated total cost (company currency) for each project in the Estimated Budget column.</p>
+        </field>
+    </record>
+    <record id="action_dvz_analytic_budget_list_view" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_dvz_analytic_budget_list"/>
+        <field name="act_window_id" ref="action_dvz_analytic_budget"/>
+    </record>
+
+    <menuitem id="menu_dvz_analytic_budget" name="Project Budgets"
+              parent="menu_dvz_config_section" action="action_dvz_analytic_budget" sequence="10"/>
+
+</odoo>

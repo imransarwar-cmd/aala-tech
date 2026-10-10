@@ -1,0 +1,20 @@
+<odoo>
+    <record id="view_dvz_native_project_po_list" model="ir.ui.view">
+        <field name="name">purchase.order.list.project.analytic.amount</field>
+        <field name="model">purchase.order</field>
+        <field name="arch" type="xml">
+            <list string="Project Purchase Orders" create="false" edit="false" delete="false">
+                <field name="name" string="Reference"/>
+                <field name="date_approve" string="Confirmation Date" optional="show"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="user_id" string="Buyer" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="dvz_project_amount_untaxed" widget="monetary" string="Project Amount (Untaxed)"/>
+                <field name="amount_total" widget="monetary" string="Full PO Total" optional="hide"/>
+                <field name="state" string="Status"/>
+                <field name="date_planned" string="Expected Arrival" optional="show"/>
+                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+</odoo>
