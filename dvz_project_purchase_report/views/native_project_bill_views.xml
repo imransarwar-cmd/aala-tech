@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vendor bills of one project, showing only the project's share of each bill -->
+    <record id="view_dvz_native_project_bill_list" model="ir.ui.view">
+        <field name="name">account.move.list.project.analytic.amount</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <list string="Project Vendor Bills" create="false" edit="false" delete="false">
+                <field name="name" string="Number"/>
+                <field name="invoice_date" string="Bill Date"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="ref" string="Bill Reference" optional="show"/>
+                <field name="invoice_date_due" string="Due Date" optional="show"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="company_currency_id" column_invisible="True"/>
+                <field name="dvz_project_amount_untaxed" widget="monetary" string="Project Amount (Untaxed)"/>
+                <field name="dvz_project_amount_company" widget="monetary" sum="Total"
+                       string="Project Amount (Company Currency)"/>
+                <field name="amount_untaxed" widget="monetary" string="Full Bill (Untaxed)" optional="hide"/>
+                <field name="amount_total" widget="monetary" string="Full Bill Total" optional="hide"/>
+                <field name="payment_state" string="Payment" optional="show"/>
+                <field name="state" string="Status"
+                       decoration-success="state == 'posted'"
+                       decoration-muted="state == 'draft'"/>
+                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dvz_native_project_bill_search" model="ir.ui.view">
+        <field name="name">account.move.search.project.analytic.amount</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <search string="Search Project Vendor Bills">
+                <field name="name" string="Number"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="ref" string="Bill Reference"/>
+                <field name="invoice_date"/>
+                <filter string="Posted" name="posted" domain="[('state', '=', 'posted')]"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Not Paid" name="not_paid"
+                        domain="[('state', '=', 'posted'), ('payment_state', 'in', ['not_paid', 'partial'])]"/>
+                <separator/>
+                <filter string="Vendor" name="group_vendor" context="{'group_by': 'partner_id'}"/>
+                <filter string="Bill Month" name="group_month" context="{'group_by': 'invoice_date:month'}"/>
+                <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+</odoo>

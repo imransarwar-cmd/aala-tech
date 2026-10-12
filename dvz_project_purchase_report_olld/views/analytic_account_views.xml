@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Analytic account form: the Project PO smart button -->
+    <record id="view_account_analytic_account_form_dvz_project_purchase" model="ir.ui.view">
+        <field name="name">account.analytic.account.form.dvz.project.purchase</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_dvz_project_purchase_orders"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-shopping-cart">
+                    <field name="dvz_project_purchase_count" widget="statinfo" string="Project PO Amount"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Analytic account form: the Project PO smart button -->
+    <!-- Analytic account form: Project PO button + Project Bill Amount button -->
     <record id="view_account_analytic_account_form_dvz_project_purchase" model="ir.ui.view">
         <field name="name">account.analytic.account.form.dvz.project.purchase</field>
         <field name="model">account.analytic.account</field>
@@ -13,6 +13,19 @@
                         class="oe_stat_button"
                         icon="fa-shopping-cart">
                     <field name="dvz_project_purchase_count" widget="statinfo" string="Project PO Amount"/>
+                </button>
+                <button name="action_dvz_project_vendor_bills"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-credit-card">
+                    <field name="dvz_currency_id" invisible="1"/>
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="dvz_project_bill_amount" widget="monetary"
+                                   options="{'currency_field': 'dvz_currency_id'}"/>
+                        </span>
+                        <span class="o_stat_text">Project Bill Amount</span>
+                    </div>
                 </button>
             </xpath>
         </field>

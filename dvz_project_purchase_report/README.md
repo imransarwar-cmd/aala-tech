@@ -1,35 +1,31 @@
-# Project Reporting - Odoo 19 Community
+# Project Amount Smart Buttons - Odoo 19 Community
 
-Project sales, procurement and invoicing reports, grouped by project (analytic account).
+Two smart buttons on the **analytic account** form. Each opens the documents linked to that
+project and shows **only the project's own share** of every amount (not the full document total).
 
-## Menus
-- **Sales** - Project Sale Orders, Sale Order Lines (agreed price per project).
-- **Procurement** - Project Purchase Orders, PO Product Lines.
-- **Invoicing** - Vendor Bills, Customer Invoices, Vendor Bill Lines, Customer Invoice Lines.
-- On the **analytic account** form: a Project PO smart button.
+| Button | Opens | Shows |
+|---|---|---|
+| **Project PO Amount** | the project's purchase orders | Project Amount (Untaxed) per PO |
+| **Project Bill Amount** | the project's vendor bills and credit notes | Project Amount per bill, in bill currency and in company currency; the button itself shows the total of the **posted** bills (credit notes subtract) |
 
-## How the numbers are built
-Everything is allocated by the **analytic distribution** on each line (sale order, purchase
-order, bill, invoice), so the project must be set on the line. Amounts are **untaxed**; each
-list also shows the project's share converted to **company currency**, so SAR, EUR and USD
-documents total correctly.
+How the share is worked out: each PO / bill line carries an analytic distribution
+(e.g. Project A 60%, Project B 40%). The project amount is the line's untaxed amount times
+the project's percentage, added up per document. Draft bills are listed (status shown) but are
+not in the button total until posted.
+
+## What this module does NOT do
+No menus, no report tables, no database views, no stored data. Amounts are computed on the fly,
+only for the documents on screen, so it adds essentially no load to the database.
 
 ## Access
-No custom groups or record rules. Internal users (`base.group_user`) have **read-only** access
-to the report models. They are SQL views, so nobody can create or edit rows; the views also hide
-the New / Edit / Delete buttons.
+Nothing to configure. It adds no groups, record rules or access rows; users see only what
+Odoo already lets them see.
 
-**Security warning:** these SQL views ignore record rules, so every internal user can see every
-company's project figures. Do not deploy this variant if that is unacceptable.
-
-## Upgrading
-Replace the folder and upgrade (`-u dvz_project_purchase_report`); copying files alone does not
-update the database. Needs the Sales app (`sale`) installed.
+## Upgrading from the old "Project Reporting" app (19.0.6.x)
+Replace the folder and upgrade (`-u dvz_project_purchase_report`). The upgrade removes the old
+menus, report models and their SQL views. Nothing in sales, purchase or accounting is changed.
 
 ### Version history
-- 19.0.6.0.2 - Removed the Project Profit & Loss dashboard (its query was too heavy for the
-  server) together with the Estimated Budget field and the Project Budgets screen. Its SQL view
-  is dropped on upgrade.
-- 19.0.6.0.1 - Fixed search views invalid on this Odoo 19 build.
-- 19.0.6.0.0 - Added the Sales reports and company-currency amounts; fixed the actions opening a
-  blank "New" form instead of the list.
+- 19.0.7.0.0 - Added the Project Bill Amount button. Removed the Project Reporting app (menus,
+  sales/procurement/invoicing reports, dashboard) and all SQL views.
+- 19.0.6.x - Report app versions (removed).

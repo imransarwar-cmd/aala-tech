@@ -1,5 +1,7 @@
 from odoo import api, fields, models
 
+from ._helpers import project_share_percent
+
 
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
@@ -21,9 +23,6 @@ class PurchaseOrder(models.Model):
                 for line in order.order_line:
                     if line.display_type:
                         continue
-                    # Keys can be '3476' or '3476,OTHER_ID' (multi-plan).
-                    for key, percent in (line.analytic_distribution or {}).items():
-                        account_ids = [part.strip() for part in str(key).split(',')]
-                        if str(analytic_id) in account_ids:
-                            total += line.price_subtotal * float(percent) / 100.0
+                    total += line.price_subtotal * project_share_percent(
+                        analytic_id, line.analytic_distribution) / 100.0
             order.dvz_project_amount_untaxed = total
