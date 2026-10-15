@@ -41,6 +41,43 @@ class CrmLead(models.Model):
         help="The Pre-Sales person for this lead - select the relevant "
              "employee directly here.",
     )
+    presale_member_ids = fields.Many2many(
+        "res.users", "dvz_crm_lead_presale_user_rel", "lead_id", "user_id",
+        string="Presale", domain="[('id', 'in', presale_allowed_user_ids)]",
+        help="Select one or more members of the chosen Presale Team. Assigned members can see this lead.",
+    )
+    presale_allowed_user_ids = fields.Many2many(
+        "res.users", compute="_compute_presale_allowed_user_ids",
+        string="Available Presale Members",
+    )
+
+    @api.depends("team_id", "team_id.member_ids")
+    def _compute_presale_allowed_user_ids(self):
+        for lead in self:
+            lead.presale_allowed_user_ids = lead.team_id.member_ids
+
+    @api.onchange("team_id")
+    def _onchange_presale_team_members(self):
+        for lead in self:
+            lead.presale_member_ids = lead.presale_member_ids & lead.team_id.member_ids
+
+    @api.constrains("team_id", "presale_member_ids")
+    def _check_presale_members_team(self):
+        from odoo.exceptions import ValidationError
+        for lead in self:
+            if lead.presale_member_ids - lead.team_id.member_ids:
+                raise ValidationError("Presale members must belong to the selected Presale Team.")
+
+    def write(self, vals):
+        # Preserve existing assignments only when they remain on the new team.
+        if "team_id" in vals and "presale_member_ids" not in vals:
+            for lead in self:
+                team = self.env["crm.team"].browse(vals["team_id"]) if vals["team_id"] else self.env["crm.team"]
+                keep = lead.presale_member_ids & team.member_ids
+                super(CrmLead, lead).write(dict(vals, presale_member_ids=[(6, 0, keep.ids)]))
+            return True
+        return super().write(vals)
+
     inquiry_date = fields.Date(string="Inquiry")
     due_date = fields.Date(string="Due Date")
     est_closing_date = fields.Date(string="Est. Closing")

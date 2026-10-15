@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "CRM Project Lines",
-    "version": "19.0.1.2.0",
+    "version": "19.0.1.3.0",
     "summary": "Adds Project/Status to CRM Leads, plus a one2many line table "
                 "(System, Activity, Sales, Presales, Inquiry, Due Date, "
                 "Est. Closing) matching the tracking spreadsheet format. "

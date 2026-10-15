@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "CRM Team Leader Visibility",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "summary": "Three explicit CRM visibility roles: Salesperson (own "
                 "leads), Team Leader (own team's leads), Head (every "
                 "team).",
@@ -39,7 +39,7 @@ Leader).
     "author": "Genius Valley",
     "category": "Sales/CRM",
     "license": "OPL-1",
-    "depends": ["crm", "sales_team"],
+    "depends": ["crm", "sales_team", "dvz_crm_ext"],
     "data": [
         "security/security.xml",
     ],

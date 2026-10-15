@@ -37,6 +37,11 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
 
+            <xpath expr="//field[@name='team_id']" position="attributes">
+                <attribute name="string">Presale Team</attribute>
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
             <!-- Native Salesperson field hidden where it natively sits -
                  shown instead as "Sale Person" in the left column below.
                  This runs BEFORE that insertion (not after) - once a
@@ -63,7 +68,9 @@
                  while user_id is still a single, unambiguous match. -->
             <xpath expr="//field[@name='user_id']" position="before">
                 <field name="is_lead_stage" invisible="1"/>
-                <field name="presales_id" string="Presale" invisible="is_lead_stage"/>
+                <field name="team_id" string="Presale Team"/>
+                <field name="presale_allowed_user_ids" invisible="1"/>
+                <field name="presale_member_ids" string="Presale" widget="many2many_tags" domain="[('id', 'in', presale_allowed_user_ids)]"/>
                 <field name="inquiry_date" invisible="is_lead_stage"/>
             </xpath>
 
