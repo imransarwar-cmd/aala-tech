@@ -1,9 +1,9 @@
-# Internal Bank/Cash Transfers for Odoo 19 Community
+# DVZ Internal Bank and Cash Transfers — Odoo 19
 
-Depends on `base_accounting_kit` (Cybrosys). Install from Apps after updating the apps list.
+Version 19.0.1.1.0. Upgrade the existing module (do not uninstall).
 
-Go to Accounting > Internal Transfers. Configure separate Default Accounts on each Bank/Cash journal, and a Miscellaneous/General journal for posting. Create a transfer, choose source and destination bank/cash journals, amount (in company currency), and post.
+Changes: Odoo 19-compatible optional account field checks, automatic transfer references TRF/YYYY/00001, mail chatter and activities, tracking of state/name. Existing records and journal entries are retained. Previously created transfer names remain unchanged; new records get sequence numbers.
 
-Posting creates ONE balanced journal entry: debit destination ledger account and credit source ledger account. Reversing posts a separate opposite journal entry; it does not delete history. This is an accounting transfer, NOT a bank statement line or payment, and does not automatically reconcile imported bank statements.
+**Accounting:** This module creates one balanced miscellaneous journal entry directly between the two journal default accounts. It does not automatically match/reconcile bank statement lines. Test accounting treatment with your accountant before production.
 
-Important: Only same-company, company-currency transfers are supported. For multi-currency, bank suspense/outstanding-account reconciliation, or statement matching, additional workflows are required. Posting is limited to Accounting Managers; invoicing users have read-only access. Test on staging and verify account mappings, accounting lock dates and bank reconciliation before production use.
+**Upgrade:** Back up database, replace addon folder, restart Odoo, upgrade addon in Apps. No database migration or deletion is required.

@@ -7,8 +7,9 @@ class AccountInternalTransfer(models.Model):
     _description = 'Internal Bank/Cash Transfer'
     _order = 'date desc, id desc'
     _check_company_auto = True
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    name = fields.Char(default='New', readonly=True, copy=False)
+    name = fields.Char(default='New', readonly=True, copy=False, tracking=True)
     date = fields.Date(required=True, default=fields.Date.context_today)
     company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company, readonly=False)
     currency_id = fields.Many2one('res.currency', related='company_id.currency_id', store=True)
@@ -17,9 +18,16 @@ class AccountInternalTransfer(models.Model):
     destination_journal_id = fields.Many2one('account.journal', required=True, check_company=True, domain="[('type', 'in', ('bank', 'cash')), ('company_id', '=', company_id)]")
     entry_journal_id = fields.Many2one('account.journal', string='Transfer Entry Journal', required=True, check_company=True, domain="[('type', '=', 'general'), ('company_id', '=', company_id)]", help='Miscellaneous journal used to record the balanced transfer entry.')
     memo = fields.Char()
-    state = fields.Selection([('draft', 'Draft'), ('posted', 'Posted'), ('reversed', 'Reversed')], default='draft', required=True, readonly=True)
+    state = fields.Selection([('draft', 'Draft'), ('posted', 'Posted'), ('reversed', 'Reversed')], default='draft', required=True, readonly=True, tracking=True)
     move_id = fields.Many2one('account.move', readonly=True, copy=False, check_company=True)
     reversal_move_id = fields.Many2one('account.move', readonly=True, copy=False, check_company=True)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('name') or vals['name'] == 'New':
+                vals['name'] = self.env['ir.sequence'].next_by_code('dvz.account.internal.transfer') or 'New'
+        return super().create(vals_list)
 
     @api.constrains('amount', 'source_journal_id', 'destination_journal_id', 'entry_journal_id', 'company_id')
     def _validate_transfer(self):
@@ -41,9 +49,9 @@ class AccountInternalTransfer(models.Model):
         if source == destination:
             raise UserError(_('Source and destination journals cannot use the same ledger account.'))
         for account in (source, destination):
-            if account.deprecated:
+            if 'deprecated' in account._fields and account.deprecated:
                 raise UserError(_('The journal default account must not be deprecated.'))
-            if account.company_ids and self.company_id not in account.company_ids:
+            if 'company_ids' in account._fields and account.company_ids and self.company_id not in account.company_ids:
                 raise UserError(_('The journal account is not available to the selected company.'))
         return source, destination
 
@@ -71,7 +79,7 @@ class AccountInternalTransfer(models.Model):
             rec._accounts()
             move = self.env['account.move'].with_company(rec.company_id).create(rec._prepare_move_vals())
             move.action_post()
-            rec.write({'move_id': move.id, 'state': 'posted', 'name': 'TRF/%05d' % rec.id})
+            rec.write({'move_id': move.id, 'state': 'posted', 'name': rec.name})
         return True
 
     def action_reverse(self):
