@@ -1,6 +1,6 @@
 {
     'name': 'DVZ Sales Order Invoice Reference Link',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.2.1',
     'category': 'Sales/Sales',
     'summary': 'Show independently linked invoices in the existing Sales Order Invoices smart button',
     'author': 'DigitalVizta',
