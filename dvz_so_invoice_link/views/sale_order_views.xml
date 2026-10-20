@@ -5,10 +5,9 @@
     <field name="model">sale.order</field>
     <field name="inherit_id" ref="sale.view_order_form"/>
     <field name="arch" type="xml">
-      <xpath expr="//form" position="inside">
-        <field name="dvz_linked_invoice_ids" invisible="1"/>
+      <xpath expr="//button[@name='action_view_invoice' and @type='object']" position="attributes">
+        <attribute name="invisible">invoice_count == 0</attribute>
       </xpath>
     </field>
-    <field name="active" eval="False"/>
   </record>
 </odoo>
