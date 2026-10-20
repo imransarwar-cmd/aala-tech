@@ -5,7 +5,7 @@
  'summary': 'Separate Linked Invoices smart button for reference-only invoices',
  'author': 'DigitalVizta',
  'license': 'LGPL-3',
- 'depends': ['sale', 'account'],
+ 'depends': ['sale', 'account','aala_rest_api'],
  'data': [],
  'installable': True,
  'application': False,
