@@ -68,9 +68,9 @@
                  while user_id is still a single, unambiguous match. -->
             <xpath expr="//field[@name='user_id']" position="before">
                 <field name="is_lead_stage" invisible="1"/>
-                <field name="team_id" string="Presale Team"/>
+                <field name="team_id" string="Presales Team"/>
                 <field name="presale_allowed_user_ids" invisible="1"/>
-                <field name="presale_member_ids" string="Presale" widget="many2many_tags" domain="[('id', 'in', presale_allowed_user_ids)]"/>
+                <field name="presale_member_ids" string="Presales" widget="many2many_tags" domain="[('id', 'in', presale_allowed_user_ids)]"/>
                 <field name="inquiry_date" invisible="is_lead_stage"/>
             </xpath>
 
@@ -132,7 +132,7 @@
                 <field name="brand_ids" widget="many2many_tags"/>
                 <field name="due_date"/>
                 <field name="sales_ids" widget="many2many_tags" invisible="1"/>
-                <field name="user_id" string="Sale Person"/>
+                <field name="user_id" string="Sales Person"/>
                 <field name="dvz_activity_ids" widget="many2many_tags"/>
                 <field name="remarks"/>
             </xpath>
