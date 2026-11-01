@@ -6,7 +6,7 @@
     <field name="inherit_id" ref="sale.view_order_form"/>
     <field name="arch" type="xml">
       <xpath expr="//button[@name='action_view_invoice' and @type='object']" position="attributes">
-        <attribute name="invisible">invoice_count == 0</attribute>
+<!--        <attribute name="invisible">invoice_count ==1</attribute>-->
       </xpath>
     </field>
   </record>
