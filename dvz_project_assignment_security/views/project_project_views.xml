@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="project_form_assignment_security" model="ir.ui.view">
+        <field name="name">project.project.form.assignment.security</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group/group/field[@name='user_id']" position="before">
+                <field name="dvz_can_assign_project" invisible="1"/>
+                <field name="dvz_has_full_project_access" invisible="1"/>
+            </xpath>
+            <xpath expr="//sheet/group/group/field[@name='user_id']" position="attributes">
+                <attribute name="readonly">not active or not dvz_can_assign_project</attribute>
+            <attribute name="help">This person can access the project and all its tasks. Only an HOD or Settings Administrator can change this assignment.</attribute></xpath>
+            <xpath expr="//button[@name='project_update_all_action']" position="attributes">
+                <attribute name="invisible">is_template or not dvz_has_full_project_access</attribute>
+            </xpath>
+        </field>
+    </record>
+<record id="project_search_all_name_parts" model="ir.ui.view"><field name="name">project.project.search.all.name.parts</field><field name="model">project.project</field><field name="inherit_id" ref="project.view_project_project_filter"/><field name="arch" type="xml"><xpath expr="//search/field[@name='name']" position="attributes"><attribute name="string">Project (All Name Parts)</attribute><attribute name="filter_domain">[('display_name', 'ilike', self)]</attribute></xpath></field></record></odoo>

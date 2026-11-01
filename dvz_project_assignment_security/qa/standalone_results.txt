@@ -1,0 +1,97 @@
+test_archived_projects_are_included_in_upgrade_search (test_revision.MigrationFunctionTests.test_archived_projects_are_included_in_upgrade_search) ... ok
+test_attachment_is_private_and_attached_to_admin_module_record (test_revision.MigrationFunctionTests.test_attachment_is_private_and_attached_to_admin_module_record) ... ok
+test_conflicts_are_reported_without_modifying_project (test_revision.MigrationFunctionTests.test_conflicts_are_reported_without_modifying_project) ... Project manager migration review: project=100 status=review_existing_manager: Existing Project Manager kept. Other legacy users no longer receive whole-project access; review their individual task assignments.
+ok
+test_csv_values_cannot_inject_spreadsheet_formula (test_revision.MigrationFunctionTests.test_csv_values_cannot_inject_spreadsheet_formula) ... ok
+test_multiple_assignees_are_reported_without_granting_access (test_revision.MigrationFunctionTests.test_multiple_assignees_are_reported_without_granting_access) ... Project manager migration review: project=100 status=review_multiple_users: Project Manager is blank and several legacy users exist. HOD must select one responsible Project Manager.
+ok
+test_no_legacy_records_no_attachment (test_revision.MigrationFunctionTests.test_no_legacy_records_no_attachment) ... ok
+test_repeat_run_does_not_reassign_manager (test_revision.MigrationFunctionTests.test_repeat_run_does_not_reassign_manager) ... ok
+test_screenshot_scenario_writes_only_native_manager (test_revision.MigrationFunctionTests.test_screenshot_scenario_writes_only_native_manager) ... ok
+test_all_terms_must_match (test_revision.SearchTests.test_all_terms_must_match) ... ok
+test_case_insensitive (test_revision.SearchTests.test_case_insensitive) ... ok
+test_code_separators (test_revision.SearchTests.test_code_separators) ... ok
+test_deduplicate_case_insensitively (test_revision.SearchTests.test_deduplicate_case_insensitively) ... ok
+test_each_component_and_numeric_fragment (test_revision.SearchTests.test_each_component_and_numeric_fragment) ... ok
+test_empty_and_non_text_delegate (test_revision.SearchTests.test_empty_and_non_text_delegate) ... ok
+test_full_code (test_revision.SearchTests.test_full_code) ... ok
+test_full_name (test_revision.SearchTests.test_full_name) ... ok
+test_leading_zeros_are_not_rewritten (test_revision.SearchTests.test_leading_zeros_are_not_rewritten) ... ok
+test_multiple_parts_either_order (test_revision.SearchTests.test_multiple_parts_either_order) ... ok
+test_native_operators_are_delegated (test_revision.SearchTests.test_native_operators_are_delegated) ... ok
+test_negative_is_whole_expression_complement (test_revision.SearchTests.test_negative_is_whole_expression_complement) ... ok
+test_no_domain_shared_between_calls (test_revision.SearchTests.test_no_domain_shared_between_calls) ... ok
+test_original_other_example (test_revision.SearchTests.test_original_other_example) ... ok
+test_plain_non_so_project (test_revision.SearchTests.test_plain_non_so_project) ... ok
+test_search_and_assignment_domain_intersect (test_revision.SearchTests.test_search_and_assignment_domain_intersect) ... ok
+test_single_negative (test_revision.SearchTests.test_single_negative) ... ok
+test_terms_cannot_be_found_across_different_projects (test_revision.SearchTests.test_terms_cannot_be_found_across_different_projects) ... ok
+test_unicode_names (test_revision.SearchTests.test_unicode_names) ... ok
+test_zero_is_not_letter_o (test_revision.SearchTests.test_zero_is_not_letter_o) ... ok
+test_missing_group_is_tolerated (test_revision.UninstallTests.test_missing_group_is_tolerated) ... ok
+test_native_label_restored_when_ours_still_active (test_revision.UninstallTests.test_native_label_restored_when_ours_still_active) ... ok
+test_other_custom_label_not_overwritten (test_revision.UninstallTests.test_other_custom_label_not_overwritten) ... ok
+test_archived_user_not_selected (test_revision.UpgradePlanTests.test_archived_user_not_selected) ... ok
+test_blank_manager_single_user_migrates (test_revision.UpgradePlanTests.test_blank_manager_single_user_migrates) ... ok
+test_company_not_granted_implicitly (test_revision.UpgradePlanTests.test_company_not_granted_implicitly) ... ok
+test_duplicate_input_user_id_does_not_create_ambiguity (test_revision.UpgradePlanTests.test_duplicate_input_user_id_does_not_create_ambiguity) ... ok
+test_existing_different_manager_never_overwritten (test_revision.UpgradePlanTests.test_existing_different_manager_never_overwritten) ... ok
+test_existing_manager_and_multiple_users_preserved (test_revision.UpgradePlanTests.test_existing_manager_and_multiple_users_preserved) ... ok
+test_existing_same_manager_unchanged (test_revision.UpgradePlanTests.test_existing_same_manager_unchanged) ... ok
+test_multiple_users_never_arbitrarily_selected (test_revision.UpgradePlanTests.test_multiple_users_never_arbitrarily_selected) ... ok
+test_no_legacy_data_no_change (test_revision.UpgradePlanTests.test_no_legacy_data_no_change) ... ok
+test_no_mutation (test_revision.UpgradePlanTests.test_no_mutation) ... ok
+test_portal_user_not_selected (test_revision.UpgradePlanTests.test_portal_user_not_selected) ... ok
+test_global_guard_for_every_grant (test_standalone.PackageTests.test_global_guard_for_every_grant) ... ok
+test_hod_group_implies_manager_not_system (test_standalone.PackageTests.test_hod_group_implies_manager_not_system) ... ok
+test_legacy_storage_is_admin_only_and_readonly (test_standalone.PackageTests.test_legacy_storage_is_admin_only_and_readonly) ... ok
+test_manager_role_renames_native_group_without_duplicate (test_standalone.PackageTests.test_manager_role_renames_native_group_without_duplicate) ... ok
+test_manifest_data_exists (test_standalone.PackageTests.test_manifest_data_exists) ... ok
+test_migration_script_present_and_version_matches (test_standalone.PackageTests.test_migration_script_present_and_version_matches) ... ok
+test_no_custom_buttons_added (test_standalone.PackageTests.test_no_custom_buttons_added) ... ok
+test_no_legacy_field_in_views_or_policy (test_standalone.PackageTests.test_no_legacy_field_in_views_or_policy) ... ok
+test_no_native_rule_is_deactivated_or_modified (test_standalone.PackageTests.test_no_native_rule_is_deactivated_or_modified) ... ok
+test_no_new_acl_grants (test_standalone.PackageTests.test_no_new_acl_grants) ... ok
+test_no_request_context_permission_bypass (test_standalone.PackageTests.test_no_request_context_permission_bypass) ... ok
+test_no_runtime_sudo_or_sql_is_used (test_standalone.PackageTests.test_no_runtime_sudo_or_sql_is_used) ... ok
+test_python_parses (test_standalone.PackageTests.test_python_parses) ... ok
+test_rule_expressions_use_only_known_scopes (test_standalone.PackageTests.test_rule_expressions_use_only_known_scopes) ... ok
+test_search_view_uses_standard_display_name (test_standalone.PackageTests.test_search_view_uses_standard_display_name) ... ok
+test_xml_parses (test_standalone.PackageTests.test_xml_parses) ... ok
+test_all_employees_visibility_does_not_grant_access (test_standalone.PolicyTests.test_all_employees_visibility_does_not_grant_access) ... ok
+test_assigned_project_grants_other_users_tasks (test_standalone.PolicyTests.test_assigned_project_grants_other_users_tasks) ... ok
+test_assigned_project_grants_unassigned_tasks (test_standalone.PolicyTests.test_assigned_project_grants_unassigned_tasks) ... ok
+test_burndown_uses_project_not_fabricated_task_ids (test_standalone.PolicyTests.test_burndown_uses_project_not_fabricated_task_ids) ... ok
+test_exhaustive_assignment_boolean_matrix (test_standalone.PolicyTests.test_exhaustive_assignment_boolean_matrix) ... ok
+test_favorite_is_not_assignment (test_standalone.PolicyTests.test_favorite_is_not_assignment) ... ok
+test_follower_is_not_assignment (test_standalone.PolicyTests.test_follower_is_not_assignment) ... ok
+test_full_project_user_reads_project_updates (test_standalone.PolicyTests.test_full_project_user_reads_project_updates) ... ok
+test_hod_keeps_own_personal_tasks (test_standalone.PolicyTests.test_hod_keeps_own_personal_tasks) ... ok
+test_hod_not_granted_other_personal_tasks (test_standalone.PolicyTests.test_hod_not_granted_other_personal_tasks) ... ok
+test_hod_reads_all_project_tasks (test_standalone.PolicyTests.test_hod_reads_all_project_tasks) ... ok
+test_hod_reads_all_projects (test_standalone.PolicyTests.test_hod_reads_all_projects) ... ok
+test_invalid_scope_is_rejected_even_for_admin (test_standalone.PolicyTests.test_invalid_scope_is_rejected_even_for_admin) ... ok
+test_invalid_user_id_is_rejected (test_standalone.PolicyTests.test_invalid_user_id_is_rejected) ... ok
+test_legacy_assignment_no_longer_grants_any_access (test_standalone.PolicyTests.test_legacy_assignment_no_longer_grants_any_access) ... ok
+test_manager_change_changes_result_without_cached_id_lists (test_standalone.PolicyTests.test_manager_change_changes_result_without_cached_id_lists) ... ok
+test_milestone_referenced_by_assigned_task (test_standalone.PolicyTests.test_milestone_referenced_by_assigned_task) ... ok
+test_native_manager_can_read_empty_project (test_standalone.PolicyTests.test_native_manager_can_read_empty_project) ... ok
+test_native_project_manager_is_full_assignment (test_standalone.PolicyTests.test_native_project_manager_is_full_assignment) ... ok
+test_no_mutable_domain_shared_between_calls (test_standalone.PolicyTests.test_no_mutable_domain_shared_between_calls) ... ok
+test_only_assigned_task_is_visible (test_standalone.PolicyTests.test_only_assigned_task_is_visible) ... ok
+test_ordinary_user_own_personal_task (test_standalone.PolicyTests.test_ordinary_user_own_personal_task) ... ok
+test_other_task_assignees_do_not_grant_whole_project (test_standalone.PolicyTests.test_other_task_assignees_do_not_grant_whole_project) ... ok
+test_portal_guard_is_neutral (test_standalone.PolicyTests.test_portal_guard_is_neutral) ... ok
+test_settings_administrator_guard_is_neutral (test_standalone.PolicyTests.test_settings_administrator_guard_is_neutral) ... ok
+test_shared_company_task_grants_header (test_standalone.PolicyTests.test_shared_company_task_grants_header) ... ok
+test_task_assignee_can_read_parent_header (test_standalone.PolicyTests.test_task_assignee_can_read_parent_header) ... ok
+test_task_assignee_cannot_modify_parent_project (test_standalone.PolicyTests.test_task_assignee_cannot_modify_parent_project) ... ok
+test_task_in_other_company_does_not_grant_parent_header (test_standalone.PolicyTests.test_task_in_other_company_does_not_grant_parent_header) ... ok
+test_task_only_user_cannot_read_project_updates (test_standalone.PolicyTests.test_task_only_user_cannot_read_project_updates) ... ok
+test_unassigned_empty_project_not_visible (test_standalone.PolicyTests.test_unassigned_empty_project_not_visible) ... ok
+test_unrelated_milestone_denied (test_standalone.PolicyTests.test_unrelated_milestone_denied) ... ok
+
+----------------------------------------------------------------------
+Ran 90 tests in 0.016s
+
+OK

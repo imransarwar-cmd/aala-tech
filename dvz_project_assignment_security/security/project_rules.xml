@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <!-- Assignment guards are GLOBAL: additive native manager/follower rules cannot override them. -->
+  <record id="rule_project_read_guard" model="ir.rule">
+    <field name="name">DVZ: Project: assigned project or parent of own task (guard)</field>
+    <field name="model_id" ref="project.model_project_project"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('project_read', company_ids)</field>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="False"/>
+    <field name="perm_create" eval="False"/>
+    <field name="perm_unlink" eval="False"/>
+  </record>
+  <record id="rule_project_read_grant" model="ir.rule">
+    <field name="name">DVZ: Project: assigned project or parent of own task (grant)</field>
+    <field name="model_id" ref="project.model_project_project"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('project_read', company_ids)</field>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="False"/>
+    <field name="perm_create" eval="False"/>
+    <field name="perm_unlink" eval="False"/>
+    <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+  <record id="rule_project_modify_guard" model="ir.rule">
+    <field name="name">DVZ: Project: only full project assignments may modify (guard)</field>
+    <field name="model_id" ref="project.model_project_project"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('project_write', company_ids)</field>
+    <field name="perm_read" eval="False"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+  </record>
+  <record id="rule_project_modify_grant" model="ir.rule">
+    <field name="name">DVZ: Project: only full project assignments may modify (grant)</field>
+    <field name="model_id" ref="project.model_project_project"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('project_write', company_ids)</field>
+    <field name="perm_read" eval="False"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+    <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+  <record id="rule_task_guard" model="ir.rule">
+    <field name="name">DVZ: Task: own task OR any task in assigned project (guard)</field>
+    <field name="model_id" ref="project.model_project_task"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('task', company_ids)</field>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+  </record>
+  <record id="rule_task_grant" model="ir.rule">
+    <field name="name">DVZ: Task: own task OR any task in assigned project (grant)</field>
+    <field name="model_id" ref="project.model_project_task"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('task', company_ids)</field>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+    <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+  <record id="rule_analysis_guard" model="ir.rule">
+    <field name="name">DVZ: Task Analysis: assignment scope (guard)</field>
+    <field name="model_id" ref="project.model_report_project_task_user"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('task', company_ids)</field>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+  </record>
+  <record id="rule_analysis_grant" model="ir.rule">
+    <field name="name">DVZ: Task Analysis: assignment scope (grant)</field>
+    <field name="model_id" ref="project.model_report_project_task_user"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('task', company_ids)</field>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+    <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+  <record id="rule_burndown_guard" model="ir.rule">
+    <field name="name">DVZ: Burndown: assignment scope (guard)</field>
+    <field name="model_id" ref="project.model_project_task_burndown_chart_report"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('burndown', company_ids)</field>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+  </record>
+  <record id="rule_burndown_grant" model="ir.rule">
+    <field name="name">DVZ: Burndown: assignment scope (grant)</field>
+    <field name="model_id" ref="project.model_project_task_burndown_chart_report"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('burndown', company_ids)</field>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+    <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+  <record id="rule_update_guard" model="ir.rule">
+    <field name="name">DVZ: Project Updates: full project assignment (guard)</field>
+    <field name="model_id" ref="project.model_project_update"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('project_related', company_ids)</field>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+  </record>
+  <record id="rule_update_grant" model="ir.rule">
+    <field name="name">DVZ: Project Updates: full project assignment (grant)</field>
+    <field name="model_id" ref="project.model_project_update"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('project_related', company_ids)</field>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+    <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+  <record id="rule_milestone_read_guard" model="ir.rule">
+    <field name="name">DVZ: Milestone: full project or own task metadata (guard)</field>
+    <field name="model_id" ref="project.model_project_milestone"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('milestone_read', company_ids)</field>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="False"/>
+    <field name="perm_create" eval="False"/>
+    <field name="perm_unlink" eval="False"/>
+  </record>
+  <record id="rule_milestone_read_grant" model="ir.rule">
+    <field name="name">DVZ: Milestone: full project or own task metadata (grant)</field>
+    <field name="model_id" ref="project.model_project_milestone"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('milestone_read', company_ids)</field>
+    <field name="perm_read" eval="True"/>
+    <field name="perm_write" eval="False"/>
+    <field name="perm_create" eval="False"/>
+    <field name="perm_unlink" eval="False"/>
+    <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+  <record id="rule_milestone_modify_guard" model="ir.rule">
+    <field name="name">DVZ: Milestone: modify only assigned projects (guard)</field>
+    <field name="model_id" ref="project.model_project_milestone"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('project_related', company_ids)</field>
+    <field name="perm_read" eval="False"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+  </record>
+  <record id="rule_milestone_modify_grant" model="ir.rule">
+    <field name="name">DVZ: Milestone: modify only assigned projects (grant)</field>
+    <field name="model_id" ref="project.model_project_milestone"/>
+    <field name="domain_force">user._dvz_assignment_rule_domain('project_related', company_ids)</field>
+    <field name="perm_read" eval="False"/>
+    <field name="perm_write" eval="True"/>
+    <field name="perm_create" eval="True"/>
+    <field name="perm_unlink" eval="True"/>
+    <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+  </record>
+  </odoo>

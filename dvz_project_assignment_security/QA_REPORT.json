@@ -1,0 +1,20 @@
+{
+  "module": "dvz_project_assignment_security",
+  "version": "19.0.1.1.0",
+  "build_date": "2026-11-01",
+  "executed": {
+    "offline_unittest_cases": 90,
+    "result": "PASS",
+    "python_compilation": "PASS",
+    "xml_parsing": "PASS"
+  },
+  "live_odoo_tests_included": 46,
+  "live_odoo_tests_executed": false,
+  "live_database_upgrade_tested": false,
+  "browser_tested": false,
+  "limitations": [
+    "No Odoo package or PostgreSQL runtime available.",
+    "Offline migration tests use fake records and do not prove real ORM behavior.",
+    "Record rules, view inheritance, module installation and SO creation need staging tests."
+  ]
+}

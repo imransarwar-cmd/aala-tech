@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_order_form_project_naming" model="ir.ui.view">
+        <field name="name">sale.order.form.division.project.naming</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='sales_person']/field[@name='user_id']" position="after">
+                <field name="dvz_confirmed_project_code" invisible="1"/>
+                <field name="dvz_division_id" readonly="dvz_confirmed_project_code"
+                       options="{'no_quick_create': True}" context="{'default_company_id': company_id}"/>
+                <field name="dvz_salesperson_abbreviation" readonly="1"/>
+                <field name="dvz_project_reference" placeholder="4128" readonly="dvz_confirmed_project_code"/>
+                <field name="dvz_project_suffix" placeholder="VO (optional)" readonly="dvz_confirmed_project_code"/>
+                <field name="dvz_include_so_number" readonly="dvz_confirmed_project_code"/>
+                <field name="dvz_project_code" readonly="1"/>
+                <field name="dvz_project_name" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="sale_order_list_project_naming" model="ir.ui.view">
+        <field name="name">sale.order.list.division.project.naming</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.sale_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list/field[@name='user_id']" position="after">
+                <field name="dvz_division_id" optional="show"/>
+                <field name="dvz_project_code" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="sale_order_search_project_naming" model="ir.ui.view">
+        <field name="name">sale.order.search.division.project.naming</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search/field[@name='user_id']" position="after">
+                <field name="dvz_division_id"/>
+                <field name="dvz_project_code"/>
+                <field name="dvz_project_reference"/>
+            </xpath>
+            <xpath expr="//search/group" position="inside">
+                <filter name="dvz_group_by_division" string="Division / Department"
+                        context="{'group_by': 'dvz_division_id'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

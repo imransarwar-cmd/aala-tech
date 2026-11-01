@@ -1,0 +1,20 @@
+{
+    'name': 'SO Project Naming - Salesperson and Division',
+    'version': '19.0.1.0.0',
+    'summary': 'Name SO-generated projects using salesperson, division and project reference',
+    'category': 'Sales/Sales',
+    'author': 'DVZ Customizations',
+    'license': 'LGPL-3',
+    'depends': ['sale_management', 'sale_project'],
+    'data': [
+        'security/division_security.xml',
+        'security/ir.model.access.csv',
+        'views/division_views.xml',
+        'views/res_users_views.xml',
+        'views/sale_order_views.xml',
+        'views/project_project_views.xml',
+    ],
+    'installable': True,
+    'application': False,
+    'auto_install': False,
+}

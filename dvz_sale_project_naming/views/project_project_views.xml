@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_form_so_naming" model="ir.ui.view">
+        <field name="name">project.project.form.so.naming</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group/group/field[@name='partner_id']" position="after">
+                <field name="dvz_origin_sale_id" groups="base.group_user" invisible="not dvz_origin_sale_id"/>
+                <field name="dvz_division_id" groups="base.group_user" invisible="not dvz_division_id"/>
+                <field name="dvz_project_code" groups="base.group_user" invisible="not dvz_project_code"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
