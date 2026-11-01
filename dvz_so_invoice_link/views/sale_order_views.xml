@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-  <record id="dvz_sale_order_invoice_smart_button" model="ir.ui.view">
-    <field name="name">sale.order.form.dvz.invoice.smart.button</field>
-    <field name="model">sale.order</field>
-    <field name="inherit_id" ref="sale.view_order_form"/>
-    <field name="arch" type="xml">
-      <xpath expr="//button[@name='action_view_invoice' and @type='object']" position="attributes">
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<odoo>-->
+<!--  <record id="dvz_sale_order_invoice_smart_button" model="ir.ui.view">-->
+<!--    <field name="name">sale.order.form.dvz.invoice.smart.button</field>-->
+<!--    <field name="model">sale.order</field>-->
+<!--    <field name="inherit_id" ref="sale.view_order_form"/>-->
+<!--    <field name="arch" type="xml">-->
+<!--      <xpath expr="//button[@name='action_view_invoice' and @type='object']" position="attributes">-->
 <!--        <attribute name="invisible">invoice_count ==1</attribute>-->
-      </xpath>
-    </field>
-  </record>
-</odoo>
+<!--      </xpath>-->
+<!--    </field>-->
+<!--  </record>-->
+<!--</odoo>-->
