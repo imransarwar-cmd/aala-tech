@@ -8,6 +8,7 @@
                 <field name="sequence" widget="handle"/>
                 <field name="code"/>
                 <field name="name"/>
+                <field name="activity_ids" widget="list_activity" optional="show"/>
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="active" optional="hide"/>
             </list>
@@ -20,7 +21,7 @@
             <form string="Division / Department">
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
-                    <group>
+                    <group name="division_information" string="Division Information">
                         <field name="name" placeholder="Enter the full division / department name"/>
                         <field name="code" placeholder="EM"/>
                         <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
@@ -28,6 +29,7 @@
                         <field name="active" invisible="1"/>
                     </group>
                 </sheet>
+                <chatter/>
             </form>
         </field>
     </record>
@@ -53,4 +55,8 @@
     <menuitem id="menu_divisions" name="Divisions / Departments"
               parent="sale.menu_sale_config" action="action_divisions" sequence="25"
               groups="sales_team.group_sale_manager,base.group_system"/>
+    <!-- One shared action/model: both menu locations open the same records. -->
+    <menuitem id="menu_divisions_orders" name="Divisions / Departments"
+              parent="sale.sale_order_menu" action="action_divisions" sequence="25"
+              groups="sales_team.group_sale_salesman,base.group_system"/>
 </odoo>

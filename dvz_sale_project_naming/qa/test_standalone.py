@@ -98,7 +98,7 @@ class TestPackage(unittest.TestCase):
     def test_manifest_files_exist(self):
         manifest = ast.literal_eval((ROOT/'__manifest__.py').read_text())
         self.assertTrue(manifest['installable'])
-        self.assertEqual(manifest['version'], '19.0.1.0.0')
+        self.assertEqual(manifest['version'], '19.0.1.1.0')
         self.assertIn('sale_project', manifest['depends'])
         for name in manifest['data']:
             self.assertTrue((ROOT/name).is_file(), name)
@@ -114,12 +114,12 @@ class TestPackage(unittest.TestCase):
             tree = etree.parse(str(path))
             self.assertFalse(tree.xpath('//button[contains(@class, "oe_stat_button")]'))
 
-    def test_field_placed_after_salesperson(self):
+    def test_division_first_in_project_information(self):
         tree = etree.parse(str(ROOT/'views/sale_order_views.xml'))
-        node = next(n for n in tree.xpath('//xpath') if n.get('expr') == "//group[@name='sales_person']/field[@name='user_id']")
-        self.assertEqual(node.get('position'), 'after')
-        visible = [f.get('name') for f in node if f.get('invisible') != '1']
-        self.assertEqual(visible[0], 'dvz_division_id')
+        fields = tree.xpath("//group[@name='dvz_project_information_left']/field")
+        self.assertEqual([f.get('name') for f in fields], ['dvz_division_id'])
+        self.assertEqual(len(tree.xpath("//record[@id='sale_order_form_project_naming']//field[@name='dvz_division_id']")), 1)
+        self.assertFalse(tree.xpath("//group[@name='dvz_project_naming']//field[@name='dvz_division_id']"))
 
     def test_acl_no_portal_or_global_write(self):
         with (ROOT/'security/ir.model.access.csv').open(newline='') as handle:

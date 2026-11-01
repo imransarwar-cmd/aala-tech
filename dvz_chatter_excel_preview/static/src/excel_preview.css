@@ -1,0 +1,38 @@
+.dvz-excel-preview .modal-body { overflow: hidden; }
+.dvz-excel-preview .dvz-excel-message { min-height: 280px; }
+.dvz-excel-preview .dvz-excel-toolbar,
+.dvz-excel-preview .dvz-excel-tabs,
+.dvz-excel-preview .dvz-excel-selection,
+.dvz-excel-preview .dvz-excel-notes { flex-shrink: 0; }
+.dvz-excel-preview .dvz-excel-grid { height: 52vh; min-height: 220px; background: var(--body-bg, #fff); }
+.dvz-excel-preview .dvz-excel-find { max-width: 290px; }
+.dvz-excel-preview .dvz-excel-selection { min-height: 30px; }
+.dvz-excel-preview .dvz-excel-notes { max-height: 150px; overflow: auto; }
+.dvz-excel-preview .dvz-excel-table {
+    border-collapse: separate; border-spacing: 0; table-layout: fixed;
+    color: #212529; background: #fff;
+}
+.dvz-excel-preview .dvz-excel-table th,
+.dvz-excel-preview .dvz-excel-table td {
+    border-right: 1px solid #dce1e5; border-bottom: 1px solid #dce1e5;
+    min-width: 110px; max-width: 340px; padding: 5px 8px;
+    white-space: pre; overflow: hidden; text-overflow: ellipsis; vertical-align: top;
+}
+.dvz-excel-preview .dvz-excel-table thead th {
+    position: sticky; top: 0; z-index: 2; text-align: center; background: #edf1f4; font-weight: 600;
+}
+.dvz-excel-preview .dvz-excel-table .dvz-excel-row-number {
+    position: sticky; left: 0; z-index: 1; text-align: right; background: #edf1f4; font-weight: 400;
+}
+.dvz-excel-preview .dvz-excel-table .dvz-excel-corner { left: 0; z-index: 3; }
+.dvz-excel-preview .dvz-excel-table .dvz-excel-row-number,
+.dvz-excel-preview .dvz-excel-table .dvz-excel-corner { min-width: 48px; width: 48px; }
+.dvz-excel-preview .dvz-excel-table td { user-select: text; cursor: cell; }
+.dvz-excel-preview .dvz-excel-table td.dvz-match { box-shadow: inset 0 0 0 2px #d6a700; }
+.dvz-excel-preview .dvz-excel-table td.dvz-selected { outline: 2px solid #71639e; outline-offset: -2px; }
+.dvz-excel-preview .dvz-excel-table td.dvz-no-cache { font-style: italic; }
+.o_modal_full .dvz-excel-preview .dvz-excel-grid { height: auto; flex: 1; }
+@media (max-width: 767px) {
+    .dvz-excel-preview .dvz-excel-grid { height: 48vh; }
+    .dvz-excel-preview .dvz-excel-find { max-width: 170px; }
+}

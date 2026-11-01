@@ -1,6 +1,12 @@
+from copy import deepcopy
+import logging
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from ..naming import make_project_code, make_project_name, reference, short_code
+from ..layout import regroup_project_fields
+
+_logger = logging.getLogger(__name__)
 
 NAMING_INPUTS = {
     'dvz_division_id', 'dvz_project_reference', 'dvz_project_suffix', 'dvz_include_so_number',
@@ -158,3 +164,24 @@ class SaleOrder(models.Model):
             'dvz_division_id': self.dvz_division_id.id,
             'dvz_project_code': self.dvz_confirmed_project_code,
         }
+
+    @api.model
+    def _get_view(self, view_id=None, view_type='form', **options):
+        arch, view = super()._get_view(view_id, view_type, **options)
+        if view_type != 'form' or not arch.xpath("./sheet/group[@name='dvz_project_information']"):
+            return arch, view
+        # _get_view is cached across users before access-right postprocessing.
+        # Use registry metadata, not fields_get() or a current-user group check.
+        # The original groups/visibility scopes are preserved by the helper.
+        arch = deepcopy(arch)
+        metadata = {
+            name: {'string': field.string, 'type': field.type}
+            for name, field in self._fields.items()
+        }
+        report = regroup_project_fields(arch, metadata)
+        if report['skipped']:
+            _logger.warning(
+                'DVZ Project Information: some fields were left in place in sale.order view %s: %s',
+                view.id, report['skipped'],
+            )
+        return arch, view

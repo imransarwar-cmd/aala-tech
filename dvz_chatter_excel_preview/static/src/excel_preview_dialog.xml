@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="dvz_chatter_excel_preview.ExcelPreviewDialog">
+        <Dialog title="title" size="'xl'" fullscreen="state.fullscreen" onExpand.bind="expand"
+                contentClass="'dvz-excel-preview'" bodyClass="'p-0 d-flex flex-column'">
+            <div class="dvz-excel-toolbar d-flex flex-wrap align-items-center gap-2 border-bottom px-3 py-2">
+                <span class="badge text-bg-secondary">Read-only</span>
+                <span class="small text-muted me-auto">Saved values only · No recalculation · No macros</span>
+                <label class="d-flex align-items-center gap-1 small mb-0">
+                    <input type="checkbox" t-model="state.wrap"/>
+                    Wrap text
+                </label>
+                <label class="small mb-0">Zoom
+                    <select class="form-select form-select-sm d-inline-block w-auto ms-1" t-model="state.zoom" aria-label="Preview zoom">
+                        <option value="80">80%</option><option value="100">100%</option>
+                        <option value="120">120%</option><option value="140">140%</option>
+                    </select>
+                </label>
+            </div>
+            <t t-if="state.loading">
+                <div class="dvz-excel-message text-center p-5" role="status" aria-live="polite">
+                    <i class="fa fa-spinner fa-spin fa-2x mb-3" aria-hidden="true"/>
+                    <div>Reading worksheet…</div>
+                </div>
+            </t>
+            <t t-elif="state.error">
+                <div class="dvz-excel-message p-4">
+                    <div class="alert alert-warning" role="alert"><t t-esc="state.error"/></div>
+                    <button class="btn btn-secondary" t-on-click="retry">Retry preview</button>
+                    <p class="small text-muted mt-3">The original attachment has not been modified.</p>
+                </div>
+            </t>
+            <t t-elif="state.data">
+                <nav class="dvz-excel-tabs d-flex gap-1 px-3 pt-2 border-bottom overflow-auto" aria-label="Worksheets">
+                    <button t-foreach="state.data.sheets" t-as="sheet" t-key="sheet.index"
+                            class="btn btn-sm text-nowrap rounded-bottom-0"
+                            t-att-class="sheet.index === state.data.sheet_index ? 'btn-primary' : 'btn-light'"
+                            t-att-aria-pressed="sheet.index === state.data.sheet_index ? 'true' : 'false'"
+                            t-on-click="() => this.changeSheet(sheet.index)">
+                        <i class="fa fa-table me-1" aria-hidden="true"/><t t-esc="sheet.name"/>
+                    </button>
+                </nav>
+                <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
+                    <input type="search" class="form-control form-control-sm dvz-excel-find"
+                           placeholder="Find on this page" aria-label="Find on this page" t-model="state.query"/>
+                    <span t-if="state.query.trim()" class="small text-muted"><t t-esc="matchingCells"/> matching cells</span>
+                    <span class="small text-muted ms-auto text-nowrap"><t t-esc="pageLabel"/></span>
+                </div>
+                <div class="dvz-excel-selection px-3 py-1 border-bottom small text-truncate" aria-live="polite">
+                    <t t-if="state.selected">
+                        <strong class="me-2"><t t-esc="state.selected.address"/></strong>
+                        <span t-if="state.selected.formula" class="badge text-bg-light me-2">Formula cell</span>
+                        <span t-att-title="state.selected.text"><t t-esc="state.selected.text"/></span>
+                    </t>
+                    <span t-else="" class="text-muted">Select a cell to see its address and value. Text can be selected and copied.</span>
+                </div>
+                <div class="dvz-excel-grid overflow-auto" t-ref="grid" tabindex="0" aria-label="Read-only worksheet grid">
+                    <table t-if="state.data.rows.length and state.data.columns.length" class="dvz-excel-table" t-att-style="tableStyle">
+                        <caption class="visually-hidden"><t t-esc="state.data.sheet_name"/> worksheet preview</caption>
+                        <thead><tr>
+                            <th class="dvz-excel-corner" scope="col"/>
+                            <th t-foreach="state.data.columns" t-as="column" t-key="column.index" scope="col"><t t-esc="column.name"/></th>
+                        </tr></thead>
+                        <tbody>
+                            <tr t-foreach="state.data.rows" t-as="row" t-key="row.number">
+                                <th scope="row" class="dvz-excel-row-number"><t t-esc="row.number"/></th>
+                                <t t-foreach="row.cells" t-as="cell" t-key="cell.address">
+                                    <td t-if="!cell.hidden" t-att-rowspan="cell.rowspan" t-att-colspan="cell.colspan"
+                                        t-att-style="styleFor(cell)" t-att-title="cell.text"
+                                        t-att-class="{'dvz-match': isMatch(cell), 'dvz-selected': state.selected?.address === cell.address, 'dvz-no-cache': cell.missing_cache}"
+                                        t-on-click="() => this.selectCell(cell)"><t t-esc="cell.text"/></td>
+                                </t>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div t-else="" class="p-5 text-center text-muted">No visible cells on this page.</div>
+                </div>
+                <details class="dvz-excel-notes border-top px-3 py-2 small">
+                    <summary class="text-muted">Preview notes and limits</summary>
+                    <p class="mt-2 mb-1">Simplified worksheet layout. Charts, pictures, pivot layouts, conditional formatting and advanced Excel formatting are not rendered. Dates use ISO format.</p>
+                    <p t-foreach="state.data.warnings" t-as="warning" t-key="warning" class="mb-1"><t t-esc="warning"/></p>
+                </details>
+            </t>
+            <t t-set-slot="footer">
+                <button type="button" class="btn btn-primary" t-on-click="download"><i class="fa fa-download me-1" aria-hidden="true"/>Download original</button>
+                <button type="button" class="btn btn-secondary" t-on-click="props.close">Close</button>
+                <div t-if="state.data" class="d-flex align-items-center gap-2 ms-auto">
+                    <button type="button" class="btn btn-light" t-on-click="previousPage" t-att-disabled="state.loading || !state.data.has_previous" aria-label="Previous rows">
+                        <i class="fa fa-chevron-left" aria-hidden="true"/>
+                    </button>
+                    <span class="small">Page <t t-esc="Math.floor(state.data.offset / state.data.page_size) + 1"/> / <t t-esc="Math.max(1, Math.ceil(state.data.preview_rows / state.data.page_size))"/></span>
+                    <button type="button" class="btn btn-light" t-on-click="nextPage" t-att-disabled="state.loading || !state.data.has_next" aria-label="Next rows">
+                        <i class="fa fa-chevron-right" aria-hidden="true"/>
+                    </button>
+                </div>
+            </t>
+        </Dialog>
+    </t>
+</templates>

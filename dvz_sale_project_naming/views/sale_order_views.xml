@@ -5,16 +5,32 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//group[@name='sales_person']/field[@name='user_id']" position="after">
-                <field name="dvz_confirmed_project_code" invisible="1"/>
-                <field name="dvz_division_id" readonly="dvz_confirmed_project_code"
-                       options="{'no_quick_create': True}" context="{'default_company_id': company_id}"/>
-                <field name="dvz_salesperson_abbreviation" readonly="1"/>
-                <field name="dvz_project_reference" placeholder="4128" readonly="dvz_confirmed_project_code"/>
-                <field name="dvz_project_suffix" placeholder="VO (optional)" readonly="dvz_confirmed_project_code"/>
-                <field name="dvz_include_so_number" readonly="dvz_confirmed_project_code"/>
-                <field name="dvz_project_code" readonly="1"/>
-                <field name="dvz_project_name" readonly="1"/>
+            <!-- Safe native anchor; custom fields are moved after all inherited
+                 views are combined, without guessing Studio technical names. -->
+            <xpath expr="//sheet/notebook[1]" position="before">
+                <group name="dvz_project_information" string="Project Information" col="2">
+                    <group name="dvz_project_information_left">
+                        <field name="dvz_division_id" readonly="dvz_confirmed_project_code"
+                               options="{'no_quick_create': True}"
+                               context="{'default_company_id': company_id}"/>
+                    </group>
+                    <group name="dvz_project_information_right"/>
+                </group>
+            </xpath>
+            <xpath expr="//page[@name='other_information']" position="inside">
+                <group name="dvz_project_naming" string="Project Naming" col="2">
+                    <group name="dvz_project_naming_inputs">
+                        <field name="dvz_confirmed_project_code" invisible="1"/>
+                        <field name="dvz_salesperson_abbreviation" readonly="1"/>
+                        <field name="dvz_project_reference" placeholder="4128" readonly="dvz_confirmed_project_code"/>
+                        <field name="dvz_project_suffix" placeholder="VO (optional)" readonly="dvz_confirmed_project_code"/>
+                        <field name="dvz_include_so_number" readonly="dvz_confirmed_project_code"/>
+                    </group>
+                    <group name="dvz_project_naming_preview">
+                        <field name="dvz_project_code" readonly="1"/>
+                        <field name="dvz_project_name" readonly="1"/>
+                    </group>
+                </group>
             </xpath>
         </field>
     </record>

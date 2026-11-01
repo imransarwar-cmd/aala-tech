@@ -1,3 +1,14 @@
+# 19.0.1.1.0
+
+- Place the existing Division field first in a separate Project Information section.
+- Group recognized existing main-form project custom fields without creating duplicates.
+- Move naming controls into a separate Project Naming section under Other Info.
+- Add Division / Department Group By for quotations and sales orders.
+- Add Sales > Orders > Divisions / Departments; retain the Configuration shortcut.
+- Add standard chatter, activity support and tracking to existing division records.
+- Preserve master-edit ACLs, company restrictions and existing project-naming business logic.
+- Include conservative XML-layout tests and additional unexecuted Odoo integration tests.
+
 # Changelog
 
 ## 19.0.1.0.0

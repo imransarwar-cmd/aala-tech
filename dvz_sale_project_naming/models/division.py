@@ -5,18 +5,22 @@ from ..naming import short_code
 
 class SaleDivision(models.Model):
     _name = 'dvz.sale.division'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Sales Division / Department'
     _order = 'sequence, code, name, id'
     _rec_names_search = ['code', 'name']
     _check_company_auto = True
+    # Internal readers can discuss a visible division without gaining master-data write access.
+    # Odoo still enforces ACLs, record rules and normal mail/activity permissions.
+    _mail_post_access = 'read'
 
-    name = fields.Char(string='Division / Department Name', required=True)
-    code = fields.Char(string='Code', required=True, index=True,
+    name = fields.Char(string='Division / Department Name', required=True, tracking=True)
+    code = fields.Char(string='Code', required=True, index=True, tracking=True,
                        help='For example EM. This code becomes the second part of the project name.')
     company_id = fields.Many2one('res.company', required=True,
-                                default=lambda self: self.env.company, index=True)
+                                default=lambda self: self.env.company, index=True, tracking=True)
     sequence = fields.Integer(default=10)
-    active = fields.Boolean(default=True)
+    active = fields.Boolean(default=True, tracking=True)
 
     _code_company_unique = models.Constraint(
         'UNIQUE(company_id, code)', 'The division code must be unique within its company.'

@@ -1,70 +1,39 @@
-# Verification report — 19.0.1.0.0
+# QA report — 19.0.1.1.0
 
-## Executed in the build environment
+## Executed
 
-- Standalone tests: **32 run, 32 passed**.
-- Naming helper tests: 20.
-- Package / static structure checks: 12.
-- Python syntax parsing and bytecode compilation: **passed (12 files)**.
-- XML parsing: **passed (5 files)**.
-- Manifest data paths exist; ACL CSV and company rule inspected.
-- No custom smart buttons and no explicit new project-create action in the add-on.
-
-The count above refers to standalone test methods, not live Odoo workflows.
-Structural security checks do not replace live access-rights tests.
+- **79 standalone unittest tests passed.** Run with:
+  `python -m unittest discover -s dvz_sale_project_naming/qa -p 'test_*.py' -v`
+- All Python sources parsed and bytecode-compiled.
+- All XML files parsed for well-formedness. This is not Odoo schema/view validation.
+- Manifest version and declared data files checked; explicit `mail` dependency present.
+- Both Division menus point to the same model/action; the Orders menu is available to Sales users.
+- Division form contains one chatter, list includes activity widget, key fields are tracked.
+- No second chatter or new smart buttons added to the SO form.
+- Layout tested for all eight screenshot field roles, Division-first order, existing node
+  reuse, tag/image widgets, domains/options/context, group/visibility scopes, duplicate
+  matches, hidden/nested fields, external labels and repeat-application idempotence.
+- Missing/ambiguous/unsupported custom widgets remain in place; helper performs no ORM writes.
+- Original `sale.order` business methods compared by Python AST against the supplied
+  version 19.0.1.0.0: unchanged. The only added method is `_get_view` for layout.
+- `naming.py`, project-creation hooks, salesperson model, project model, division ACL
+  and division multi-company rule verified byte-for-byte unchanged from 19.0.1.0.0.
+- Final ZIP archive CRC integrity and single-root module structure verified.
 
 ## Not executed
 
-No Odoo Python runtime or PostgreSQL instance is installed in this environment.
-**Live Odoo installation, registry/view validation, posting/ORM transactions, access
-rules, actual SO confirmation, automation execution, project template duplication,
-and browser behavior were not run.**
+Live Odoo installation, upgrade, ORM integration tests, JavaScript/browser rendering,
+actual custom/Studio combined-view behavior, real notifications and multi-addon runtime
+interactions. The environment has no Odoo registry or PostgreSQL server.
 
-19 Odoo integration test methods are included in `tests/test_sale_project_naming.py`.
-They have been syntax-checked only; their runtime results are unknown.
+## Included live tests
 
-The server's existing automated action and other installed custom modules were not
-available for inspection. Test this add-on on a staging copy before production use.
-No change has been made to the user's server or database.
+28 Odoo integration tests are packaged, not run: 19 existing naming/project-generation
+tests and 9 tests for division chatter, restricted master writes, activities, views and menus.
 
-## Standalone command output
+## Important limitations
 
-```text
-test_blank_code_no_partial_name (__main__.TestNaming.test_blank_code_no_partial_name) ... ok
-test_code_only (__main__.TestNaming.test_code_only) ... ok
-test_combined_name (__main__.TestNaming.test_combined_name) ... ok
-test_false_suffix (__main__.TestNaming.test_false_suffix) ... ok
-test_integer_reference_not_silently_accepted (__main__.TestNaming.test_integer_reference_not_silently_accepted) ... ok
-test_invalid_division_separator (__main__.TestNaming.test_invalid_division_separator) ... ok
-test_invalid_markup (__main__.TestNaming.test_invalid_markup) ... ok
-test_invalid_reference (__main__.TestNaming.test_invalid_reference) ... ok
-test_invalid_spaces (__main__.TestNaming.test_invalid_spaces) ... ok
-test_invalid_suffix (__main__.TestNaming.test_invalid_suffix) ... ok
-test_leading_zeroes (__main__.TestNaming.test_leading_zeroes) ... ok
-test_length_limits (__main__.TestNaming.test_length_limits) ... ok
-test_missing_division (__main__.TestNaming.test_missing_division) ... ok
-test_missing_order_number (__main__.TestNaming.test_missing_order_number) ... ok
-test_missing_reference (__main__.TestNaming.test_missing_reference) ... ok
-test_missing_salesperson (__main__.TestNaming.test_missing_salesperson) ... ok
-test_optional_suffix (__main__.TestNaming.test_optional_suffix) ... ok
-test_reference_separators (__main__.TestNaming.test_reference_separators) ... ok
-test_requested_example (__main__.TestNaming.test_requested_example) ... ok
-test_trim_and_uppercase (__main__.TestNaming.test_trim_and_uppercase) ... ok
-test_acl_no_portal_or_global_write (__main__.TestPackage.test_acl_no_portal_or_global_write) ... ok
-test_field_placed_after_salesperson (__main__.TestPackage.test_field_placed_after_salesperson) ... ok
-test_manifest_files_exist (__main__.TestPackage.test_manifest_files_exist) ... ok
-test_module_imports_exist (__main__.TestPackage.test_module_imports_exist) ... ok
-test_multi_company_rule (__main__.TestPackage.test_multi_company_rule) ... ok
-test_native_project_creation_not_reimplemented (__main__.TestPackage.test_native_project_creation_not_reimplemented) ... ok
-test_native_project_hooks_call_super (__main__.TestPackage.test_native_project_hooks_call_super) ... ok
-test_no_invoice_or_accounting_model_override (__main__.TestPackage.test_no_invoice_or_accounting_model_override) ... ok
-test_no_new_smart_buttons (__main__.TestPackage.test_no_new_smart_buttons) ... ok
-test_odoo19_constraint_api (__main__.TestPackage.test_odoo19_constraint_api) ... ok
-test_python_syntax (__main__.TestPackage.test_python_syntax) ... ok
-test_xml_parses (__main__.TestPackage.test_xml_parses) ... ok
-
-----------------------------------------------------------------------
-Ran 32 tests in 0.020s
-
-OK
-```
+The custom technical field names and combined XML from the user's database are unknown.
+Layout selection uses conservative exact-label/type matching. An ambiguous match is not
+forced. Offline XML tests cannot establish that every real customization will be matched.
+No changes have been made to the user's running server or database.

@@ -1,0 +1,5 @@
+# Install using the same Python environment as the Odoo service.
+# No --upgrade is needed; preserve the versions pinned by your Odoo deployment.
+openpyxl>=3.0.9,<4
+# Required both for import and explicit OOXML pre-validation.
+defusedxml>=0.7.1,<1
