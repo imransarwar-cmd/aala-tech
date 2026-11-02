@@ -10,7 +10,7 @@ class ProjectProject(models.Model):
         check_company=True, ondelete='set null', index=True, groups='base.group_user',
     )
     dvz_division_id = fields.Many2one(
-        'dvz.sale.division', string='Division / Department', readonly=True,
+        'dvz.sale.division', string='Department', readonly=True,
         copy=False, ondelete='restrict', check_company=True, groups='base.group_user',
     )
     dvz_project_code = fields.Char(string='Project Code', readonly=True, copy=False,

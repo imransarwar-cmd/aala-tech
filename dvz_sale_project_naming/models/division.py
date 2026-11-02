@@ -8,15 +8,15 @@ class SaleDivision(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Sales Division / Department'
     _order = 'sequence, code, name, id'
-    _rec_names_search = ['code', 'name']
+    _rec_names_search = ['name', 'code']
     _check_company_auto = True
     # Internal readers can discuss a visible division without gaining master-data write access.
     # Odoo still enforces ACLs, record rules and normal mail/activity permissions.
     _mail_post_access = 'read'
 
-    name = fields.Char(string='Division / Department Name', required=True, tracking=True)
-    code = fields.Char(string='Code', required=True, index=True, tracking=True,
-                       help='For example EM. This code becomes the second part of the project name.')
+    name = fields.Char(string='Department Name', required=True, tracking=True)
+    code = fields.Char(string='Abbreviation', required=True, index=True, tracking=True,
+                       help='For example EM. The abbreviation becomes the department part of the project code.')
     company_id = fields.Many2one('res.company', required=True,
                                 default=lambda self: self.env.company, index=True, tracking=True)
     sequence = fields.Integer(default=10)
@@ -29,7 +29,7 @@ class SaleDivision(models.Model):
     @api.depends('name', 'code')
     def _compute_display_name(self):
         for division in self:
-            division.display_name = '[%s] %s' % (division.code or '', division.name or '')
+            division.display_name = division.name or ''
 
     @api.model_create_multi
     def create(self, vals_list):

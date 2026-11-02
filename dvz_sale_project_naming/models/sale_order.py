@@ -17,8 +17,16 @@ SNAPSHOT_FIELDS = {'dvz_confirmed_project_code', 'dvz_confirmed_project_name'}
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    # Reuse the existing System field from aala_rest_api; only constrain its choices.
+    system = fields.Many2one(
+        'system.master',
+        string='System',
+        domain="[('dvz_department_id', '=', dvz_division_id)]",
+        tracking=True,
+    )
+
     dvz_division_id = fields.Many2one(
-        'dvz.sale.division', string='Division / Department', check_company=True,
+        'dvz.sale.division', string='Department', check_company=True,
         ondelete='restrict', tracking=True,
         domain="[('company_id', '=', company_id), ('active', '=', True)]",
         help='Select the division used in this order project code, for example EM.'
@@ -46,6 +54,27 @@ class SaleOrder(models.Model):
     dvz_project_name = fields.Char(
         string='Generated Project Name', compute='_compute_dvz_project_names', store=True, readonly=True
     )
+
+    @api.onchange('dvz_division_id')
+    def _onchange_dvz_department_system(self):
+        for order in self:
+            if order.system and order.system.dvz_department_id != order.dvz_division_id:
+                order.system = False
+
+    @api.constrains('dvz_division_id', 'system')
+    def _check_dvz_system_department(self):
+        for order in self:
+            if not order.system:
+                continue
+            if not order.dvz_division_id:
+                raise ValidationError(_('Select the Department before selecting a System.'))
+            if order.system.dvz_department_id != order.dvz_division_id:
+                raise ValidationError(_(
+                    'System %(system)s belongs to Department %(system_department)s, not %(order_department)s.',
+                    system=order.system.display_name,
+                    system_department=order.system.dvz_department_id.display_name or _('No Department'),
+                    order_department=order.dvz_division_id.display_name,
+                ))
 
     @api.depends('name', 'user_id.dvz_sales_abbreviation', 'dvz_division_id.code',
                  'dvz_project_reference', 'dvz_project_suffix', 'dvz_include_so_number',
@@ -179,6 +208,11 @@ class SaleOrder(models.Model):
             for name, field in self._fields.items()
         }
         report = regroup_project_fields(arch, metadata)
+        # The System field comes from aala_rest_api. Enforce the department filter
+        # on every visible occurrence after all inherited views have been combined.
+        for node in arch.xpath(".//field[@name='system']"):
+            node.set('domain', "[('dvz_department_id', '=', dvz_division_id)]")
+            node.set('options', "{'no_quick_create': True}")
         if report['skipped']:
             _logger.warning(
                 'DVZ Project Information: some fields were left in place in sale.order view %s: %s',

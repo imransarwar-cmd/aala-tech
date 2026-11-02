@@ -4,10 +4,10 @@
         <field name="name">dvz.sale.division.list</field>
         <field name="model">dvz.sale.division</field>
         <field name="arch" type="xml">
-            <list string="Divisions / Departments">
+            <list string="Departments">
                 <field name="sequence" widget="handle"/>
-                <field name="code"/>
                 <field name="name"/>
+                <field name="code" string="Abbreviation"/>
                 <field name="activity_ids" widget="list_activity" optional="show"/>
                 <field name="company_id" groups="base.group_multi_company"/>
                 <field name="active" optional="hide"/>
@@ -18,12 +18,12 @@
         <field name="name">dvz.sale.division.form</field>
         <field name="model">dvz.sale.division</field>
         <field name="arch" type="xml">
-            <form string="Division / Department">
+            <form string="Department">
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
-                    <group name="division_information" string="Division Information">
-                        <field name="name" placeholder="Enter the full division / department name"/>
-                        <field name="code" placeholder="EM"/>
+                    <group name="division_information" string="Department Information">
+                        <field name="name" placeholder="Enter the department name"/>
+                        <field name="code" string="Abbreviation" placeholder="EM"/>
                         <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
                         <field name="sequence"/>
                         <field name="active" invisible="1"/>
@@ -37,26 +37,26 @@
         <field name="name">dvz.sale.division.search</field>
         <field name="model">dvz.sale.division</field>
         <field name="arch" type="xml">
-            <search string="Divisions / Departments">
-                <field name="code"/>
+            <search string="Departments">
                 <field name="name"/>
+                <field name="code" string="Abbreviation"/>
                 <separator/>
                 <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
             </search>
         </field>
     </record>
     <record id="action_divisions" model="ir.actions.act_window">
-        <field name="name">Divisions / Departments</field>
+        <field name="name">Departments</field>
         <field name="res_model">dvz.sale.division</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="division_view_search"/>
-        <field name="help" type="html"><p>Create a division with its project-naming code, such as EM.</p></field>
+        <field name="help" type="html"><p>Create a department and its abbreviation, such as EM.</p></field>
     </record>
-    <menuitem id="menu_divisions" name="Divisions / Departments"
+    <menuitem id="menu_divisions" name="Departments"
               parent="sale.menu_sale_config" action="action_divisions" sequence="25"
               groups="sales_team.group_sale_manager,base.group_system"/>
     <!-- One shared action/model: both menu locations open the same records. -->
-    <menuitem id="menu_divisions_orders" name="Divisions / Departments"
+    <menuitem id="menu_divisions_orders" name="Departments"
               parent="sale.sale_order_menu" action="action_divisions" sequence="25"
               groups="sales_team.group_sale_salesman,base.group_system"/>
 </odoo>

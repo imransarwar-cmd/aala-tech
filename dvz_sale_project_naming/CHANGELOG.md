@@ -21,3 +21,10 @@
 - Extended native project creation without adding another project-creation rule.
 - Preserved native project links and smart buttons; no new smart buttons.
 - Included standalone QA and unexecuted Odoo integration tests.
+
+## 19.0.1.2.0
+- Reuse `aala_rest_api.system.master` in Sales Orders.
+- Add Department on System Master and hide its legacy Division field.
+- Filter Sales Order System by selected Department.
+- Add Systems menu directly after Departments under Sales > Orders.
+- Rename department code label to Abbreviation and show Department dropdown by name only.

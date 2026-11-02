@@ -98,7 +98,7 @@ class TestPackage(unittest.TestCase):
     def test_manifest_files_exist(self):
         manifest = ast.literal_eval((ROOT/'__manifest__.py').read_text())
         self.assertTrue(manifest['installable'])
-        self.assertEqual(manifest['version'], '19.0.1.1.0')
+        self.assertEqual(manifest['version'], '19.0.1.2.0')
         self.assertIn('sale_project', manifest['depends'])
         for name in manifest['data']:
             self.assertTrue((ROOT/name).is_file(), name)

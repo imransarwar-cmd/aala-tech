@@ -56,7 +56,7 @@
                 <field name="dvz_project_reference"/>
             </xpath>
             <xpath expr="//search/group" position="inside">
-                <filter name="dvz_group_by_division" string="Division / Department"
+                <filter name="dvz_group_by_division" string="Department"
                         context="{'group_by': 'dvz_division_id'}"/>
             </xpath>
         </field>

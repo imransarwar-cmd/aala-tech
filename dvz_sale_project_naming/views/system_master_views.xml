@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="system_master_form_department" model="ir.ui.view">
+        <field name="name">system.master.form.department</field>
+        <field name="model">system.master</field>
+        <field name="inherit_id" ref="aala_rest_api.view_system_master_form"/>
+        <field name="arch" type="xml">
+            <!-- Hide the legacy aala_rest_api Division field. Keep it in the database for compatibility. -->
+            <xpath expr="//field[@name='division']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="dvz_department_id" string="Department"
+                       options="{'no_quick_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="system_master_list_department" model="ir.ui.view">
+        <field name="name">system.master.list.department</field>
+        <field name="model">system.master</field>
+        <field name="inherit_id" ref="aala_rest_api.view_system_master_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="dvz_department_id" string="Department"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="system_master_search_department" model="ir.ui.view">
+        <field name="name">system.master.search.department</field>
+        <field name="model">system.master</field>
+        <field name="arch" type="xml">
+            <search string="Systems">
+                <field name="name"/>
+                <field name="dvz_department_id" string="Department"/>
+                <filter name="group_by_department" string="Department"
+                        context="{'group_by': 'dvz_department_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="aala_rest_api.action_system_master" model="ir.actions.act_window">
+        <field name="search_view_id" ref="system_master_search_department"/>
+    </record>
+
+    <!-- Same existing System action, now also available directly under Sales / Orders. -->
+    <menuitem id="menu_systems_orders" name="Systems"
+              parent="sale.sale_order_menu"
+              action="aala_rest_api.action_system_master"
+              sequence="26"
+              groups="sales_team.group_sale_salesman,base.group_system"/>
+</odoo>
