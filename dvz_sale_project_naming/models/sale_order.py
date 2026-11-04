@@ -148,10 +148,10 @@ class SaleOrder(models.Model):
             raise UserError(_('The division and the sales order must belong to the same company.'))
         if not self.dvz_division_id.active:
             raise UserError(_('Select an active division before confirming %s.', self.name))
-        if not self.user_id or not self.user_id.dvz_sales_abbreviation:
-            raise UserError(_(
-                'Set the Salesperson Abbreviation on the assigned salesperson user, then confirm %s.', self.name
-            ))
+        # if not self.user_id or not self.user_id.dvz_sales_abbreviation:
+        #     raise UserError(_(
+        #         'Set the Salesperson Abbreviation on the assigned salesperson user, then confirm %s.', self.name
+        #     ))
         if not self.dvz_project_reference:
             raise UserError(_('Enter the Project Reference (for example 4128) before confirming %s.', self.name))
         try:
