@@ -18,8 +18,8 @@ def short_code(value, label, required=True):
     value = normalize(value)
     if not value and not required:
         return ''
-    if not SHORT_CODE_RE.fullmatch(value):
-        raise ValueError(f'{label} must contain 1 to 16 English letters or digits, without spaces.')
+    # if not SHORT_CODE_RE.fullmatch(value):
+    #     raise ValueError(f'{label} must contain 1 to 16 English letters or digits, without spaces.')
     return value
 
 
