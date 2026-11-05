@@ -51,8 +51,10 @@
               <field name="currency_id" invisible="1"/>
               <field name="amount" readonly="state != 'draft'"/>
               <field name="entry_journal_id" readonly="state != 'draft'"/>
+<!--                                     domain="[('company_ids', 'in', [company_id]), ('active', '=', True), ('account_type', '=', 'asset_current'), ('reconcile', '=', True)]"-->
+
               <field name="bridge_account_id" readonly="state != 'draft'" required="state == 'draft'"
-                     domain="[('company_ids', 'in', [company_id]), ('active', '=', True), ('account_type', '=', 'asset_current'), ('reconcile', '=', True)]"
+                     domain="[('company_ids', 'in', [company_id]), ('active', '=', True),]"
                      options="{'no_create': True, 'no_create_edit': True}"
                      placeholder="Select a reconcilable Current Assets account"/>
               <field name="memo" readonly="state != 'draft'"/>
