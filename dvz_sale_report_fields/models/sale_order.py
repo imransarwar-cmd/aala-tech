@@ -38,6 +38,7 @@ class SaleOrder(models.Model):
     # it directly instead of adding a plain duplicate Char field.
     dvz_brand_id = fields.Many2one("product.brand", string="Brand")
     dvz_status = fields.Selection(STATUS_SELECTION, string="Status", default="ongoing")
+    dvz_year = fields.Char()
     dvz_year = fields.Char(
         string="Year",
         compute="_compute_dvz_year",
