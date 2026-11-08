@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Quotations/Sale Orders list view: append every field from the
+         Sales Report spec as an optional (hidden-by-default) column.
+         Using optional="hide" gives users Odoo's standard column-
+         selector toggle (the sliders icon in the list header) to show/
+         hide each one individually, rather than always cluttering the
+         default view. Appending inside //list (rather than targeting a
+         specific existing column) is safe regardless of the exact
+         existing column layout. -->
+    <record id="dvz_sale_order_list_report_fields" model="ir.ui.view">
+        <field name="name">sale.order.list.dvz.report.fields</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="dvz_year" string="Year" optional="hide"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="dvz_sales_engineer_id" string="Sales Engineer" optional="hide"/>
+                <field name="dvz_customer_name" string="Customer Name" optional="hide"/>
+                <field name="project" string="Project Name" optional="hide"/>
+                <field name="dvz_area" string="Area" optional="hide"/>
+                <field name="dvz_division_id" string="Division" optional="hide"/>
+                <field name="system" string="System" optional="hide"/>
+                <field name="dvz_brand_id" string="Brand" optional="hide"/>
+                <field name="amount_untaxed" string="Value (without VAT)" optional="hide"/>
+                <field name="dvz_status" string="Status" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Same columns on the main Sale Orders list (confirmed orders),
+         since sale.view_quotation_tree is specifically the Quotations
+         action's view - the Sales Orders menu may use a different one. -->
+    <record id="dvz_sale_order_list_report_fields_orders" model="ir.ui.view">
+        <field name="name">sale.order.list.dvz.report.fields.orders</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="dvz_year" string="Year" optional="hide"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="dvz_sales_engineer_id" string="Sales Engineer" optional="hide"/>
+                <field name="dvz_customer_name" string="Customer Name" optional="hide"/>
+                <field name="project" string="Project Name" optional="hide"/>
+                <field name="dvz_area" string="Area" optional="hide"/>
+                <field name="dvz_division_id" string="Division" optional="hide"/>
+                <field name="system" string="System" optional="hide"/>
+                <field name="dvz_brand_id" string="Brand" optional="hide"/>
+                <field name="amount_untaxed" string="Value (without VAT)" optional="hide"/>
+                <field name="dvz_status" string="Status" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Form view: same fields as a dedicated tab, so they're editable
+         directly on the order, not just visible as optional list
+         columns. Added as a whole new <page> (rather than injected into
+         an existing group) since that's robust regardless of the exact
+         existing form structure - every notebook can safely receive one
+         more page appended at the end. -->
+    <record id="dvz_sale_order_form_report_fields" model="ir.ui.view">
+        <field name="name">sale.order.form.dvz.report.fields</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Project Details" name="dvz_project_details">
+                    <group>
+                        <group>
+                            <field name="dvz_year"/>
+                            <field name="dvz_sales_engineer_id"/>
+                            <field name="dvz_customer_name"/>
+                            <field name="project"/>
+                            <field name="dvz_area"/>
+                        </group>
+                        <group>
+                            <field name="dvz_division_id"/>
+                            <field name="system"/>
+                            <field name="dvz_brand_id"/>
+                            <field name="dvz_status"/>
+                            <field name="amount_untaxed" string="Value (without VAT)"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
