@@ -7,7 +7,7 @@ STATUS_SELECTION = [
 ]
 
 
-class SaleOrder(models.Model):
+class SaleOrderInheritDvz(models.Model):
     _inherit = "sale.order"
 
     # NOTE: 'system' (Many2one to system.master) and 'project' (Char)
