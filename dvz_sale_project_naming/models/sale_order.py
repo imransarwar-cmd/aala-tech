@@ -76,7 +76,7 @@ class SaleOrder(models.Model):
                     order_department=order.dvz_division_id.display_name,
                 ))
 
-    @api.depends('name', 'user_id.dvz_sales_abbreviation', 'dvz_division_id.code',
+    @api.depends('name', 'user_id.dvz_sales_abbreviation', 'dvz_division_id',
                  'dvz_project_reference', 'dvz_project_suffix', 'dvz_include_so_number',
                  'dvz_confirmed_project_code', 'dvz_confirmed_project_name')
     def _compute_dvz_project_names(self):
