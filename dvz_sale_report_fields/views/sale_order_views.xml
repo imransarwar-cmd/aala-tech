@@ -14,9 +14,9 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_quotation_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='name']" position="before">
-                <field name="dvz_year" string="Year" optional="hide"/>
-            </xpath>
+<!--            <xpath expr="//field[@name='name']" position="before">-->
+<!--                <field name="dvz_year" string="Year" optional="hide"/>-->
+<!--            </xpath>-->
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="dvz_sales_engineer_id" string="Sales Engineer" optional="hide"/>
                 <field name="dvz_customer_name" string="Customer Name" optional="hide"/>
@@ -39,9 +39,9 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='name']" position="before">
-                <field name="dvz_year" string="Year" optional="hide"/>
-            </xpath>
+<!--            <xpath expr="//field[@name='name']" position="before">-->
+<!--                <field name="dvz_year" string="Year" optional="hide"/>-->
+<!--            </xpath>-->
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="dvz_sales_engineer_id" string="Sales Engineer" optional="hide"/>
                 <field name="dvz_customer_name" string="Customer Name" optional="hide"/>
@@ -71,7 +71,7 @@
                 <page string="Project Details" name="dvz_project_details">
                     <group>
                         <group>
-                            <field name="dvz_year"/>
+<!--                            <field name="dvz_year"/>-->
                             <field name="dvz_sales_engineer_id"/>
                             <field name="dvz_customer_name"/>
                             <field name="project"/>
