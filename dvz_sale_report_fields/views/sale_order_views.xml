@@ -78,8 +78,13 @@
                             <field name="dvz_area"/>
                         </group>
                         <group>
-                            <field name="dvz_division_id"/>
-                            <field name="system"/>
+                             <field name="aala_division_ids"
+                       widget="many2many_tags"
+                       options="{'no_create_edit': False}"/>
+                <field name="aala_system_ids"
+                       widget="many2many_tags"
+                       domain="[('division', 'in', aala_division_ids)]"
+                       options="{'no_create_edit': False}"/>
                             <field name="dvz_brand_id"/>
                             <field name="dvz_status"/>
                             <field name="amount_untaxed" string="Value (without VAT)"/>
