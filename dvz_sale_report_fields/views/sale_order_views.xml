@@ -9,11 +9,11 @@
          default view. Appending inside //list (rather than targeting a
          specific existing column) is safe regardless of the exact
          existing column layout. -->
-    <record id="dvz_sale_order_list_report_fields" model="ir.ui.view">
-        <field name="name">sale.order.list.dvz.report.fields</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_quotation_tree"/>
-        <field name="arch" type="xml">
+<!--    <record id="dvz_sale_order_list_report_fields" model="ir.ui.view">-->
+<!--        <field name="name">sale.order.list.dvz.report.fields</field>-->
+<!--        <field name="model">sale.order</field>-->
+<!--        <field name="inherit_id" ref="sale.view_quotation_tree"/>-->
+<!--        <field name="arch" type="xml">-->
 <!--            <xpath expr="//field[@name='name']" position="before">-->
 <!--                <field name="dvz_year" string="Year" optional="hide"/>-->
 <!--            </xpath>-->
@@ -28,8 +28,8 @@
 <!--                <field name="amount_untaxed" string="Value (without VAT)" optional="hide"/>-->
 <!--                <field name="dvz_status" string="Status" optional="hide"/>-->
 <!--            </xpath>-->
-        </field>
-    </record>
+<!--        </field>-->
+<!--    </record>-->
 
     <!-- Same columns on the main Sale Orders list (confirmed orders),
          since sale.view_quotation_tree is specifically the Quotations
