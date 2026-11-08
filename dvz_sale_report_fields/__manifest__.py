@@ -14,6 +14,7 @@
     "depends": [
         "sale",
         "hr",
+        "aala_rest_api",
     ],
     "data": [
         "views/sale_order_views.xml",
