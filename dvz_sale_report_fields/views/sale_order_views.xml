@@ -17,44 +17,44 @@
 <!--            <xpath expr="//field[@name='name']" position="before">-->
 <!--                <field name="dvz_year" string="Year" optional="hide"/>-->
 <!--            </xpath>-->
-            <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="dvz_sales_engineer_id" string="Sales Engineer" optional="hide"/>
-                <field name="dvz_customer_name" string="Customer Name" optional="hide"/>
-                <field name="project" string="Project Name" optional="hide"/>
-                <field name="dvz_area" string="Area" optional="hide"/>
-                <field name="dvz_division_id" string="Division" optional="hide"/>
-                <field name="system" string="System" optional="hide"/>
-                <field name="dvz_brand_id" string="Brand" optional="hide"/>
-                <field name="amount_untaxed" string="Value (without VAT)" optional="hide"/>
-                <field name="dvz_status" string="Status" optional="hide"/>
-            </xpath>
+<!--            <xpath expr="//field[@name='partner_id']" position="after">-->
+<!--                <field name="dvz_sales_engineer_id" string="Sales Engineer" optional="hide"/>-->
+<!--                <field name="dvz_customer_name" string="Customer Name" optional="hide"/>-->
+<!--                <field name="project" string="Project Name" optional="hide"/>-->
+<!--                <field name="dvz_area" string="Area" optional="hide"/>-->
+<!--                <field name="dvz_division_id" string="Division" optional="hide"/>-->
+<!--                <field name="system" string="System" optional="hide"/>-->
+<!--                <field name="dvz_brand_id" string="Brand" optional="hide"/>-->
+<!--                <field name="amount_untaxed" string="Value (without VAT)" optional="hide"/>-->
+<!--                <field name="dvz_status" string="Status" optional="hide"/>-->
+<!--            </xpath>-->
         </field>
     </record>
 
     <!-- Same columns on the main Sale Orders list (confirmed orders),
          since sale.view_quotation_tree is specifically the Quotations
          action's view - the Sales Orders menu may use a different one. -->
-    <record id="dvz_sale_order_list_report_fields_orders" model="ir.ui.view">
-        <field name="name">sale.order.list.dvz.report.fields.orders</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_tree"/>
-        <field name="arch" type="xml">
-<!--            <xpath expr="//field[@name='name']" position="before">-->
-<!--                <field name="dvz_year" string="Year" optional="hide"/>-->
+<!--    <record id="dvz_sale_order_list_report_fields_orders" model="ir.ui.view">-->
+<!--        <field name="name">sale.order.list.dvz.report.fields.orders</field>-->
+<!--        <field name="model">sale.order</field>-->
+<!--        <field name="inherit_id" ref="sale.view_order_tree"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--&lt;!&ndash;            <xpath expr="//field[@name='name']" position="before">&ndash;&gt;-->
+<!--&lt;!&ndash;                <field name="dvz_year" string="Year" optional="hide"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            </xpath>&ndash;&gt;-->
+<!--            <xpath expr="//field[@name='partner_id']" position="after">-->
+<!--                <field name="dvz_sales_engineer_id" string="Sales Engineer" optional="hide"/>-->
+<!--                <field name="dvz_customer_name" string="Customer Name" optional="hide"/>-->
+<!--                <field name="project" string="Project Name" optional="hide"/>-->
+<!--                <field name="dvz_area" string="Area" optional="hide"/>-->
+<!--                <field name="dvz_division_id" string="Division" optional="hide"/>-->
+<!--                <field name="system" string="System" optional="hide"/>-->
+<!--                <field name="dvz_brand_id" string="Brand" optional="hide"/>-->
+<!--                <field name="amount_untaxed" string="Value (without VAT)" optional="hide"/>-->
+<!--                <field name="dvz_status" string="Status" optional="hide"/>-->
 <!--            </xpath>-->
-            <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="dvz_sales_engineer_id" string="Sales Engineer" optional="hide"/>
-                <field name="dvz_customer_name" string="Customer Name" optional="hide"/>
-                <field name="project" string="Project Name" optional="hide"/>
-                <field name="dvz_area" string="Area" optional="hide"/>
-                <field name="dvz_division_id" string="Division" optional="hide"/>
-                <field name="system" string="System" optional="hide"/>
-                <field name="dvz_brand_id" string="Brand" optional="hide"/>
-                <field name="amount_untaxed" string="Value (without VAT)" optional="hide"/>
-                <field name="dvz_status" string="Status" optional="hide"/>
-            </xpath>
-        </field>
-    </record>
+<!--        </field>-->
+<!--    </record>-->
 
     <!-- Form view: same fields as a dedicated tab, so they're editable
          directly on the order, not just visible as optional list
@@ -70,13 +70,13 @@
             <xpath expr="//notebook" position="inside">
                 <page string="Project Details" name="dvz_project_details">
                     <group>
-                        <group>
-<!--                            <field name="dvz_year"/>-->
-                            <field name="dvz_sales_engineer_id"/>
-                            <field name="dvz_customer_name"/>
-                            <field name="project"/>
-                            <field name="dvz_area"/>
-                        </group>
+<!--                        <group>-->
+<!--&lt;!&ndash;                            <field name="dvz_year"/>&ndash;&gt;-->
+<!--                            <field name="dvz_sales_engineer_id"/>-->
+<!--                            <field name="dvz_customer_name"/>-->
+<!--                            <field name="project"/>-->
+<!--                            <field name="dvz_area"/>-->
+<!--                        </group>-->
                         <group>
                              <field name="aala_division_ids"
                        widget="many2many_tags"
