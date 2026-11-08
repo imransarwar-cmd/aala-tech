@@ -22,8 +22,8 @@
                 <field name="dvz_customer_name" string="Customer Name" optional="hide"/>
                 <field name="project" string="Project Name" optional="hide"/>
                 <field name="dvz_area" string="Area" optional="hide"/>
-                <field name="dvz_division_ids" string="Division" widget="many2many_tags" optional="hide"/>
-                <field name="dvz_system_ids" string="System" widget="many2many_tags" domain="[('division', 'in', dvz_division_ids)]" optional="hide"/>
+                <field name="dvz_division_id" string="Division" optional="hide"/>
+                <field name="system" string="System" optional="hide"/>
                 <field name="dvz_brand_id" string="Brand" optional="hide"/>
                 <field name="amount_untaxed" string="Value (without VAT)" optional="hide"/>
                 <field name="dvz_status" string="Status" optional="hide"/>
@@ -47,8 +47,8 @@
                 <field name="dvz_customer_name" string="Customer Name" optional="hide"/>
                 <field name="project" string="Project Name" optional="hide"/>
                 <field name="dvz_area" string="Area" optional="hide"/>
-                <field name="dvz_division_ids" string="Division" widget="many2many_tags" optional="hide"/>
-                <field name="dvz_system_ids" string="System" widget="many2many_tags" domain="[('division', 'in', dvz_division_ids)]" optional="hide"/>
+                <field name="dvz_division_id" string="Division" optional="hide"/>
+                <field name="system" string="System" optional="hide"/>
                 <field name="dvz_brand_id" string="Brand" optional="hide"/>
                 <field name="amount_untaxed" string="Value (without VAT)" optional="hide"/>
                 <field name="dvz_status" string="Status" optional="hide"/>
@@ -78,8 +78,8 @@
                             <field name="dvz_area"/>
                         </group>
                         <group>
-                            <field name="dvz_division_ids" widget="many2many_tags"/>
-                            <field name="dvz_system_ids" widget="many2many_tags" domain="[('division', 'in', dvz_division_ids)]"/>
+                            <field name="dvz_division_id"/>
+                            <field name="system"/>
                             <field name="dvz_brand_id"/>
                             <field name="dvz_status"/>
                             <field name="amount_untaxed" string="Value (without VAT)"/>

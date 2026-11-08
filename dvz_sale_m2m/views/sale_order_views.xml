@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_aala_division_system_m2m" model="ir.ui.view">
+        <field name="name">sale.order.form.aala.division.system.m2m</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='project']" position="before">
+                <field name="aala_division_ids"
+                       widget="many2many_tags"
+                       options="{'no_create_edit': False}"/>
+                <field name="aala_system_ids"
+                       widget="many2many_tags"
+                       domain="[('division', 'in', aala_division_ids)]"
+                       options="{'no_create_edit': False}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_quotation_tree_aala_division_system_m2m" model="ir.ui.view">
+        <field name="name">sale.order.list.aala.division.system.m2m</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="aala_division_ids" widget="many2many_tags" optional="show"/>
+                <field name="aala_system_ids" widget="many2many_tags" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

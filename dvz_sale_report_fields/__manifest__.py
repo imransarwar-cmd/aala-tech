@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "DVZ Sale Order Report Fields",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.0.0",
     "summary": "Adds Sales Engineer, Customer Name, Area, Status, and Year to "
                 "Sale Orders, links the existing Division and Brand master "
                 "data (from aala_rest_api) to Sale Orders, and exposes all "

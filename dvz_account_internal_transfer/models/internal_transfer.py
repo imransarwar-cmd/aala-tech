@@ -175,8 +175,8 @@ class AccountInternalTransfer(models.Model):
         if not bridge:
             raise UserError(_('Select an Internal Transfer Bridge Account before posting.'))
         self._check_account_usable(bridge)
-        if bridge.account_type != 'asset_current' or not bridge.reconcile:
-            raise UserError(_('The Internal Transfer Bridge Account must be a Current Assets account with Allow Reconciliation enabled.'))
+        # if bridge.account_type != 'asset_current' or not bridge.reconcile:
+        #     raise UserError(_('The Internal Transfer Bridge Account must be a Current Assets account with Allow Reconciliation enabled.'))
         if bridge in (
             self.source_journal_id.default_account_id,
             self.destination_journal_id.default_account_id,
