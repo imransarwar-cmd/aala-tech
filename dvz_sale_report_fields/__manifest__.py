@@ -13,7 +13,6 @@
     "license": "OPL-1",
     "depends": [
         "sale",
-        "aala_rest_api",
         "hr",
     ],
     "data": [
