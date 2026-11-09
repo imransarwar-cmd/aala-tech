@@ -23,6 +23,7 @@ class SaleOrder(models.Model):
         string='System',
         domain="[('dvz_department_id', '=', dvz_division_id)]",
         tracking=True,
+
     )
 
     dvz_division_id = fields.Many2one(

@@ -17,6 +17,9 @@
 <!--                    <group name="dvz_project_information_right"/>-->
 <!--                </group>-->
 <!--            </xpath>-->
+            <xpath expr="//field[@name='system']" position="attributes">
+    <attribute name="invisible">1</attribute>
+</xpath>
             <xpath expr="//page[@name='other_information']" position="inside">
                 <group name="dvz_project_naming" string="Project Naming" col="2">
                     <group name="dvz_project_naming_inputs">
@@ -59,6 +62,7 @@
                 <filter name="dvz_group_by_division" string="Department"
                         context="{'group_by': 'dvz_division_id'}"/>
             </xpath>
+
         </field>
     </record>
 </odoo>
