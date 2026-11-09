@@ -7,16 +7,16 @@
         <field name="arch" type="xml">
             <!-- Safe native anchor; custom fields are moved after all inherited
                  views are combined, without guessing Studio technical names. -->
-            <xpath expr="//sheet/notebook[1]" position="before">
-                <group name="dvz_project_information" string="Project Information" col="2">
-                    <group name="dvz_project_information_left">
-                        <field name="dvz_division_id" readonly="dvz_confirmed_project_code"
-                               options="{'no_quick_create': True}"
-                               context="{'default_company_id': company_id}"/>
-                    </group>
-                    <group name="dvz_project_information_right"/>
-                </group>
-            </xpath>
+<!--            <xpath expr="//sheet/notebook[1]" position="before">-->
+<!--                <group name="dvz_project_information" string="Project Information" col="2">-->
+<!--                    <group name="dvz_project_information_left">-->
+<!--                        <field name="dvz_division_id" readonly="dvz_confirmed_project_code"-->
+<!--                               options="{'no_quick_create': True}"-->
+<!--                               context="{'default_company_id': company_id}"/>-->
+<!--                    </group>-->
+<!--                    <group name="dvz_project_information_right"/>-->
+<!--                </group>-->
+<!--            </xpath>-->
             <xpath expr="//page[@name='other_information']" position="inside">
                 <group name="dvz_project_naming" string="Project Naming" col="2">
                     <group name="dvz_project_naming_inputs">

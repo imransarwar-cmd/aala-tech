@@ -67,6 +67,18 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='project']" position="before">
+
+                <field name="dvz_department_ids"
+                       string="Department"
+                       widget="many2many_tags"/>
+
+                <field name="dvz_system_ids"
+                       string="System"
+                       widget="many2many_tags"
+                       domain="[('division', 'in', dvz_department_ids)]"/>
+
+            </xpath>
             <xpath expr="//notebook" position="inside">
                 <page string="Project Details" name="dvz_project_details">
                     <group>
