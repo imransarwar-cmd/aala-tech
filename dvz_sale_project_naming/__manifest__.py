@@ -12,7 +12,7 @@
         'views/division_views.xml',
         'views/system_master_views.xml',
         'views/res_users_views.xml',
-        'views/sale_order_views.xml',
+        # 'views/sale_order_views.xml',
         'views/project_project_views.xml',
     ],
     'installable': True,
