@@ -108,4 +108,16 @@
         </field>
     </record>
 
+    <record id="view_order_form_remove_old_system" model="ir.ui.view">
+        <field name="name">sale.order.form.remove.old.system</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='system']" position="replace"/>
+
+        </field>
+    </record>
+
 </odoo>
