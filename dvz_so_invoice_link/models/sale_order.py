@@ -33,20 +33,20 @@ class SaleOrder(models.Model):
     #             if move.currency_id != order.currency_id:
     #                 raise ValidationError(_('Invoice and Sales Order currencies must match.'))
 
-    # def action_view_dvz_linked_invoices(self):
-    #     self.ensure_one()
-    #     invoices = self.dvz_linked_invoice_ids.exists()
-    #     action = self.env['ir.actions.actions']._for_xml_id('account.action_move_out_invoice_type')
-    #     action['domain'] = [('id', 'in', invoices.ids)]
-    #     action['context'] = dict(self.env.context, default_move_type='out_invoice', create=False)
-    #     action['name'] = _('Linked Invoices')
-    #     if len(invoices) == 1:
-    #         action['views'] = [(False, 'form')]
-    #         action['res_id'] = invoices.id
-    #     else:
-    #         action['views'] = [(False, 'list'), (False, 'form')]
-    #         action.pop('res_id', None)
-    #     return action
+    def action_view_dvz_linked_invoices(self):
+        self.ensure_one()
+        invoices = self.dvz_linked_invoice_ids.exists()
+        action = self.env['ir.actions.actions']._for_xml_id('account.action_move_out_invoice_type')
+        action['domain'] = [('id', 'in', invoices.ids)]
+        action['context'] = dict(self.env.context, default_move_type='out_invoice', create=False)
+        action['name'] = _('Linked Invoices')
+        if len(invoices) == 1:
+            action['views'] = [(False, 'form')]
+            action['res_id'] = invoices.id
+        else:
+            action['views'] = [(False, 'list'), (False, 'form')]
+            action.pop('res_id', None)
+        return action
     #
     # def init(self):
     #     """Install/upgrade UI using Python; no XML data file required.
