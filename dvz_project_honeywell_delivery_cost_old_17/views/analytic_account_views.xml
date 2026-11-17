@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_analytic_account_form_dvz_honeywell_delivery_cost" model="ir.ui.view">
+        <field name="name">account.analytic.account.form.dvz.honeywell.delivery.cost</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="dvz_project_purchase_report.view_account_analytic_account_form_dvz_project_purchase"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="dvz_honeywell_delivery_costing"/>
+            </xpath>
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_dvz_delivery_cost_lines"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-truck"
+                        invisible="not dvz_honeywell_delivery_costing">
+                    <field name="dvz_delivery_cost_currency_id" invisible="1"/>
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="dvz_delivery_cost_total"
+                                   widget="monetary"
+                                   options="{'currency_field': 'dvz_delivery_cost_currency_id'}"/>
+                        </span>
+                        <span class="o_stat_text">Delivered Cost</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

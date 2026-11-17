@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_material_reservation_list" model="ir.ui.view">
+        <field name="name">dvz.material.reservation.list</field>
+        <field name="model">dvz.material.reservation</field>
+        <field name="arch" type="xml">
+            <list decoration-success="state == 'reserved'" decoration-warning="state in ['partial', 'waiting']" decoration-muted="state in ['cancel', 'done', 'released']">
+                <header>
+                    <button name="action_release_selected" type="object" string="Release Selected Reservations" groups="dvz_material_reservation.group_reservation_operator"/>
+                </header>
+                <field name="name"/>
+                <field name="source"/>
+                <field name="sale_order_id"/>
+                <field name="partner_id"/>
+                <field name="project_id"/>
+                <field name="analytic_account_id" optional="show"/>
+                <field name="warehouse_id"/>
+                <field name="create_date" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_material_reservation_form" model="ir.ui.view">
+        <field name="name">dvz.material.reservation.form</field>
+        <field name="model">dvz.material.reservation</field>
+        <field name="arch" type="xml">
+            <form string="Material Reservation" duplicate="0" delete="0">
+                <header>
+                    <button name="action_confirm_manual" string="Confirm &amp; Reserve" type="object" class="btn-primary" invisible="source != 'manual' or stage != 'draft'" groups="dvz_material_reservation.group_reservation_operator"/>
+                    <button name="action_reserve_available" string="Reserve Available" type="object" invisible="stage != 'active' or state in ['done', 'cancel']" groups="dvz_material_reservation.group_reservation_operator"/>
+                    <button name="action_release" string="Release / Unreserve" type="object" invisible="stage != 'active' or state in ['done', 'cancel']" groups="dvz_material_reservation.group_reservation_operator"/>
+                    <button name="action_set_target" string="Set Reservation Target" type="object" invisible="stage != 'active' or state in ['done', 'cancel']" groups="dvz_material_reservation.group_reservation_operator"/>
+                    <button name="action_cancel_manual" string="Cancel Manual Hold" type="object" invisible="source != 'manual' or stage == 'cancel' or state == 'done'" groups="dvz_material_reservation.group_reservation_operator" confirm="Cancel this manual hold and release its unprocessed reservations?"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,waiting,partial,reserved,released,done"/>
+                </header>
+                <sheet>
+                    <field name="stage" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="has_picked_operations" invisible="1"/>
+                    <div name="button_box" class="oe_button_box">
+                        <button name="action_view_moves" type="object" class="oe_stat_button" icon="fa-cubes">
+                            <field name="move_count" widget="statinfo" string="Reservation Lines"/>
+                        </button>
+                        <button name="action_view_transfers" type="object" class="oe_stat_button" icon="fa-truck">
+                            <field name="transfer_count" widget="statinfo" string="Transfers"/>
+                        </button>
+                    </div>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <div class="alert alert-info" role="alert" invisible="not project_link_note or source != 'sale'">
+                        <field name="project_link_note" nolabel="1" readonly="1"/>
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="not has_picked_operations">
+                        Some operations are marked Picked. Their release is blocked until the picking is corrected through Inventory. Completed deliveries require a return, not an unreserve.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="source" readonly="1"/>
+                            <field name="sale_order_id" invisible="source != 'sale'" readonly="1"/>
+                            <field name="partner_id" readonly="stage != 'draft'"/>
+                            <field name="delivery_partner_id" readonly="stage != 'draft'"/>
+                            <field name="project_id" options="{'no_create': True}"/>
+                            <field name="analytic_account_id" options="{'no_create': True}"/>
+                            <button name="action_refresh_so_link" type="object" string="Refresh existing SO project link" invisible="source != 'sale'" groups="dvz_material_reservation.group_reservation_operator"/>
+                        </group>
+                        <group>
+                            <field name="company_id" readonly="stage != 'draft'" groups="base.group_multi_company"/>
+                            <field name="warehouse_id" readonly="stage != 'draft'"/>
+                            <field name="location_id" readonly="stage != 'draft'" invisible="source != 'manual'"/>
+                            <field name="manual_picking_id" readonly="1" invisible="source != 'manual'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Manual Request" name="manual_request" invisible="source != 'manual'">
+                            <div class="alert alert-info" role="alert">Project is optional. Confirm creates an unvalidated customer transfer and reserves available stock only. No delivery or invoice is posted.</div>
+                            <field name="request_line_ids" readonly="stage != 'draft'">
+                                <list editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="quantity"/>
+                                    <field name="uom_id" readonly="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Reservations" name="reservation_moves">
+                            <div class="alert alert-info" role="alert">Each row is a warehouse operation. In multi-step routes the same product can appear at several stages; do not add different units or route stages as a single SO quantity. Open Reservation Lines for filtering/export and per-line release.</div>
+                            <field name="move_ids" readonly="1">
+                                <list create="0" edit="0" delete="0">
+                                    <field name="picking_id"/>
+                                    <field name="product_id"/>
+                                    <field name="location_id" optional="show"/>
+                                    <field name="location_dest_id" optional="hide"/>
+                                    <field name="product_uom_qty" string="Operation Demand"/>
+                                    <field name="dvz_reserved_qty"/>
+                                    <field name="dvz_target_qty"/>
+                                    <field name="dvz_shortage_qty"/>
+                                    <field name="dvz_held_back_qty"/>
+                                    <field name="product_uom"/>
+                                    <field name="state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Reservation History" name="reservation_history">
+                            <field name="event_ids" readonly="1">
+                                <list create="0" edit="0" delete="0">
+                                    <field name="date"/>
+                                    <field name="actor_id"/>
+                                    <field name="action"/>
+                                    <field name="product_id"/>
+                                    <field name="reserved_before"/>
+                                    <field name="reserved_after"/>
+                                    <field name="uom_id"/>
+                                    <field name="reason"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes"><field name="notes"/></page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="view_material_reservation_search" model="ir.ui.view">
+        <field name="name">dvz.material.reservation.search</field>
+        <field name="model">dvz.material.reservation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/><field name="sale_order_id"/><field name="partner_id"/>
+                <field name="project_id"/><field name="analytic_account_id"/><field name="warehouse_id"/>
+                <filter name="open" string="Open" domain="[('state', 'in', ['draft', 'waiting', 'partial', 'reserved', 'released'])]"/>
+                <filter name="shortages" string="Waiting / Partial" domain="[('state', 'in', ['waiting', 'partial'])]"/>
+                <filter name="released" string="Released" domain="[('state', '=', 'released')]"/>
+                <separator/>
+                <filter name="manual" string="Manual Customer Holds" domain="[('source', '=', 'manual')]"/>
+                <filter name="so" string="Sales Orders" domain="[('source', '=', 'sale')]"/>
+                <group>
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_project" string="Project" context="{'group_by': 'project_id'}"/>
+                    <filter name="group_analytic" string="Analytic Project" context="{'group_by': 'analytic_account_id'}"/>
+                    <filter name="group_sale" string="Sales Order" context="{'group_by': 'sale_order_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_warehouse" string="Warehouse" context="{'group_by': 'warehouse_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_material_reservations" model="ir.actions.act_window">
+        <field name="name">Material Reservations</field><field name="res_model">dvz.material.reservation</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_material_reservation_search"/>
+        <field name="context">{'search_default_open': 1}</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Reserve materials for a project or customer</p><p>Confirm an SO for automatic reservation, or create a manual customer hold. A project is optional.</p></field>
+    </record>
+</odoo>

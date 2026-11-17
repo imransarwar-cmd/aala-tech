@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="dvz_project_purchase_report.view_account_analytic_account_form_dvz_project_purchase"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
-                <field name="dvz_honeywell_delivery_costing"/>
+                <field name="dvz_honeywell_delivery_costing" invisible="1"/>
             </xpath>
 
             <xpath expr="//div[@name='button_box']" position="inside">

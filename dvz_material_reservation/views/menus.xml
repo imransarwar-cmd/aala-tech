@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_material_reservations" name="Material Reservations" parent="stock.menu_stock_warehouse_mgmt" sequence="35"/>
+    <menuitem id="menu_material_reservation_register" name="Reservation Register" parent="menu_material_reservations" action="action_material_reservations" sequence="10"/>
+    <menuitem id="menu_material_reservation_lines" name="Reservation Lines" parent="menu_material_reservations" action="action_reservation_operations" sequence="20"/>
+    <menuitem id="menu_material_reservation_settings" name="Reservation Settings" parent="stock.menu_stock_config_settings" action="action_reservation_settings" sequence="90" groups="stock.group_stock_manager"/>
+</odoo>

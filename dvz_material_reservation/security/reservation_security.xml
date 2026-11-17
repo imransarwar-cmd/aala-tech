@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="privilege_material_reservation" model="res.groups.privilege">
+        <field name="name">Material Reservations</field>
+        <field name="category_id" ref="base.module_category_supply_chain"/>
+    </record>
+    <record id="group_reservation_operator" model="res.groups">
+        <field name="name">Manage Reservations / Release Stock</field>
+        <field name="privilege_id" ref="privilege_material_reservation"/>
+        <field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
+    </record>
+    <record id="stock.group_stock_manager" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_reservation_operator'))]"/>
+    </record>
+    <record id="reservation_company_rule" model="ir.rule">
+        <field name="name">Material reservations: allowed companies</field>
+        <field name="model_id" ref="model_dvz_material_reservation"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="request_company_rule" model="ir.rule">
+        <field name="name">Material requests: allowed companies</field>
+        <field name="model_id" ref="model_dvz_material_reservation_request"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="event_company_rule" model="ir.rule">
+        <field name="name">Material reservation history: allowed companies</field>
+        <field name="model_id" ref="model_dvz_material_reservation_event"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="reservation_sales_own_rule" model="ir.rule">
+        <field name="name">Sales users: their SO reservations and manual customer holds</field>
+        <field name="model_id" ref="model_dvz_material_reservation"/>
+        <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        <field name="domain_force">['|', ('sale_order_id', '=', False), '|', ('sale_order_id.user_id', '=', user.id), ('sale_order_id.user_id', '=', False)]</field>
+    </record>
+    <record id="reservation_stock_all_rule" model="ir.rule">
+        <field name="name">Inventory and sales managers: all allowed-company reservations</field>
+        <field name="model_id" ref="model_dvz_material_reservation"/>
+        <field name="groups" eval="[(4, ref('stock.group_stock_user')), (4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+<record id="request_sales_own_rule" model="ir.rule"><field name="name">Sales users: their SO reservation details</field><field name="model_id" ref="model_dvz_material_reservation_request"/><field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/><field name="domain_force">['|', ('reservation_id.sale_order_id', '=', False), '|', ('reservation_id.sale_order_id.user_id', '=', user.id), ('reservation_id.sale_order_id.user_id', '=', False)]</field></record><record id="request_stock_all_rule" model="ir.rule"><field name="name">Inventory and sales managers: reservation details</field><field name="model_id" ref="model_dvz_material_reservation_request"/><field name="groups" eval="[(4, ref('stock.group_stock_user')), (4, ref('sales_team.group_sale_salesman_all_leads'))]"/><field name="domain_force">[(1, '=', 1)]</field></record><record id="event_sales_own_rule" model="ir.rule"><field name="name">Sales users: their SO reservation details</field><field name="model_id" ref="model_dvz_material_reservation_event"/><field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/><field name="domain_force">['|', ('reservation_id.sale_order_id', '=', False), '|', ('reservation_id.sale_order_id.user_id', '=', user.id), ('reservation_id.sale_order_id.user_id', '=', False)]</field></record><record id="event_stock_all_rule" model="ir.rule"><field name="name">Inventory and sales managers: reservation details</field><field name="model_id" ref="model_dvz_material_reservation_event"/><field name="groups" eval="[(4, ref('stock.group_stock_user')), (4, ref('sales_team.group_sale_salesman_all_leads'))]"/><field name="domain_force">[(1, '=', 1)]</field></record></odoo>

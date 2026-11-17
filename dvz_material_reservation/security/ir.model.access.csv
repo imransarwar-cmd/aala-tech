@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_reservation_stock,Reservation inventory reader,model_dvz_material_reservation,stock.group_stock_user,1,0,0,0
+access_reservation_sales,Reservation sales reader,model_dvz_material_reservation,sales_team.group_sale_salesman,1,0,0,0
+access_reservation_operator,Reservation operator,model_dvz_material_reservation,group_reservation_operator,1,1,1,0
+access_request_stock,Request inventory reader,model_dvz_material_reservation_request,stock.group_stock_user,1,0,0,0
+access_request_sales,Request sales reader,model_dvz_material_reservation_request,sales_team.group_sale_salesman,1,0,0,0
+access_request_operator,Request operator,model_dvz_material_reservation_request,group_reservation_operator,1,1,1,1
+access_event_stock,Event inventory reader,model_dvz_material_reservation_event,stock.group_stock_user,1,0,0,0
+access_event_sales,Event sales reader,model_dvz_material_reservation_event,sales_team.group_sale_salesman,1,0,0,0
+access_adjust_operator,Adjust reservations,model_dvz_reservation_adjust,group_reservation_operator,1,1,1,1
+access_adjust_line_operator,Adjust reservation lines,model_dvz_reservation_adjust_line,group_reservation_operator,1,1,1,1
+access_settings_manager,Reservation settings,model_dvz_reservation_settings,stock.group_stock_manager,1,1,1,1

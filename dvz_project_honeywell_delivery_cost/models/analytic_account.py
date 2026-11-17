@@ -1,5 +1,7 @@
 from odoo import _, api, fields, models
 
+from .delivery_costing_policy import get_delivery_costing_policy
+
 
 def _distribution_has_account(distribution, analytic_id):
     """True when an Odoo analytic_distribution JSON key contains analytic_id.
@@ -30,10 +32,11 @@ class AccountAnalyticAccount(models.Model):
 
     dvz_honeywell_delivery_costing = fields.Boolean(
         string='Honeywell Delivery Costing',
+        compute='_compute_dvz_honeywell_delivery_costing',
         help=(
-            'When enabled, Delivered Cost is calculated directly from completed '
-            'customer delivery moves of Sales Order lines assigned to this analytic '
-            'account. No project.project link is used.'
+            'Enabled by the Honeywell Delivery Costing configuration. Delivered '
+            'Cost is calculated from completed customer delivery moves of Sales '
+            'Order lines assigned to this analytic account.'
         ),
     )
     dvz_delivery_cost_line_ids = fields.One2many(
@@ -56,6 +59,14 @@ class AccountAnalyticAccount(models.Model):
         string='Cost Currency',
         compute='_compute_dvz_delivery_cost_currency_id',
     )
+
+    def _compute_dvz_honeywell_delivery_costing(self):
+        scope, account_ids = get_delivery_costing_policy(self.env)
+        for account in self:
+            account_id = account._origin.id or account.id
+            account.dvz_honeywell_delivery_costing = scope == 'all' or (
+                scope == 'selected' and account_id in account_ids
+            )
 
     @api.depends('company_id')
     def _compute_dvz_delivery_cost_currency_id(self):
@@ -199,12 +210,6 @@ class AccountAnalyticAccount(models.Model):
                 ('location_dest_id.usage', '=', 'customer'),
             ])
             account._dvz_sync_delivery_cost_moves(moves)
-
-    def write(self, vals):
-        res = super().write(vals)
-        if vals.get('dvz_honeywell_delivery_costing'):
-            self.filtered('dvz_honeywell_delivery_costing')._dvz_sync_all_delivery_costs()
-        return res
 
     def action_dvz_delivery_cost_lines(self):
         self.ensure_one()

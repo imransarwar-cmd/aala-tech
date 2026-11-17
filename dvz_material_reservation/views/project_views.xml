@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_form_material_reservations" model="ir.ui.view">
+        <field name="name">project.project.form.dvz.material.reservations</field>
+        <field name="model">project.project</field><field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_dvz_material_reservations" type="object" class="oe_stat_button" icon="fa-cubes" groups="stock.group_stock_user,sales_team.group_sale_salesman">
+                    <field name="dvz_material_reservation_count" widget="statinfo" string="Material Reservations"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+    <record id="analytic_form_material_reservations" model="ir.ui.view">
+        <field name="name">account.analytic.account.form.dvz.material.reservations</field>
+        <field name="model">account.analytic.account</field><field name="inherit_id" ref="analytic.view_account_analytic_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_dvz_material_reservations" type="object" class="oe_stat_button" icon="fa-cubes" groups="stock.group_stock_user,sales_team.group_sale_salesman">
+                    <field name="dvz_material_reservation_count" widget="statinfo" string="Material Reservations"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>
