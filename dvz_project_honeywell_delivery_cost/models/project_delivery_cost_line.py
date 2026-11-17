@@ -30,7 +30,7 @@ class DvzProjectDeliveryCostLine(models.Model):
     product_uom_id = fields.Many2one('uom.uom', string='UoM', required=True)
     delivered_qty = fields.Float(string='Delivered Qty', digits='Product Unit of Measure')
     analytic_percent = fields.Float(string='Project %', digits=(16, 2), default=100.0)
-    unit_cost = fields.Monetary(string='Unit Cost', currency_field='currency_id')
+    unit_cost = fields.Monetary(string='SO Unit Price', currency_field='currency_id')
     amount = fields.Monetary(string='Delivered Cost', currency_field='currency_id')
     currency_id = fields.Many2one('res.currency', string='Currency', required=True)
     company_id = fields.Many2one('res.company', string='Company', required=True, index=True)

@@ -1,7 +1,7 @@
 {
     'name': 'DVZ Honeywell Project Delivery Costing',
-    'version': '19.0.1.0.0',
-    'summary': 'Delivery-based project costing lines for selected Honeywell projects',
+    'version': '19.0.1.7.0',
+    'summary': 'Delivered value from analytic-linked SO lines: SO unit price x completed customer delivery quantity',
     'category': 'Projects/Accounting',
     'license': 'LGPL-3',
     'depends': [

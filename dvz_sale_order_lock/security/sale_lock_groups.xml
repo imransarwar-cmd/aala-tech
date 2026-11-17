@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="privilege_sale_order_lock" model="res.groups.privilege">
+        <field name="name">Sales Order Lock</field>
+        <field name="category_id" ref="base.module_category_sales"/>
+        <field name="sequence">90</field>
+    </record>
+    <record id="group_manage_locked_sale_orders" model="res.groups">
+        <field name="name">Manage Lock / Reopen Orders</field>
+        <field name="privilege_id" ref="privilege_sale_order_lock"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Can close/lock and reopen/unlock sales orders. Closed orders remain read-only for everyone until reopened, including members of this group. Normal Sales access rights and company record rules still apply. Assign explicitly only to authorized users.</field>
+    </record>
+</odoo>

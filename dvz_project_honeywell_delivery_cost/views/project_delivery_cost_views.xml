@@ -11,7 +11,6 @@
                 <field name="product_id"/>
                 <field name="delivered_qty"/>
                 <field name="product_uom_id"/>
-                <field name="analytic_percent"/>
                 <field name="unit_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}" sum="Total Delivered Cost"/>
                 <field name="currency_id" column_invisible="1"/>
@@ -40,11 +39,10 @@
                             <field name="company_id"/>
                         </group>
                     </group>
-                    <group string="Cost">
+                    <group string="Delivered Sales Value">
                         <field name="delivered_qty"/>
                         <field name="product_uom_id"/>
-                        <field name="analytic_percent"/>
-                        <field name="unit_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <field name="unit_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                         <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                         <field name="currency_id" invisible="1"/>
                     </group>

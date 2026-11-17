@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_lock_control" model="ir.ui.view">
+        <field name="name">sale.order.form.dvz.lock.control</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <xpath expr="//form/header" position="inside">
+                <button name="action_dvz_close" type="object" string="Close / Lock"
+                        groups="dvz_sale_order_lock.group_manage_locked_sale_orders"
+                        invisible="locked or state != 'sale'"
+                        confirm="Close and lock this sales order? All fields and order lines will be read-only until an authorized user reopens it."
+                        class="btn-secondary"/>
+                <button name="action_dvz_open" type="object" string="Reopen / Unlock"
+                        groups="dvz_sale_order_lock.group_manage_locked_sale_orders"
+                        invisible="not locked"
+                        confirm="Reopen this sales order? Users with normal Sales edit access will be able to change it."
+                        class="btn-secondary"/>
+                <field name="locked" invisible="1" readonly="1"/>
+                <field name="dvz_can_manage_lock" invisible="1" readonly="1"/>
+                <field name="dvz_lock_readonly" invisible="1" readonly="1"/>
+                <!-- Keep the backing field available, but never display a header badge. -->
+                <field name="dvz_lock_status" invisible="1" readonly="1"/>
+            </xpath>
+            <!-- Guard the whole x2many widget, not only its existing cells. -->
+            <xpath expr="//field[@name='order_line']" position="attributes">
+                <attribute name="readonly" add="locked" separator=" or "/>
+            </xpath>
+            <!-- Native Odoo ribbon: displayed at the upper-right corner of the form sheet. -->
+            <xpath expr="//form/sheet/*[1]" position="before">
+                <widget name="web_ribbon" title="Closed" bg_color="text-bg-danger"
+                        invisible="not locked"/>
+                <widget name="web_ribbon" title="Open" bg_color="text-bg-success"
+                        invisible="locked"/>
+            </xpath>
+            <xpath expr="//form/sheet" position="before">
+                <div class="alert alert-info mb-0" role="alert" invisible="not dvz_lock_readonly">
+                    <strong>Closed / Locked:</strong> All fields and order lines are read-only, including custom fields.
+                    An authorized user must use Reopen / Unlock before making changes.
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_order_list_lock_control" model="ir.ui.view">
+        <field name="name">sale.order.list.dvz.lock.control</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.sale_order_tree"/>
+        <field name="arch" type="xml">
+            <!-- Keep the native order state and the lock status side by side. -->
+            <xpath expr="//list/field[@name='state']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+            <xpath expr="//list/field[@name='state']" position="after">
+                <field name="dvz_lock_status" string="SO Status" optional="show" widget="badge"
+                       readonly="1" decoration-success="dvz_lock_status == 'open'"
+                       decoration-danger="dvz_lock_status == 'closed'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_order_search_lock_control" model="ir.ui.view">
+        <field name="name">sale.order.search.dvz.lock.control</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter name="dvz_open_orders" string="Open" domain="[('dvz_lock_status', '=', 'open')]"/>
+                <filter name="dvz_closed_orders" string="Closed" domain="[('dvz_lock_status', '=', 'closed')]"/>
+                <group>
+                    <filter name="dvz_group_lock_status" string="SO Status (Open / Closed)"
+                            context="{'group_by': 'dvz_lock_status'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

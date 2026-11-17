@@ -1,15 +1,20 @@
-# DVZ Honeywell Project Delivery Costing
+# DVZ Honeywell Delivery Costing
 
-Extension only. It does not modify `dvz_project_purchase_report`.
+Version 19.0.1.5.0.
 
-## Behaviour
-- Enable **Honeywell Delivery Costing** on the required analytic project.
-- A costing line is created only from a completed customer delivery (`stock.move` in `done`).
-- Partial delivery works: only the actually delivered stock move quantity/cost is included.
-- Backorders create later costing lines when those deliveries are completed.
-- Cost uses linked stock valuation layers (actual company-currency valuation); standard cost is only a fallback.
-- The Sales Order line's analytic distribution decides which project receives the cost and at what percentage.
-- Existing completed deliveries are backfilled when the Honeywell flag is enabled or when the Delivered Cost button is opened.
+Delivered Cost is based on actual completed customer delivery stock moves of the Sales Order that created the project.
 
-## Install
-Depend on the existing `dvz_project_purchase_report` addon and install this addon separately.
+Matching flow:
+
+1. Analytic Account -> existing linked project.project
+2. project.project.dvz_origin_sale_id -> originating Sales Order
+3. Completed customer stock moves whose sale line belongs to that Sales Order
+4. Cost line created at 100% for each completed stock move
+
+There is intentionally no stock-move check for project_id, task_id, or analytic_distribution.
+Partial deliveries and backorders are handled by their completed stock moves.
+
+
+## v1.6 calculation rule
+Delivered Cost = Sales Order line Unit Price x actual Done customer-delivery quantity.
+Stock valuation and product standard cost are not used. Existing cost lines are recalculated when the Delivered Cost smart button sync runs.
