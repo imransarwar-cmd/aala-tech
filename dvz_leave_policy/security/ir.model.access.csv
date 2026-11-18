@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dvz_leave_policy_user,Leave policy read,model_dvz_leave_policy,base.group_user,1,0,0,0
+access_dvz_leave_policy_manager,Leave policy administration,model_dvz_leave_policy,hr_holidays.group_hr_holidays_manager,1,1,1,1
+access_dvz_leave_settlement_manager,Leave settlement administration,model_dvz_leave_settlement,hr_holidays.group_hr_holidays_manager,1,1,1,1
+access_dvz_leave_allocation_wizard_manager,Policy allocation generation,model_dvz_leave_allocation_wizard,hr_holidays.group_hr_holidays_manager,1,1,1,1
+access_dvz_leave_allocation_wizard_line_manager,Policy allocation preview,model_dvz_leave_allocation_wizard_line,hr_holidays.group_hr_holidays_manager,1,1,1,1
+access_dvz_policy_setup_wizard_manager,Policy setup,model_dvz_policy_setup_wizard,hr_holidays.group_hr_holidays_manager,1,1,1,1
+access_dvz_wfh_update_wizard_user,WFH task update,model_dvz_wfh_update_wizard,base.group_user,1,1,1,1

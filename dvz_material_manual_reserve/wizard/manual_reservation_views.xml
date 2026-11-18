@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dvz_manual_reservation_wizard" model="ir.ui.view">
+        <field name="name">dvz.manual.reservation.form</field>
+        <field name="model">dvz.manual.reservation</field>
+        <field name="arch" type="xml">
+            <form string="Manual Material Reservation">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="partner_id"/>
+                            <field name="picking_type_id" domain="[('code', '=', 'outgoing'), ('company_id', 'in', [False, company_id])]"/>
+                        </group>
+                        <group>
+                            <field name="project_id"/>
+                            <field name="sale_order_id" domain="[('partner_id', 'child_of', partner_id)]"/>
+                        </group>
+                    </group>
+                    <field name="line_ids">
+                        <list editable="bottom" create="1" delete="1">
+                            <field name="product_id"/>
+                            <field name="quantity"/>
+                        </list>
+                    </field>
+                    <p class="text-muted">Creates a standard outgoing transfer and uses Check Availability to reserve stock. It does not validate delivery or create another SO line.</p>
+                </sheet>
+                <footer>
+                    <button name="action_reserve" type="object" string="Create &amp; Reserve" class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_dvz_manual_reservation" model="ir.actions.act_window">
+        <field name="name">Manual Reservation</field>
+        <field name="res_model">dvz.manual.reservation</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_dvz_manual_reservation_wizard"/>
+        <field name="target">new</field>
+    </record>
+    <menuitem id="menu_dvz_manual_reservation" name="Manual Reserve"
+              parent="dvz_material_reservation_view.menu_material_reservation_root"
+              action="action_dvz_manual_reservation" sequence="20"
+              groups="stock.group_stock_user"/>
+</odoo>

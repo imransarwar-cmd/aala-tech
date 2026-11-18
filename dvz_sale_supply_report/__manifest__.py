@@ -1,0 +1,20 @@
+{
+    'name': 'Sales Stock & Purchase Report',
+    'version': '19.0.1.4.0',
+    'summary': 'Sales product quantities, delivery, stock/purchase sourcing and Excel export',
+    'category': 'Sales/Sales',
+    'author': 'Aala Tech',
+    'license': 'LGPL-3',
+    'depends': ['sale_management', 'sale_stock', 'purchase_stock'],
+    'external_dependencies': {'python': ['xlsxwriter']},
+    'data': [
+        'security/ir.model.access.csv',
+        'views/source_wizard_views.xml',
+        'views/export_wizard_views.xml',
+        'views/report_views.xml',
+        'views/sale_order_views.xml',
+    ],
+    'installable': True,
+    'application': False,
+    'auto_install': False,
+}

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_leave_form_dvz_policy" model="ir.ui.view">
+        <field name="name">hr.leave.form.dvz.policy</field><field name="model">hr.leave</field>
+        <field name="inherit_id" ref="hr_holidays.hr_leave_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="dvz_can_hod_approve" invisible="1"/><field name="dvz_can_hr_approve" invisible="1"/>
+                <field name="dvz_can_management_approve" invisible="1"/>
+                <button name="action_dvz_hod_approve" string="HOD Approval" type="object" class="btn-primary" invisible="not dvz_can_hod_approve"/>
+                <button name="action_dvz_hr_approve" string="HR Approval" type="object" class="btn-primary" invisible="not dvz_can_hr_approve"/>
+                <button name="action_dvz_management_approve" string="Approve Exception" type="object" invisible="not dvz_can_management_approve"/>
+                <button name="action_dvz_convert_unpaid" string="Record as Unpaid" type="object" groups="hr_holidays.group_hr_holidays_manager" invisible="not dvz_policy_id or dvz_kind == 'unpaid' or state in ('refuse','cancel')"/>
+                <button name="action_dvz_mark_failed_return" string="Confirm Failed Return" type="object" groups="hr_holidays.group_hr_holidays_manager" invisible="not dvz_policy_id or dvz_kind != 'paid' or state != 'validate' or leave_type_request_unit != 'half_day' or request_date_from_period != 'am' or request_date_to_period != 'am' or not dvz_expected_return"/>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <group string="Leave Policy">
+                    <group>
+                        <field name="dvz_policy_id" readonly="1"/>
+                        <field name="dvz_policy_version" readonly="1" invisible="not dvz_policy_id"/>
+                        <field name="dvz_kind" readonly="1" invisible="not dvz_policy_id"/>
+                    </group>
+                    <group invisible="id and not dvz_policy_id">
+                        <field name="dvz_emergency" readonly="state in ('validate','refuse','cancel')"/>
+                        <field name="dvz_exception_requested" readonly="state in ('validate','refuse','cancel')"/>
+                        <field name="dvz_exception_reason" invisible="not dvz_exception_requested" required="dvz_exception_requested" readonly="state in ('validate','refuse','cancel')"/>
+                    </group>
+                </group>
+                <notebook invisible="id and not dvz_policy_id">
+                    <page string="Approvals" name="dvz_policy_approvals" invisible="not dvz_policy_id">
+                        <group>
+                            <group string="HOD"><field name="dvz_hod_approved_by" readonly="1"/><field name="dvz_hod_approved_at" readonly="1"/></group>
+                            <group string="HR"><field name="dvz_hr_approved_by" readonly="1"/><field name="dvz_hr_approved_at" readonly="1"/></group>
+                        </group>
+                        <group string="Management Exception" invisible="not dvz_exception_requested">
+                            <field name="dvz_management_approved_by" readonly="1"/><field name="dvz_management_approved_at" readonly="1"/>
+                        </group>
+                    </page>
+                    <page string="Work From Home" name="dvz_work_update" invisible="id and dvz_kind != 'wfh'">
+                        <group>
+                            <field name="dvz_wfh_available" readonly="state in ('validate','refuse','cancel')"/>
+                            <field name="dvz_wfh_communication" readonly="state in ('validate','refuse','cancel')"/>
+                        </group>
+                        <field name="dvz_task_update" placeholder="Record completed tasks and work updates."/>
+                        <button name="action_dvz_open_task_update" string="Send Task Update to HOD and HR" type="object" class="btn-primary" invisible="not id or dvz_kind != 'wfh' or state in ('refuse','cancel')"/>
+                        <group string="Delivery Record" invisible="not id">
+                            <group><field name="dvz_task_update_completed" readonly="1"/><field name="dvz_task_update_sent_at" readonly="1"/><field name="dvz_task_update_sent_by" readonly="1"/></group>
+                            <group><field name="dvz_task_update_recipient_ids" readonly="1" widget="many2many_tags"/><field name="dvz_task_update_message_id" readonly="1"/></group>
+                        </group>
+                    </page>
+                    <page string="Verified Absence" name="dvz_attendance_review" groups="hr_holidays.group_hr_holidays_manager">
+                        <group>
+                            <group><field name="dvz_expected_return" readonly="1"/><field name="dvz_return_review" readonly="1"/><field name="dvz_return_reference"/></group>
+                            <group><field name="dvz_absence_reference"/><field name="dvz_original_type_id" readonly="1"/></group>
+                        </group>
+                        <field name="dvz_violation_reason" readonly="1" nolabel="1"/>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_hr_leave_allocation_form_dvz_policy" model="ir.ui.view">
+        <field name="name">hr.leave.allocation.form.dvz.policy</field><field name="model">hr.leave.allocation</field>
+        <field name="inherit_id" ref="hr_holidays.hr_leave_allocation_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Leave Policy" invisible="not dvz_policy_id">
+                    <group><field name="dvz_policy_id" readonly="1"/><field name="dvz_policy_version" readonly="1"/></group>
+                    <group><field name="dvz_period_start" readonly="1"/><field name="dvz_period_end" readonly="1"/><field name="dvz_allocation_key" readonly="1" groups="base.group_no_one"/></group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

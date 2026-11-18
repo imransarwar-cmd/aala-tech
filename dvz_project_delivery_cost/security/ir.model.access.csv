@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dvz_project_delivery_cost_line_user,dvz.project.delivery.cost.line user,model_dvz_project_delivery_cost_line,base.group_user,1,0,0,0

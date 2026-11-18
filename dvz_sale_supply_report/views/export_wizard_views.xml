@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dvz_sale_supply_export_form" model="ir.ui.view">
+        <field name="name">dvz.sale.supply.export.form</field>
+        <field name="model">dvz.sale.supply.export</field>
+        <field name="arch" type="xml">
+            <form string="Export Sales Supply to Excel">
+                <group invisible="file_data">
+                    <field name="date_from_utc" invisible="1"/>
+                    <field name="date_to_utc" invisible="1"/>
+                    <field name="order_ids" widget="many2many_tags" required="1"
+                           placeholder="Select one or more sales orders"
+                           options="{'no_create': True}"
+                           domain="[('company_id', 'in', company_ids), ('state', 'in', ['sale'] + (['draft', 'sent'] if include_quotations else []) + (['cancel'] if include_cancelled else []))] + ([('partner_id', '=', customer_id)] if customer_id else []) + ([('date_order', '&gt;=', date_from_utc)] if date_from_utc else []) + ([('date_order', '&lt;', date_to_utc)] if date_to_utc else [])"/>
+                </group>
+                <div class="alert alert-info" role="alert" invisible="file_data">
+                    Sales Orders are mandatory. All product lines of the selected orders are included automatically.
+                    No product selection is required.
+                </div>
+                <group invisible="file_data">
+                    <group string="Find Sales Orders (Optional)">
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                        <field name="customer_id" options="{'no_create': True}"/>
+                    </group>
+                    <group string="Sales Order Search">
+                        <field name="company_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        <field name="include_quotations"/>
+                        <field name="include_cancelled"/>
+                    </group>
+                </group>
+                <div class="text-muted mb-3" invisible="file_data">
+                    These optional filters help you find sales orders in the selector above.
+                    Every order you select is included with all its product details.
+                </div>
+                <div class="alert alert-success" role="alert" invisible="not file_data">
+                    Your report is ready. Click the Excel filename below to download it.
+                </div>
+                <group invisible="not file_data">
+                    <field name="file_name" invisible="1"/>
+                    <field name="exported_count"/>
+                    <field name="file_data" filename="file_name" readonly="1"/>
+                </group>
+                <footer>
+                    <button name="action_export" string="Generate Excel" type="object" class="btn-primary" invisible="file_data"/>
+                    <button name="action_view_product_details" string="View Product Details" type="object" class="btn-secondary" invisible="file_data"/>
+                    <button string="Close" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_dvz_sale_supply_export" model="ir.actions.act_window">
+        <field name="name">Export Sales Supply to Excel</field>
+        <field name="res_model">dvz.sale.supply.export</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_dvz_sale_supply_export_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

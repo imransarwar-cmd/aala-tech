@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <data noupdate="1">
+    <record id="leave_type_document_annual" model="hr.leave.type">
+      <field name="name">Annual Leave</field>
+      <field name="company_id" ref="base.main_company"/>
+      <field name="requires_allocation" eval="True"/>
+      <field name="employee_requests" eval="False"/>
+      <field name="request_unit">half_day</field>
+      <field name="unpaid" eval="False"/>
+      <field name="time_type">leave</field>
+      <field name="include_public_holidays_in_duration" eval="False"/>
+      <field name="leave_validation_type">both</field>
+      <field name="allocation_validation_type">hr</field>
+      <field name="allows_negative" eval="False"/>
+      <field name="max_allowed_negative">0</field>
+    </record>
+    <record id="leave_type_document_unpaid" model="hr.leave.type">
+      <field name="name">Leave Without Pay</field>
+      <field name="company_id" ref="base.main_company"/>
+      <field name="requires_allocation" eval="False"/>
+      <field name="employee_requests" eval="False"/>
+      <field name="request_unit">half_day</field>
+      <field name="unpaid" eval="True"/>
+      <field name="time_type">leave</field>
+      <field name="include_public_holidays_in_duration" eval="False"/>
+      <field name="leave_validation_type">both</field>
+      <field name="allocation_validation_type">hr</field>
+      <field name="allows_negative" eval="False"/>
+      <field name="max_allowed_negative">0</field>
+    </record>
+    <record id="leave_type_document_wfh" model="hr.leave.type">
+      <field name="name">Work From Home</field>
+      <field name="company_id" ref="base.main_company"/>
+      <field name="requires_allocation" eval="False"/>
+      <field name="employee_requests" eval="False"/>
+      <field name="request_unit">half_day</field>
+      <field name="unpaid" eval="False"/>
+      <field name="time_type">other</field>
+      <field name="include_public_holidays_in_duration" eval="False"/>
+      <field name="leave_validation_type">both</field>
+      <field name="allocation_validation_type">hr</field>
+      <field name="allows_negative" eval="False"/>
+      <field name="max_allowed_negative">0</field>
+    </record>
+    <record id="policy_document_preset" model="dvz.leave.policy">
+      <field name="company_id" ref="base.main_company"/>
+      <field name="date_from" eval="time.strftime('%Y-%m-%d')"/>
+      <field name="date_to" eval="False"/>
+      <field name="name">Leave and Absence Policy</field>
+      <field name="active" eval="True"/>
+      <field name="state">draft</field>
+      <field name="source_based" eval="True"/>
+      <field name="source_revision_date">2025-03-10</field>
+      <field name="configuration_reviewed" eval="False"/>
+      <field name="annual_days">24.0</field>
+      <field name="proration_basis">joining</field>
+      <field name="rounding_step">0.5</field>
+      <field name="rounding_method">down</field>
+      <field name="probation_end_inclusive" eval="True"/>
+      <field name="request_unit">half_day</field>
+      <field name="include_public_holidays" eval="False"/>
+      <field name="approval_mode">both</field>
+      <field name="unpaid_approval_mode">hr</field>
+      <field name="wfh_approval_mode">both</field>
+      <field name="full_day_notice_days">0</field>
+      <field name="half_day_notice_days">1</field>
+      <field name="require_prior_approval" eval="True"/>
+      <field name="allow_emergency" eval="True"/>
+      <field name="emergency_waives_notice" eval="True"/>
+      <field name="exception_mode">all_three</field>
+      <field name="half_day_return_action">full_day</field>
+      <field name="unauthorized_action">unpaid</field>
+      <field name="wfh_enabled" eval="True"/>
+      <field name="wfh_notice_days">0</field>
+      <field name="wfh_require_prior_approval" eval="True"/>
+      <field name="wfh_unapproved_action">unpaid</field>
+      <field name="wfh_task_update_required" eval="True"/>
+      <field name="wfh_availability_required" eval="True"/>
+      <field name="wfh_communication_required" eval="True"/>
+      <field name="annual_leave_type_id" ref="leave_type_document_annual"/>
+      <field name="unpaid_leave_type_id" ref="leave_type_document_unpaid"/>
+      <field name="wfh_leave_type_id" ref="leave_type_document_wfh"/>
+      <field name="hr_user_ids" eval="[(5, 0, 0)]"/>
+      <field name="management_user_ids" eval="[(5, 0, 0)]"/>
+      <field name="notes">
+&lt;p&gt;Source revision: 10 March 2025. Choose the actual effective dates separately.&lt;/p&gt;
+&lt;p&gt;The source specifies 24 working days per calendar year, prorating new joiners,
+HOD and HR approval, one day's half-day notice, unpaid actual unauthorized absence,
+WFH responsibilities, Management exceptions, and year-end encashment.&lt;/p&gt;
+&lt;p&gt;Review the selected employee, verified joining and paid-eligibility dates,
+actual approvers and leave types. The document does not specify the exact
+proration formula, rounding, full-day/WFH notice duration or encashment rate.
+Actual-day proration with joining-date basis and downward half-day rounding is
+an editable implementation choice. Enter an approved rate on the year-end
+settlement; no salary rate or payroll posting is inferred.&lt;/p&gt;
+</field>
+    </record>
+  </data>
+</odoo>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_material_reservation_root"
+              name="Material Reservations"
+              parent="stock.menu_stock_root"
+              sequence="30"
+              groups="stock.group_stock_user"/>
+    <menuitem id="menu_material_reservations"
+              name="Reservations"
+              parent="menu_material_reservation_root"
+              action="action_material_reservation"
+              sequence="10"
+              groups="stock.group_stock_user"/>
+</odoo>

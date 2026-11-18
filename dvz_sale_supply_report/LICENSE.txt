@@ -1,0 +1,13 @@
+SPDX-License-Identifier: LGPL-3.0-or-later
+
+Copyright (c) 2026 Aala Tech
+
+This addon is distributed under the GNU Lesser General Public License,
+version 3 or (at your option) any later version.
+
+The full license text is available at:
+https://www.gnu.org/licenses/lgpl-3.0.html
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the license for details.

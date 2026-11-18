@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dvz_policy_setup_wizard_form" model="ir.ui.view">
+        <field name="name">dvz.policy.setup.wizard.form</field><field name="model">dvz.policy.setup.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Set Up One Employee">
+                <field name="policy_state" invisible="1"/>
+                <div class="alert alert-info" role="alert" invisible="setup_applied">Select one existing employee. Apply activates an unused draft or uses a compatible active policy, and changes only the selected employee's assignment and verified details. Allocation is a separate optional step.</div>
+                <div class="alert alert-success" role="alert" invisible="not setup_applied">Setup is applied to the employee shown below. Open the employee, policy or allocation links to review the result.</div>
+                <group>
+                    <group string="Selected Employee">
+                        <field name="company_id" readonly="setup_applied"/>
+                        <field name="employee_id" options="{'no_create': True}" readonly="setup_applied"/>
+                        <field name="employment_status" readonly="setup_applied"/>
+                        <field name="joining_date" readonly="setup_applied"/>
+                        <field name="probation_end_date" readonly="setup_applied"/>
+                        <field name="paid_eligible_date" readonly="setup_applied"/>
+                    </group>
+                    <group string="Actual Approvers">
+                        <field name="hod_user_id" options="{'no_create': True}" readonly="setup_applied"/>
+                        <field name="hr_user_id" options="{'no_create': True}" readonly="setup_applied"/>
+                        <field name="management_user_id" options="{'no_create': True}" readonly="setup_applied"/>
+                        <field name="setup_applied" readonly="1"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Policy and Types" name="setup_policy">
+                        <group>
+                            <group>
+                                <field name="policy_id" options="{'no_create': True}" readonly="setup_applied"/>
+                                <field name="name" readonly="setup_applied or policy_state == 'active'"/>
+                                <field name="date_from" readonly="setup_applied or policy_state == 'active'"/>
+                                <field name="date_to" readonly="setup_applied or policy_state == 'active'"/>
+                                <field name="result_policy_id" readonly="1" invisible="not result_policy_id"/>
+                            </group>
+                            <group>
+                                <field name="annual_leave_type_id" options="{'no_create': True}" readonly="setup_applied or policy_state == 'active'"/>
+                                <field name="unpaid_leave_type_id" options="{'no_create': True}" readonly="setup_applied or policy_state == 'active'"/>
+                                <field name="wfh_leave_type_id" options="{'no_create': True}" readonly="setup_applied or policy_state == 'active'"/>
+                            </group>
+                        </group>
+                        <p class="text-muted">Blank type selections create dedicated types for a draft. Existing types are reused only when already compatible; they are never reconfigured. Active policy rules, dates, types and approval routes remain unchanged.</p>
+                    </page>
+                    <page string="Automatic Employee Check" name="auto_employee_check">
+                        <div class="alert alert-info" role="alert">Run the check after selecting one employee. It reads existing HR and (when installed) running-contract dates. A contract start may not be the original joining date. No probation duration is invented. Confirm all proposed dates and approvers before applying.</div>
+                        <button name="action_auto_check_employee" type="object" string="Check Employee and Probation Dates" class="btn-primary" invisible="setup_applied"/>
+                        <group>
+                            <field name="auto_checked_employee_id" readonly="1"/>
+                            <field name="auto_contract_start" readonly="1"/>
+                            <field name="auto_probation_end" readonly="1"/>
+                            <field name="auto_paid_date" readonly="1"/>
+                        </group>
+                        <field name="auto_check_notes" readonly="1" nolabel="1"/>
+                    </page>
+                    <page string="Review" name="setup_review">
+                        <p>The shared policy provides 24 working days per calendar year, prorating new joiners, HOD/HR approvals, one calendar day's half-day notice, WFH responsibilities, verified LWP, Management exceptions and year-end encashment.</p>
+                        <p>The source does not state the exact proration/rounding method, full-day or WFH notice duration, or salary rate. Review those choices on the draft. Rates are entered on the settlement, with no payroll posting.</p>
+                        <field name="reviewed" readonly="setup_applied"/>
+                    </page>
+                    <page string="Optional Employee Allocation" name="setup_allocation" invisible="not setup_applied">
+                        <group>
+                            <group>
+                                <field name="as_of_date"/>
+                                <field name="allocation_status" readonly="1"/>
+                                <field name="allocation_days" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="allocation_period_start" readonly="1"/>
+                                <field name="allocation_period_end" readonly="1"/>
+                                <field name="allocation_id" readonly="1"/>
+                            </group>
+                        </group>
+                        <field name="allocation_message" readonly="1" nolabel="1"/>
+                        <p class="text-muted">Preview checks only this employee. Existing unreviewed paid allocations prevent a new grant. Repeated generation reuses the same grant and leaves approval to the normal allocation workflow.</p>
+                    </page>
+                </notebook>
+                <footer>
+                    <button name="action_auto_check_employee" string="Auto-Check Employee" type="object" invisible="setup_applied"/>
+                    <button name="action_create_draft" string="Save Policy Draft" type="object" invisible="setup_applied or policy_state == 'active'"/>
+                    <button name="action_apply_employee" string="Apply to This Employee" type="object" class="btn-primary" invisible="setup_applied"/>
+                    <button name="action_preview_allocation" string="Preview Employee Allocation" type="object" class="btn-primary" invisible="not setup_applied"/>
+                    <button name="action_generate_allocation" string="Generate Employee Allocation" type="object" invisible="not setup_applied or allocation_status not in ('create','reuse')"/>
+                    <button string="Close" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_dvz_policy_setup_wizard" model="ir.actions.act_window">
+        <field name="name">Set Up One Employee</field><field name="res_model">dvz.policy.setup.wizard</field>
+        <field name="view_mode">form</field><field name="target">new</field>
+    </record>
+</odoo>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_dvz_material_manual_wizard" model="ir.ui.view">
+    <field name="name">dvz.material.manual.wizard.form</field><field name="model">dvz.material.manual.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Manual Material Reservation"><sheet>
+        <group><field name="company_id" groups="base.group_multi_company"/><field name="partner_id"/><field name="project_id"/><field name="sale_order_id"/><field name="picking_type_id"/></group>
+        <field name="line_ids"><list editable="bottom"><field name="product_id"/><field name="quantity"/></list></field>
+        <p class="text-muted">Creates a native delivery reservation; does not confirm an SO or validate a delivery.</p>
+      </sheet><footer>
+        <button name="action_create_reservation" type="object" string="Reserve Available" class="btn-primary"/>
+        <button string="Cancel" special="cancel"/>
+      </footer></form>
+    </field>
+  </record>
+  <record id="action_dvz_material_manual_wizard" model="ir.actions.act_window">
+    <field name="name">Manual Reserve</field><field name="res_model">dvz.material.manual.wizard</field>
+    <field name="view_mode">form</field><field name="view_id" ref="view_dvz_material_manual_wizard"/><field name="target">new</field>
+  </record>
+  <menuitem id="menu_dvz_manual_reserve" name="Manual Reserve" parent="dvz_material_reservation_view.menu_material_reservation_root" action="action_dvz_material_manual_wizard" sequence="10" groups="stock.group_stock_user"/>
+</odoo>

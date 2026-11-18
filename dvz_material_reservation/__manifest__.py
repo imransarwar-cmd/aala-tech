@@ -13,7 +13,7 @@
         'wizard/reservation_adjust_views.xml',
         'wizard/reservation_settings_views.xml',
         'views/reservation_views.xml',
-        'views/stock_move_views.xml',
+        # 'views/stock_move_views.xml',
         'views/sale_order_views.xml',
         'views/project_views.xml',
         'views/menus.xml',

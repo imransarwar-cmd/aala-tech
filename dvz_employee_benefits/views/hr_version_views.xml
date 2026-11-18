@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_version_native_benefits" model="ir.ui.view">
+        <field name="name">hr.version.native.employee.benefits.form</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="om_hr_payroll.hr_contract_form_inherit"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='salary_info']" position="after">
+                <group string="Employee Benefits and Allowances" name="dvz_native_allowances" groups="hr.group_hr_manager">
+                    <group>
+                        <field name="dvz_fuel_allowance"/>
+                        <field name="dvz_accommodation_allowance"/>
+                        <field name="dvz_travel_allowance"/>
+                        <field name="dvz_mobile_allowance"/>
+                        <field name="dvz_meal_allowance"/>
+                    </group>
+                    <group>
+                        <field name="dvz_special_duty_allowance"/>
+                        <field name="dvz_car_maintenance_allowance"/>
+                        <field name="dvz_medical_allowance"/>
+                        <field name="dvz_air_ticket_allowance"/>
+                    </group>
+                </group>
+                <group string="Daily and Hourly Benefit Rates" name="dvz_native_daily_hourly" groups="hr.group_hr_manager">
+                    <group>
+                        <field name="dvz_salary_base"/>
+                        <field name="dvz_custom_salary_base" invisible="dvz_salary_base != 'custom'"/>
+                        <field name="dvz_salary_days_divisor"/>
+                    </group>
+                    <group>
+                        <field name="dvz_hours_per_day"/>
+                        <field name="dvz_ot_multiplier"/>
+                    </group>
+                </group>
+                <group string="Provident Fund" name="dvz_native_pf" groups="hr.group_hr_manager">
+                    <field name="dvz_pf_enabled"/>
+                    <group invisible="not dvz_pf_enabled">
+                        <field name="dvz_pf_base"/>
+                        <field name="dvz_pf_custom_base" invisible="dvz_pf_base != 'custom'"/>
+                        <field name="dvz_pf_employee_rate"/>
+                        <field name="dvz_pf_employee_cap"/>
+                    </group>
+                    <group invisible="not dvz_pf_enabled">
+                        <field name="dvz_pf_employer_rate"/>
+                        <field name="dvz_pf_employer_cap"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_dvz_project_delivery_cost" model="ir.ui.view">
+        <field name="name">res.config.settings.form.dvz.project.delivery.cost</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app name="dvz_project_delivery_cost"
+                     string="Project Delivery Costing"
+                     data-string="Project Delivery Costing"
+                     groups="base.group_system">
+                    <block title="Project Delivery Costing" name="dvz_project_delivery_costing">
+                        <setting id="dvz_delivery_costing_scope"
+                                 string="Delivery Costing Applies To"
+                                 help="Choose all projects, none, or specific project analytic accounts.">
+                            <field name="dvz_project_delivery_costing_scope" widget="radio"/>
+                            <div class="content-group mt16"
+                                 invisible="dvz_project_delivery_costing_scope != 'selected'">
+                                <label for="dvz_project_delivery_costing_account_ids"/>
+                                <field name="dvz_project_delivery_costing_account_ids"
+                                       widget="many2many_tags"
+                                       required="dvz_project_delivery_costing_scope == 'selected'"
+                                       options="{'no_create': True, 'no_create_edit': True}"/>
+                                <div class="text-muted">
+                                    Select multiple analytic accounts by name.
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_dvz_project_delivery_costing_settings" model="ir.actions.act_window">
+        <field name="name">Project Delivery Costing</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="base.res_config_settings_view_form"/>
+        <field name="target">current</field>
+        <field name="context">{'module': 'dvz_project_delivery_cost', 'bin_size': False}</field>
+    </record>
+
+    <menuitem id="menu_dvz_project_delivery_costing_settings"
+              name="Project Delivery Costing"
+              parent="project.menu_project_config"
+              action="action_dvz_project_delivery_costing_settings"
+              groups="base.group_system"
+              sequence="20"/>
+</odoo>

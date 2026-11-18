@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+    <record id="view_dvz_sale_supply_report_list" model="ir.ui.view">
+        <field name="name">sale.order.line.dvz.supply.report.list</field>
+        <field name="model">sale.order.line</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <list string="Sales Supply Report" create="false" edit="false" delete="false" import="false" default_order="dvz_order_date desc, order_id desc, sequence, id">
+                <header>
+                    <button name="action_dvz_open_export" string="Export Excel" type="object" display="always" class="btn-primary"/>
+                </header>
+                <field name="order_id" string="SO"/><field name="product_id" string="Product Name"/><field name="product_uom_qty" string="Order Qty"/><field name="qty_delivered" string="Delivered Qty"/><field name="dvz_stock_used_qty" string="Used from Stock"/></list>
+        </field>
+    </record>
+
+    <record id="view_dvz_sale_supply_report_form" model="ir.ui.view">
+        <field name="name">sale.order.line.dvz.supply.report.form</field>
+        <field name="model">sale.order.line</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <form string="Sales Supply Product Line" create="false" edit="false" delete="false">
+                <header>
+                    <button name="action_dvz_open_order" string="Open Sales Order" type="object" class="btn-primary"/>
+                    <button name="action_dvz_open_export" string="Export Excel" type="object"/>
+                    <button name="action_dvz_set_source_split" string="Set Source Split" type="object" groups="sales_team.group_sale_manager"/>
+                    <button name="action_dvz_clear_source_split" string="Reset to Automatic" type="object" groups="sales_team.group_sale_manager" invisible="not dvz_source_override"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Sales Order">
+                            <field name="order_id"/>
+                            <field name="dvz_customer_id"/>
+                            <field name="dvz_order_date"/>
+                            <field name="dvz_salesperson_id"/>
+                            <field name="dvz_warehouse_id"/>
+                            <field name="state"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Product Line">
+                            <field name="product_id"/>
+                            <field name="dvz_product_code"/>
+                            <field name="name"/>
+                            <field name="product_uom_id"/>
+                            <field name="price_unit"/>
+                            <field name="price_subtotal"/>
+                            <field name="currency_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Order and Delivery">
+                            <field name="product_uom_qty"/>
+                            <field name="qty_delivered"/>
+                            <field name="dvz_pending_qty"/>
+                            <field name="dvz_overdelivered_qty"/>
+                            <field name="dvz_reserved_qty"/>
+                            <field name="dvz_available_qty"/>
+                        </group>
+                        <group string="Supply Allocation">
+                            <field name="dvz_stock_qty"/>
+                            <field name="dvz_purchase_qty"/>
+                            <field name="dvz_total_source_qty"/>
+                            <field name="dvz_shortage_qty"/>
+                            <field name="dvz_po_refs"/>
+                            <field name="dvz_source_basis"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Actual Delivered Source">
+                            <field name="dvz_stock_used_qty"/>
+                            <field name="dvz_purchase_used_qty"/>
+                            <field name="dvz_unclassified_used_qty"/>
+                        </group>
+                        <group string="Recorded Source Information">
+                            <field name="dvz_source_override"/>
+                            <field name="dvz_source_note"/>
+                            <field name="dvz_source_updated_by" readonly="1"/>
+                            <field name="dvz_source_updated_at" readonly="1"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        From Stock and From Purchase show the recorded or traceable supply allocation.
+                        Used quantities describe the net delivered source. Current free stock is informational and is never treated as a sale allocation.
+                        Where records do not establish the source, it remains unverified. A Sales Manager can record the source split with supporting notes.
+                        Recorded figures need review when an order or delivery changes. Source Unassigned identifies missing source information, not a purchase shortage.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dvz_sale_supply_report_search" model="ir.ui.view">
+        <field name="name">sale.order.line.dvz.supply.report.search</field>
+        <field name="model">sale.order.line</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <search string="Search Sales Supply">
+                <field name="order_id"/>
+                <field name="dvz_customer_id" string="Customer"/>
+                <field name="product_id"/>
+                <field name="dvz_product_code" string="Product Code"/>
+                <field name="name" string="Line Description"/>
+                <field name="dvz_salesperson_id"/>
+                <field name="dvz_warehouse_id"/>
+                <separator/>
+                <filter name="confirmed" string="Sales Orders" domain="[('state', '=', 'sale')]"/>
+                <filter name="quotations" string="Quotations" domain="[('state', 'in', ['draft', 'sent'])]"/>
+                <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancel')]"/>
+                <separator/>
+                <filter name="recorded_split" string="Recorded Source Split" domain="[('dvz_source_override', '=', True)]"/>
+                <filter name="automatic_source" string="Automatic Source" domain="[('dvz_source_override', '=', False)]"/>
+                <separator/>
+                <filter name="order_date" string="Order Date" date="dvz_order_date"/>
+                <group>
+                    <filter name="group_order" string="Sales Order" context="{'group_by': 'order_id'}"/>
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'dvz_customer_id'}"/>
+                    <filter name="group_product" string="Product" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_warehouse" string="Warehouse" context="{'group_by': 'dvz_warehouse_id'}"/>
+                    <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'dvz_salesperson_id'}"/>
+                    <filter name="group_month" string="Order Month" context="{'group_by': 'dvz_order_date:month'}"/>
+                    <filter name="group_company" string="Company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_dvz_sale_supply_report" model="ir.actions.act_window">
+        <field name="name">Sales Supply Report</field>
+        <field name="res_model">sale.order.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_dvz_sale_supply_report_search"/>
+        <field name="domain">[('display_type', '=', False), ('is_downpayment', '=', False), ('product_id', '!=', False)]</field>
+        <field name="context">{'search_default_confirmed': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Your sales product supply report</p>
+            <p>One row per sales order product line. The list and Excel show SO, Product Name, Order Qty, Delivered Qty, and Used from Stock. Select Sales Orders in the export wizard.</p>
+        </field>
+    </record>
+    <record id="action_dvz_sale_supply_report_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_dvz_sale_supply_report_list"/>
+        <field name="act_window_id" ref="action_dvz_sale_supply_report"/>
+    </record>
+    <record id="action_dvz_sale_supply_report_form" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_dvz_sale_supply_report_form"/>
+        <field name="act_window_id" ref="action_dvz_sale_supply_report"/>
+    </record>
+    <record id="action_dvz_sale_supply_selected_export" model="ir.actions.server">
+        <field name="name">Export Sales Supply to Excel</field>
+        <field name="model_id" ref="sale.model_sale_order_line"/>
+        <field name="binding_model_id" ref="sale.model_sale_order_line"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_dvz_open_export()</field>
+    </record>
+
+    <menuitem id="menu_dvz_sale_supply_root" name="Supply Reports" parent="sale.sale_menu_root" sequence="45" groups="sales_team.group_sale_salesman"/>
+    <menuitem id="menu_dvz_sale_supply_report" name="Sales Supply Report" parent="menu_dvz_sale_supply_root" action="action_dvz_sale_supply_report" sequence="10"/>
+    <menuitem id="menu_dvz_sale_supply_export" name="Export Sales Supply to Excel" parent="menu_dvz_sale_supply_root" action="action_dvz_sale_supply_export" sequence="20"/>
+</odoo>

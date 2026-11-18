@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Native Odoo Mates payroll rules; administrator changes survive upgrades. -->
+    <data noupdate="1">
+        <record id="category_dvz_company_contribution" model="hr.salary.rule.category">
+            <field name="name">DVZ Employer Contributions</field>
+            <field name="code">DVZ_COMP</field>
+            <field name="parent_id" eval="False"/>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="salary_rule_dvz_leave_encash" model="hr.salary.rule">
+            <field name="name">Leave Encashment</field>
+            <field name="code">DVZ_LEAVE_ENCASH</field>
+            <field name="sequence">20</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = payslip.dict._dvz_input_amount('DVZ_LEAVE_ENCASH', contract.id) != 0.0 or payslip.dict._dvz_input_amount('DVZ_LEAVE_DAYS', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = payslip.dict._dvz_input_amount('DVZ_LEAVE_ENCASH', contract.id)
+dvz_days = payslip.dict._dvz_input_amount('DVZ_LEAVE_DAYS', contract.id)
+if dvz_days:
+    dvz_base = contract.wage if contract.dvz_salary_base == 'wage' else contract.dvz_custom_salary_base
+    result += dvz_days * dvz_base / contract.dvz_salary_days_divisor
+]]></field>
+            <field name="note">Approved cash amount plus encashment days × selected salary base ÷ configured salary-days divisor. Enter a cash amount or days for the same entitlement; if both are entered they are added. This is a payroll payment only and does not reduce Time Off allocations.</field>
+        </record>
+        <record id="input_dvz_leave_encash" model="hr.rule.input">
+            <field name="name">Leave Encashment — Approved Cash Amount</field>
+            <field name="code">DVZ_LEAVE_ENCASH</field>
+            <field name="input_id" ref="salary_rule_dvz_leave_encash"/>
+        </record>
+        <record id="input_dvz_leave_days" model="hr.rule.input">
+            <field name="name">Leave Encashment — Days (Quantity)</field>
+            <field name="code">DVZ_LEAVE_DAYS</field>
+            <field name="input_id" ref="salary_rule_dvz_leave_encash"/>
+        </record>
+
+        <record id="salary_rule_dvz_fuel" model="hr.salary.rule">
+            <field name="name">Fuel Allowance</field>
+            <field name="code">DVZ_FUEL</field>
+            <field name="sequence">21</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract.dvz_fuel_allowance != 0.0 or payslip.dict._dvz_input_amount('DVZ_FUEL', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = contract.dvz_fuel_allowance + payslip.dict._dvz_input_amount('DVZ_FUEL', contract.id)
+]]></field>
+            <field name="note">Pays the fixed amount from the selected employment version plus any cash adjustment entered in this payslip's native Other Inputs. The contract amount is paid once per payslip; this rule does not automatically prorate for attendance, absence, or partial periods.</field>
+        </record>
+        <record id="input_dvz_fuel" model="hr.rule.input">
+            <field name="name">Fuel Allowance — Additional Cash Amount</field>
+            <field name="code">DVZ_FUEL</field>
+            <field name="input_id" ref="salary_rule_dvz_fuel"/>
+        </record>
+
+        <record id="salary_rule_dvz_accommodation" model="hr.salary.rule">
+            <field name="name">Accommodation</field>
+            <field name="code">DVZ_ACCOMMODATION</field>
+            <field name="sequence">22</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract.dvz_accommodation_allowance != 0.0 or payslip.dict._dvz_input_amount('DVZ_ACCOMMODATION', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = contract.dvz_accommodation_allowance + payslip.dict._dvz_input_amount('DVZ_ACCOMMODATION', contract.id)
+]]></field>
+            <field name="note">Pays the fixed amount from the selected employment version plus any cash adjustment entered in this payslip's native Other Inputs. The contract amount is paid once per payslip; this rule does not automatically prorate for attendance, absence, or partial periods.</field>
+        </record>
+        <record id="input_dvz_accommodation" model="hr.rule.input">
+            <field name="name">Accommodation — Additional Cash Amount</field>
+            <field name="code">DVZ_ACCOMMODATION</field>
+            <field name="input_id" ref="salary_rule_dvz_accommodation"/>
+        </record>
+
+        <record id="salary_rule_dvz_eosb" model="hr.salary.rule">
+            <field name="name">End-of-Service Benefits</field>
+            <field name="code">DVZ_EOSB</field>
+            <field name="sequence">23</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = payslip.dict._dvz_input_amount('DVZ_EOSB', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = payslip.dict._dvz_input_amount('DVZ_EOSB', contract.id)
+]]></field>
+            <field name="note">Pays the approved settlement amount entered in native Other Inputs. No country's statutory end-of-service entitlement is assumed or calculated by this rule.</field>
+        </record>
+        <record id="input_dvz_eosb" model="hr.rule.input">
+            <field name="name">End-of-Service Benefits — Approved Cash Amount</field>
+            <field name="code">DVZ_EOSB</field>
+            <field name="input_id" ref="salary_rule_dvz_eosb"/>
+        </record>
+
+        <record id="salary_rule_dvz_travel" model="hr.salary.rule">
+            <field name="name">Travel Allowance</field>
+            <field name="code">DVZ_TRAVEL</field>
+            <field name="sequence">24</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract.dvz_travel_allowance != 0.0 or payslip.dict._dvz_input_amount('DVZ_TRAVEL', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = contract.dvz_travel_allowance + payslip.dict._dvz_input_amount('DVZ_TRAVEL', contract.id)
+]]></field>
+            <field name="note">Pays the fixed amount from the selected employment version plus any cash adjustment entered in this payslip's native Other Inputs. The contract amount is paid once per payslip; this rule does not automatically prorate for attendance, absence, or partial periods.</field>
+        </record>
+        <record id="input_dvz_travel" model="hr.rule.input">
+            <field name="name">Travel Allowance — Additional Cash Amount</field>
+            <field name="code">DVZ_TRAVEL</field>
+            <field name="input_id" ref="salary_rule_dvz_travel"/>
+        </record>
+
+        <record id="salary_rule_dvz_ex_gratia" model="hr.salary.rule">
+            <field name="name">Ex-Gratia Payment</field>
+            <field name="code">DVZ_EX_GRATIA</field>
+            <field name="sequence">25</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = payslip.dict._dvz_input_amount('DVZ_EX_GRATIA', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = payslip.dict._dvz_input_amount('DVZ_EX_GRATIA', contract.id)
+]]></field>
+            <field name="note">Pays the approved cash amount entered in this payslip's native Other Inputs.</field>
+        </record>
+        <record id="input_dvz_ex_gratia" model="hr.rule.input">
+            <field name="name">Ex-Gratia Payment — Approved Cash Amount</field>
+            <field name="code">DVZ_EX_GRATIA</field>
+            <field name="input_id" ref="salary_rule_dvz_ex_gratia"/>
+        </record>
+
+        <record id="salary_rule_dvz_mobile" model="hr.salary.rule">
+            <field name="name">Mobile / Telephone Allowance</field>
+            <field name="code">DVZ_MOBILE</field>
+            <field name="sequence">26</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract.dvz_mobile_allowance != 0.0 or payslip.dict._dvz_input_amount('DVZ_MOBILE', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = contract.dvz_mobile_allowance + payslip.dict._dvz_input_amount('DVZ_MOBILE', contract.id)
+]]></field>
+            <field name="note">Pays the fixed amount from the selected employment version plus any cash adjustment entered in this payslip's native Other Inputs. The contract amount is paid once per payslip; this rule does not automatically prorate for attendance, absence, or partial periods.</field>
+        </record>
+        <record id="input_dvz_mobile" model="hr.rule.input">
+            <field name="name">Mobile / Telephone Allowance — Additional Cash Amount</field>
+            <field name="code">DVZ_MOBILE</field>
+            <field name="input_id" ref="salary_rule_dvz_mobile"/>
+        </record>
+
+        <record id="salary_rule_dvz_meal" model="hr.salary.rule">
+            <field name="name">Meal / Food Allowance</field>
+            <field name="code">DVZ_MEAL</field>
+            <field name="sequence">27</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract.dvz_meal_allowance != 0.0 or payslip.dict._dvz_input_amount('DVZ_MEAL', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = contract.dvz_meal_allowance + payslip.dict._dvz_input_amount('DVZ_MEAL', contract.id)
+]]></field>
+            <field name="note">Pays the fixed amount from the selected employment version plus any cash adjustment entered in this payslip's native Other Inputs. The contract amount is paid once per payslip; this rule does not automatically prorate for attendance, absence, or partial periods.</field>
+        </record>
+        <record id="input_dvz_meal" model="hr.rule.input">
+            <field name="name">Meal / Food Allowance — Additional Cash Amount</field>
+            <field name="code">DVZ_MEAL</field>
+            <field name="input_id" ref="salary_rule_dvz_meal"/>
+        </record>
+
+        <record id="salary_rule_dvz_ot" model="hr.salary.rule">
+            <field name="name">Overtime (OT) Payment</field>
+            <field name="code">DVZ_OT</field>
+            <field name="sequence">28</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = payslip.dict._dvz_input_amount('DVZ_OT', contract.id) != 0.0 or payslip.dict._dvz_input_amount('DVZ_OT_HOURS', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = payslip.dict._dvz_input_amount('DVZ_OT', contract.id)
+dvz_hours = payslip.dict._dvz_input_amount('DVZ_OT_HOURS', contract.id)
+if dvz_hours:
+    dvz_base = contract.wage if contract.dvz_salary_base == 'wage' else contract.dvz_custom_salary_base
+    result += dvz_hours * dvz_base / contract.dvz_salary_days_divisor / contract.dvz_hours_per_day * contract.dvz_ot_multiplier
+]]></field>
+            <field name="note">Approved cash amount plus overtime hours × selected salary base ÷ salary-days divisor ÷ hours per day × overtime multiplier. Enter only approved overtime hours. If both cash and hours are entered they are added. Attendance approval and statutory overtime entitlement remain separate from this payroll calculation.</field>
+        </record>
+        <record id="input_dvz_ot" model="hr.rule.input">
+            <field name="name">Overtime — Approved Cash Amount</field>
+            <field name="code">DVZ_OT</field>
+            <field name="input_id" ref="salary_rule_dvz_ot"/>
+        </record>
+        <record id="input_dvz_ot_hours" model="hr.rule.input">
+            <field name="name">Overtime — Hours (Quantity)</field>
+            <field name="code">DVZ_OT_HOURS</field>
+            <field name="input_id" ref="salary_rule_dvz_ot"/>
+        </record>
+
+        <record id="salary_rule_dvz_special_duty" model="hr.salary.rule">
+            <field name="name">Special Duty Allowance</field>
+            <field name="code">DVZ_SPECIAL_DUTY</field>
+            <field name="sequence">29</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract.dvz_special_duty_allowance != 0.0 or payslip.dict._dvz_input_amount('DVZ_SPECIAL_DUTY', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = contract.dvz_special_duty_allowance + payslip.dict._dvz_input_amount('DVZ_SPECIAL_DUTY', contract.id)
+]]></field>
+            <field name="note">Pays the fixed amount from the selected employment version plus any cash adjustment entered in this payslip's native Other Inputs. The contract amount is paid once per payslip; this rule does not automatically prorate for attendance, absence, or partial periods.</field>
+        </record>
+        <record id="input_dvz_special_duty" model="hr.rule.input">
+            <field name="name">Special Duty Allowance — Additional Cash Amount</field>
+            <field name="code">DVZ_SPECIAL_DUTY</field>
+            <field name="input_id" ref="salary_rule_dvz_special_duty"/>
+        </record>
+
+        <record id="salary_rule_dvz_car_maint" model="hr.salary.rule">
+            <field name="name">Car Maintenance Allowance</field>
+            <field name="code">DVZ_CAR_MAINT</field>
+            <field name="sequence">30</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract.dvz_car_maintenance_allowance != 0.0 or payslip.dict._dvz_input_amount('DVZ_CAR_MAINT', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = contract.dvz_car_maintenance_allowance + payslip.dict._dvz_input_amount('DVZ_CAR_MAINT', contract.id)
+]]></field>
+            <field name="note">Pays the fixed amount from the selected employment version plus any cash adjustment entered in this payslip's native Other Inputs. The contract amount is paid once per payslip; this rule does not automatically prorate for attendance, absence, or partial periods.</field>
+        </record>
+        <record id="input_dvz_car_maint" model="hr.rule.input">
+            <field name="name">Car Maintenance Allowance — Additional Cash Amount</field>
+            <field name="code">DVZ_CAR_MAINT</field>
+            <field name="input_id" ref="salary_rule_dvz_car_maint"/>
+        </record>
+
+        <record id="salary_rule_dvz_medical" model="hr.salary.rule">
+            <field name="name">Medical Allowance</field>
+            <field name="code">DVZ_MEDICAL</field>
+            <field name="sequence">31</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract.dvz_medical_allowance != 0.0 or payslip.dict._dvz_input_amount('DVZ_MEDICAL', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = contract.dvz_medical_allowance + payslip.dict._dvz_input_amount('DVZ_MEDICAL', contract.id)
+]]></field>
+            <field name="note">Pays the fixed amount from the selected employment version plus any cash adjustment entered in this payslip's native Other Inputs. The contract amount is paid once per payslip; this rule does not automatically prorate for attendance, absence, or partial periods.</field>
+        </record>
+        <record id="input_dvz_medical" model="hr.rule.input">
+            <field name="name">Medical Allowance — Additional Cash Amount</field>
+            <field name="code">DVZ_MEDICAL</field>
+            <field name="input_id" ref="salary_rule_dvz_medical"/>
+        </record>
+
+        <record id="salary_rule_dvz_welfare" model="hr.salary.rule">
+            <field name="name">Staff Welfare Allowance</field>
+            <field name="code">DVZ_WELFARE</field>
+            <field name="sequence">32</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = payslip.dict._dvz_input_amount('DVZ_WELFARE', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = payslip.dict._dvz_input_amount('DVZ_WELFARE', contract.id)
+]]></field>
+            <field name="note">Pays the approved cash amount entered in this payslip's native Other Inputs.</field>
+        </record>
+        <record id="input_dvz_welfare" model="hr.rule.input">
+            <field name="name">Staff Welfare Allowance — Approved Cash Amount</field>
+            <field name="code">DVZ_WELFARE</field>
+            <field name="input_id" ref="salary_rule_dvz_welfare"/>
+        </record>
+
+        <record id="salary_rule_dvz_notice" model="hr.salary.rule">
+            <field name="name">Notice Period Allowance</field>
+            <field name="code">DVZ_NOTICE</field>
+            <field name="sequence">33</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = payslip.dict._dvz_input_amount('DVZ_NOTICE', contract.id) != 0.0 or payslip.dict._dvz_input_amount('DVZ_NOTICE_DAYS', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = payslip.dict._dvz_input_amount('DVZ_NOTICE', contract.id)
+dvz_days = payslip.dict._dvz_input_amount('DVZ_NOTICE_DAYS', contract.id)
+if dvz_days:
+    dvz_base = contract.wage if contract.dvz_salary_base == 'wage' else contract.dvz_custom_salary_base
+    result += dvz_days * dvz_base / contract.dvz_salary_days_divisor
+]]></field>
+            <field name="note">Approved cash amount plus notice days × selected salary base ÷ configured salary-days divisor. This is an employee earning, not a notice-period recovery deduction. If both cash and days are entered they are added.</field>
+        </record>
+        <record id="input_dvz_notice" model="hr.rule.input">
+            <field name="name">Notice Period Allowance — Approved Cash Amount</field>
+            <field name="code">DVZ_NOTICE</field>
+            <field name="input_id" ref="salary_rule_dvz_notice"/>
+        </record>
+        <record id="input_dvz_notice_days" model="hr.rule.input">
+            <field name="name">Notice Period Allowance — Days (Quantity)</field>
+            <field name="code">DVZ_NOTICE_DAYS</field>
+            <field name="input_id" ref="salary_rule_dvz_notice"/>
+        </record>
+
+        <record id="salary_rule_dvz_air_ticket" model="hr.salary.rule">
+            <field name="name">Air Ticket Allowance</field>
+            <field name="code">DVZ_AIR_TICKET</field>
+            <field name="sequence">34</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.ALW"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract.dvz_air_ticket_allowance != 0.0 or payslip.dict._dvz_input_amount('DVZ_AIR_TICKET', contract.id) != 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = contract.dvz_air_ticket_allowance + payslip.dict._dvz_input_amount('DVZ_AIR_TICKET', contract.id)
+]]></field>
+            <field name="note">Pays the fixed amount from the selected employment version plus any cash adjustment entered in this payslip's native Other Inputs. The contract amount is paid once per payslip; this rule does not automatically prorate for attendance, absence, or partial periods.</field>
+        </record>
+        <record id="input_dvz_air_ticket" model="hr.rule.input">
+            <field name="name">Air Ticket Allowance — Additional Cash Amount</field>
+            <field name="code">DVZ_AIR_TICKET</field>
+            <field name="input_id" ref="salary_rule_dvz_air_ticket"/>
+        </record>
+
+        <record id="salary_rule_dvz_pf_employee" model="hr.salary.rule">
+            <field name="name">Provident Fund — Employee Deduction</field>
+            <field name="code">DVZ_PF_EMPLOYEE</field>
+            <field name="sequence">66</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="om_hr_payroll.DED"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract.dvz_pf_enabled and contract.dvz_pf_employee_rate > 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+dvz_pf_base = contract.wage if contract.dvz_pf_base == 'wage' else contract.dvz_pf_custom_base
+dvz_pf_amount = dvz_pf_base * contract.dvz_pf_employee_rate / 100.0
+if contract.dvz_pf_employee_cap > 0.0:
+    dvz_pf_amount = min(dvz_pf_amount, contract.dvz_pf_employee_cap)
+result = -dvz_pf_amount
+]]></field>
+            <field name="note">Employee PF contribution is a negative deduction: selected PF base × employee rate, capped at the configured employee amount when nonzero. Zero cap means unlimited. Configure rates and eligibility according to the applicable company policy.</field>
+        </record>
+
+        <record id="salary_rule_dvz_pf_employer" model="hr.salary.rule">
+            <field name="name">Provident Fund — Employer Contribution</field>
+            <field name="code">DVZ_PF_EMPLOYER</field>
+            <field name="sequence">67</field>
+            <field name="company_id" eval="False"/>
+            <field name="category_id" ref="category_dvz_company_contribution"/>
+            <field name="dvz_benefit_rule" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python"><![CDATA[
+result = contract.dvz_pf_enabled and contract.dvz_pf_employer_rate > 0.0
+]]></field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+dvz_pf_base = contract.wage if contract.dvz_pf_base == 'wage' else contract.dvz_pf_custom_base
+dvz_pf_amount = dvz_pf_base * contract.dvz_pf_employer_rate / 100.0
+if contract.dvz_pf_employer_cap > 0.0:
+    dvz_pf_amount = min(dvz_pf_amount, contract.dvz_pf_employer_cap)
+result = dvz_pf_amount
+]]></field>
+            <field name="note">Employer PF contribution is a company cost: selected PF base × employer rate, capped at the configured employer amount when nonzero. Its independent DVZ_COMP category keeps it out of employee gross and net pay. Zero cap means unlimited.</field>
+        </record>
+    </data>
+</odoo>
+

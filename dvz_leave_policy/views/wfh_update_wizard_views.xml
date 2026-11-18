@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dvz_wfh_update_wizard_form" model="ir.ui.view">
+        <field name="name">dvz.wfh.update.wizard.form</field><field name="model">dvz.wfh.update.wizard</field>
+        <field name="arch" type="xml">
+            <form string="WFH Task Update">
+                <group><field name="leave_id" options="{'no_open': True}"/></group>
+                <p>Send completed-task information to both the employee's HOD and the policy's HR approvers after the WFH period starts. Saving a draft does not send it.</p>
+                <field name="task_update" placeholder="Describe completed tasks and relevant work updates." nolabel="1"/>
+                <footer>
+                    <button name="action_send" string="Send to HOD and HR" type="object" class="btn-primary"/>
+                    <button name="action_save" string="Save Draft" type="object"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

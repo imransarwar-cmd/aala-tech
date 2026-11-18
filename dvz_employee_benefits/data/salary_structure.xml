@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="dvz_salary_structure" model="hr.payroll.structure">
+            <field name="name">DVZ Employee Benefits</field>
+            <field name="code">DVZ_BENEFITS</field>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="parent_id" ref="om_hr_payroll.structure_base"/>
+            <field name="note">Native salary rules for employee benefits and allowances. Basic Salary, Gross and Net are inherited from the Odoo Mates base structure. Configure the recurring allowances and PF on the employment version, and enter one-time amounts or quantities in the payslip Other Inputs. Employer PF is excluded from employee Gross and Net. The fixed allowances are per payslip and are not automatically prorated.</field>
+            <field name="rule_ids" eval="[(6, 0, [
+                    ref('salary_rule_dvz_leave_encash'),
+                    ref('salary_rule_dvz_fuel'),
+                    ref('salary_rule_dvz_accommodation'),
+                    ref('salary_rule_dvz_eosb'),
+                    ref('salary_rule_dvz_travel'),
+                    ref('salary_rule_dvz_ex_gratia'),
+                    ref('salary_rule_dvz_mobile'),
+                    ref('salary_rule_dvz_meal'),
+                    ref('salary_rule_dvz_ot'),
+                    ref('salary_rule_dvz_special_duty'),
+                    ref('salary_rule_dvz_car_maint'),
+                    ref('salary_rule_dvz_medical'),
+                    ref('salary_rule_dvz_welfare'),
+                    ref('salary_rule_dvz_notice'),
+                    ref('salary_rule_dvz_air_ticket'),
+                    ref('salary_rule_dvz_pf_employee'),
+                    ref('salary_rule_dvz_pf_employer')
+                ])]"/>
+        </record>
+    </data>
+</odoo>
+

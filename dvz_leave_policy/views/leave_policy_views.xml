@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dvz_leave_policy_list" model="ir.ui.view">
+        <field name="name">dvz.leave.policy.list</field><field name="model">dvz.leave.policy</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'retired'">
+                <field name="name"/><field name="company_id" groups="base.group_multi_company"/>
+                <field name="version"/><field name="date_from"/><field name="date_to"/>
+                <field name="annual_days"/><field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_dvz_leave_policy_search" model="ir.ui.view">
+        <field name="name">dvz.leave.policy.search</field><field name="model">dvz.leave.policy</field>
+        <field name="arch" type="xml">
+            <search string="Leave Policies">
+                <field name="name"/><field name="company_id"/>
+                <filter name="active_policies" string="Active" domain="[('state','=','active')]"/>
+                <filter name="draft_policies" string="Draft" domain="[('state','=','draft')]"/>
+                <filter name="archived" string="Archived" domain="[('active','=',False)]"/>
+                <group>
+                    <filter name="group_company" string="Company" context="{'group_by':'company_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="view_dvz_leave_policy_form" model="ir.ui.view">
+        <field name="name">dvz.leave.policy.form</field><field name="model">dvz.leave.policy</field>
+        <field name="arch" type="xml">
+            <form string="Leave and Absence Policy">
+                <header>
+                    <button name="action_open_setup" type="object" string="Set Up One Employee" class="btn-primary" invisible="state not in ('draft','active')" groups="hr_holidays.group_hr_holidays_manager"/>
+                    <button name="action_configure_types" type="object" string="Configure Leave Types" invisible="state != 'draft'" groups="hr_holidays.group_hr_holidays_manager"/>
+                    <button name="action_activate" type="object" string="Activate" invisible="state != 'draft'" groups="hr_holidays.group_hr_holidays_manager"/>
+                    <button name="action_revision" type="object" string="Create Revision" invisible="state == 'draft'" groups="hr_holidays.group_hr_holidays_manager"/>
+                    <button name="action_retire" type="object" string="Retire" invisible="state != 'active'" groups="hr_holidays.group_hr_holidays_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,active,retired"/>
+                </header>
+                <sheet>
+                    <field name="active" invisible="1"/><field name="source_based" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title"><label for="name"/><h1><field name="name" readonly="state != 'draft'"/></h1></div>
+                    <group>
+                        <group><field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/><field name="version" readonly="1"/></group>
+                        <group><field name="date_from" readonly="state != 'draft'"/><field name="date_to" readonly="state == 'retired'"/></group>
+                    </group>
+                    <notebook>
+                        <page string="Paid Leave" name="paid_leave">
+                            <p>Permanent employees receive paid leave after their verified eligibility date. Probation absence is unpaid. Entitlement follows the calendar year and the employee's working calendar.</p>
+                            <group>
+                                <group string="Entitlement and Types">
+                                    <field name="annual_days" readonly="state != 'draft'"/>
+                                    <field name="annual_leave_type_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                                    <field name="unpaid_leave_type_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                                    <field name="request_unit" readonly="state != 'draft'"/>
+                                    <field name="include_public_holidays" readonly="state != 'draft'"/>
+                                </group>
+                                <group string="New-Joiner Proration">
+                                    <field name="proration_basis" readonly="state != 'draft'"/>
+                                    <field name="rounding_step" readonly="state != 'draft'"/>
+                                    <field name="rounding_method" readonly="state != 'draft'"/>
+                                    <field name="probation_end_inclusive" readonly="state != 'draft'"/>
+                                </group>
+                            </group>
+                            <p class="text-muted">The source requires prorating new joiners but gives no exact formula or rounding. This implementation uses actual calendar days; review the date basis and rounding before activation. Full and half days use one paid balance.</p>
+                        </page>
+                        <page string="Approvals and Absence" name="approvals">
+                            <group>
+                                <group string="Approval Routes">
+                                    <field name="approval_mode" readonly="state != 'draft'"/>
+                                    <field name="unpaid_approval_mode" readonly="state != 'draft'"/>
+                                    <field name="hr_user_ids" widget="many2many_tags" readonly="state != 'draft'" options="{'no_create': True}"/>
+                                    <field name="management_user_ids" widget="many2many_tags" readonly="state != 'draft'" options="{'no_create': True}"/>
+                                </group>
+                                <group string="Notice">
+                                    <field name="require_prior_approval" readonly="state != 'draft'"/>
+                                    <field name="full_day_notice_days" readonly="state != 'draft'"/>
+                                    <field name="half_day_notice_days" readonly="state != 'draft'"/>
+                                </group>
+                            </group>
+                            <p class="text-muted">HOD is the employee's native Time Off approver. The source preset requires HOD then HR; Management must also sign an exception. Notice is counted in calendar days.</p>
+                            <group>
+                                <group string="Emergencies and Exceptions">
+                                    <field name="allow_emergency" readonly="state != 'draft'"/>
+                                    <field name="emergency_waives_notice" readonly="state != 'draft'"/>
+                                    <field name="exception_mode" readonly="state != 'draft'"/>
+                                </group>
+                                <group string="Verified Actual Absence">
+                                    <field name="half_day_return_action" readonly="state != 'draft'"/>
+                                    <field name="unauthorized_action" readonly="state != 'draft'"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Work From Home" name="work_from_home">
+                            <group>
+                                <group>
+                                    <field name="wfh_enabled" readonly="state != 'draft'"/>
+                                    <field name="wfh_leave_type_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                                    <field name="wfh_approval_mode" readonly="state != 'draft'"/>
+                                    <field name="wfh_require_prior_approval" readonly="state != 'draft'"/>
+                                    <field name="wfh_notice_days" readonly="state != 'draft'"/>
+                                </group>
+                                <group>
+                                    <field name="wfh_unapproved_action" readonly="state != 'draft'"/>
+                                    <field name="wfh_availability_required" readonly="state != 'draft'"/>
+                                    <field name="wfh_communication_required" readonly="state != 'draft'"/>
+                                    <field name="wfh_task_update_required" readonly="state != 'draft'"/>
+                                </group>
+                            </group>
+                            <p>WFH is worked time and does not consume Annual Leave. Employees explicitly send completed-task updates to both HOD and HR after work starts.</p>
+                        </page>
+                        <page string="Source Review" name="source_review">
+                            <group>
+                                <field name="source_revision_date" readonly="state != 'draft'"/>
+                                <field name="configuration_reviewed" readonly="state != 'draft'"/>
+                            </group>
+                            <field name="source_review_checklist" readonly="1" nolabel="1"/>
+                            <p>Unused leave is encashed at year end. Enter the actual approved daily rate and reference on each settlement. This addon does not post payroll, payments or disciplinary actions.</p>
+                            <field name="notes" readonly="state != 'draft'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="action_dvz_leave_policy" model="ir.actions.act_window">
+        <field name="name">Leave Policies</field><field name="res_model">dvz.leave.policy</field>
+        <field name="view_mode">list,form</field><field name="search_view_id" ref="view_dvz_leave_policy_search"/>
+    </record>
+</odoo>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_material_reservation_list" model="ir.ui.view">
+        <field name="name">stock.move.line.dvz.material.reservation.list</field>
+        <field name="model">stock.move.line</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <list string="Material Reservations" create="0" edit="0" delete="0"
+                  duplicate="0" import="0" default_order="id desc">
+                <field name="picking_id" string="Transfer" readonly="1"/>
+                <field name="picking_partner_id" string="Customer / Address" readonly="1"/>
+                <field name="product_id" readonly="1"/>
+                <field name="quantity" string="Reserved Qty" readonly="1"/>
+                <field name="product_uom_id" string="Unit" readonly="1"
+                       domain="[]" options="{'no_open': True}"/>
+                <field name="location_id" string="Source Location" readonly="1"/>
+                <field name="state" string="Status" widget="badge" readonly="1"
+                       decoration-success="state == 'assigned'"
+                       decoration-warning="state != 'assigned'"/>
+                <field name="origin" string="Source Document" readonly="1" optional="hide"/>
+                <field name="lot_id" readonly="1" optional="hide" groups="stock.group_production_lot"/>
+                <field name="scheduled_date" readonly="1" optional="hide"/>
+                <field name="company_id" readonly="1" optional="hide" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_material_reservation_form" model="ir.ui.view">
+        <field name="name">stock.move.line.dvz.material.reservation.form</field>
+        <field name="model">stock.move.line</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <form string="Material Reservation" create="0" edit="0" delete="0" duplicate="0">
+                <sheet>
+                    <group>
+                        <group string="Material">
+                            <field name="product_id" readonly="1"/>
+                            <label for="quantity" string="Reserved Qty"/>
+                            <div class="o_row">
+                                <field name="quantity" readonly="1"/>
+                                <field name="product_uom_id" readonly="1" domain="[]"
+                                       options="{'no_open': True}"/>
+                            </div>
+                            <field name="location_id" string="Source Location" readonly="1"/>
+                            <field name="location_dest_id" string="Destination" readonly="1"/>
+                            <field name="lot_id" readonly="1" invisible="not lot_id"
+                                   groups="stock.group_production_lot"/>
+                        </group>
+                        <group string="Reservation">
+                            <field name="picking_id" string="Transfer" readonly="1"/>
+                            <field name="picking_partner_id" string="Customer / Address" readonly="1"/>
+                            <field name="origin" string="Source Document" readonly="1"/>
+                            <field name="scheduled_date" readonly="1"/>
+                            <field name="state" string="Status" widget="badge" readonly="1"/>
+                            <field name="company_id" readonly="1" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_material_reservation_search" model="ir.ui.view">
+        <field name="name">stock.move.line.dvz.material.reservation.search</field>
+        <field name="model">stock.move.line</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <search string="Material Reservations">
+                <field name="product_id"/>
+                <field name="picking_id" string="Transfer"/>
+                <field name="picking_partner_id" string="Customer / Address"/>
+                <field name="origin" string="Source Document"/>
+                <field name="location_id" string="Source Location"/>
+                <filter name="deliveries" string="Deliveries" domain="[('picking_code', '=', 'outgoing')]"/>
+                <filter name="internal_transfers" string="Internal Transfers" domain="[('picking_code', '=', 'internal')]"/>
+                <separator/>
+                <filter name="partially_reserved" string="Partially Available"
+                        domain="[('state', '=', 'partially_available')]"/>
+                <group>
+                    <filter name="group_product" string="Product" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_transfer" string="Transfer" context="{'group_by': 'picking_id'}"/>
+                    <filter name="group_location" string="Source Location" context="{'group_by': 'location_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_material_reservation" model="ir.actions.act_window">
+        <field name="name">Material Reservations</field>
+        <field name="res_model">stock.move.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_material_reservation_search"/>
+        <field name="domain">[
+            ('move_id', '!=', False),
+            ('state', 'in', ['waiting', 'confirmed', 'partially_available', 'assigned']),
+            ('product_id.is_storable', '=', True),
+            ('location_id.usage', '=', 'internal'),
+            ('quantity', '&gt;', 0)
+        ]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">No reserved materials</p>
+            <p>Reserve stock on a transfer, then return here to see its reserved products.</p>
+        </field>
+    </record>
+
+    <record id="action_material_reservation_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_material_reservation_list"/>
+        <field name="act_window_id" ref="action_material_reservation"/>
+    </record>
+
+    <record id="action_material_reservation_form" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_material_reservation_form"/>
+        <field name="act_window_id" ref="action_material_reservation"/>
+    </record>
+</odoo>

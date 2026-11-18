@@ -1,0 +1,2 @@
+# DVZ Reservation Project and SO Columns
+Adds **Project** and **SO Number** to existing `dvz_material_reservation_view` list and form, without changing the base addon. Optional list columns can be toggled from the column-selector. SO number derives from an existing linked SO on the stock move or picking. For manually created transfers, references come from the transfer fields. Project is only populated when an explicit project relation exists; the addon does not guess from names.
