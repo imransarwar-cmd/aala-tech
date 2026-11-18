@@ -22,8 +22,7 @@
                 <field name="dvz_customer_name" string="Customer Name" optional="hide"/>
                 <field name="project" string="Project Name" optional="hide"/>
                 <field name="dvz_area" string="Area" optional="hide"/>
-                <field name="dvz_division_id" string="Division" optional="hide"/>
-                <field name="system" string="System" optional="hide"/>
+\                <field name="system" string="System" optional="hide"/>
                 <field name="dvz_brand_id" string="Brand" optional="hide"/>
                 <field name="amount_untaxed" string="Value (without VAT)" optional="hide"/>
                 <field name="dvz_status" string="Status" optional="hide"/>
@@ -47,7 +46,6 @@
                 <field name="dvz_customer_name" string="Customer Name" optional="hide"/>
                 <field name="project" string="Project Name" optional="hide"/>
                 <field name="dvz_area" string="Area" optional="hide"/>
-                <field name="dvz_division_id" string="Division" optional="hide"/>
                 <field name="system" string="System" optional="hide"/>
                 <field name="dvz_brand_id" string="Brand" optional="hide"/>
                 <field name="amount_untaxed" string="Value (without VAT)" optional="hide"/>
