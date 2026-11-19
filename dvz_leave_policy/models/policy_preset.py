@@ -43,8 +43,9 @@ SOURCE_REVIEW_CHECKLIST = """
 <p>The source specifies 24 working days per calendar year, prorating new joiners,
 HOD and HR approval, one day's half-day notice, unpaid actual unauthorized absence,
 WFH responsibilities, Management exceptions, and year-end encashment.</p>
-<p>Review the selected employee, verified joining and paid-eligibility dates,
-actual approvers and leave types. The document does not specify the exact
+<p>Review the actual approvers and leave types. Policy assignment can precede
+confirmed employment dates; verify joining, permanent status and paid eligibility
+before granting paid leave. The document does not specify the exact
 proration formula, rounding, full-day/WFH notice duration or encashment rate.
 Actual-day proration with joining-date basis and downward half-day rounding is
 an editable implementation choice. Enter an approved rate on the year-end

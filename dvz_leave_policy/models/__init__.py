@@ -1,4 +1,6 @@
 from . import leave_policy
+from . import res_company
+from . import policy_assignment
 from . import hr_employee
 from . import hr_leave_type
 from . import policy_preset

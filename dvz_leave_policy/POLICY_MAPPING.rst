@@ -12,9 +12,10 @@ uses separately reviewed effective dates.
    * - Source rule
      - Implementation
    * - Permanent employees; no paid leave during probation.
-     - Explicit employee assignment, actual employment status and verified joining/
-       first-paid dates. Probation may have no confirmed first-paid date and receives
-       no paid grant. Verified actual absence uses Leave Without Pay.
+     - Policy assignment is separate from paid eligibility. Actual permanent
+       status and verified joining/first-paid dates are required for paid leave.
+       Probation may have no confirmed first-paid date and receives no paid grant.
+       Verified actual absence uses Leave Without Pay.
    * - 24 working days per calendar year; new joiners prorated.
      - January-to-December annual entitlement using the employee's working calendar.
        Full and half days share the same Annual Leave type and balance.
@@ -61,11 +62,17 @@ exact WFH reporting schedule, so completed-task sending is accepted after work s
 What setup changes
 ------------------
 
+**Use for New Employees** selects one active policy as the company's default.
+New employees receive that policy when their record is saved; existing employees
+are not reassigned. This implements the user's requested onboarding behavior;
+it does not change the source policy's entitlement rules or create leave balances.
+
 **Set Up One Employee** requires an existing employee and actual approvers. A draft
-can be saved without assignment. Applying setup assigns only that employee, with
-no company-wide default and no automatic allocation. Optional preview/generation
-checks only that employee and refuses unreviewed overlapping paid balances.
-Repeated generation reuses the same grant.
+can be saved without assignment. Applying setup assigns only that employee.
+Missing eligibility dates or unconfirmed status do not block this assignment.
+Optional allocation preview/generation separately checks verified eligibility
+and refuses unreviewed overlapping paid balances. Repeated generation reuses the
+same grant.
 
 A compatible active policy can be assigned without changing its rules or routes.
 Existing types are reused only when already compatible. The generic draft and

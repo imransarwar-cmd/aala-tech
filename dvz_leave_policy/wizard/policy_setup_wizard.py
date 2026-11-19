@@ -11,10 +11,14 @@ TYPE_FIELDS = (
     ("unpaid", "unpaid_leave_type_id", "Leave Without Pay"),
     ("wfh", "wfh_leave_type_id", "Work From Home"),
 )
+AUTO_CHECK_FIELDS = frozenset({
+    "auto_check_notes", "auto_contract_start", "auto_probation_end",
+    "auto_paid_date", "auto_checked_employee_id",
+})
 RESULT_FIELDS = frozenset({
     "result_policy_id", "setup_applied", "allocation_id", "allocation_status",
     "allocation_days", "allocation_message", "allocation_period_start", "allocation_period_end",
-})
+}) | AUTO_CHECK_FIELDS
 
 
 class DvzPolicySetupWizard(models.TransientModel):
@@ -37,7 +41,7 @@ class DvzPolicySetupWizard(models.TransientModel):
         ("temporary", "Temporary"), ("unknown", "Not Confirmed")], required=True, default="unknown")
     joining_date = fields.Date(string="Verified Joining Date")
     paid_eligible_date = fields.Date(string="Verified First Paid Leave Date",
-        help="Required for permanent employees. Leave it empty during probation if confirmation is not known; never invent a future date.")
+        help="Optional for policy assignment. Paid leave requires permanent status, a verified joining date, and this date or a recorded probation end. Leave unknown dates empty.")
     hod_user_id = fields.Many2one("res.users", string="Actual HOD", domain=[("share", "=", False)])
     hr_user_id = fields.Many2one("res.users", string="Actual HR Approver", domain=[("share", "=", False)])
     management_user_id = fields.Many2one("res.users", string="Actual Management Approver",
@@ -45,7 +49,7 @@ class DvzPolicySetupWizard(models.TransientModel):
     annual_leave_type_id = fields.Many2one("hr.leave.type", string="Annual Leave Type", check_company=True)
     unpaid_leave_type_id = fields.Many2one("hr.leave.type", string="Leave Without Pay Type", check_company=True)
     wfh_leave_type_id = fields.Many2one("hr.leave.type", string="Work From Home Type", check_company=True)
-    reviewed = fields.Boolean(string="Employee Details, Approvers, Types and Source Choices Verified")
+    reviewed = fields.Boolean(string="Known Employee Details, Approvers, Types and Source Choices Reviewed")
     auto_check_notes = fields.Text(string="Automatic Employee Check", readonly=True, copy=False)
     auto_contract_start = fields.Date(string="Contract Start (Reference Only)", readonly=True, copy=False)
     auto_probation_end = fields.Date(string="Recorded Probation End", readonly=True, copy=False)
@@ -130,6 +134,8 @@ class DvzPolicySetupWizard(models.TransientModel):
     def _onchange_policy(self):
         if self.policy_id:
             self.update(self._policy_defaults(self.policy_id))
+        self.reviewed = False
+        self.update({field: False for field in AUTO_CHECK_FIELDS})
 
     @api.onchange("company_id")
     def _onchange_company(self):
@@ -157,11 +163,21 @@ class DvzPolicySetupWizard(models.TransientModel):
             raise AccessError(_("Setup results and allocation previews cannot be edited directly."))
         if any(record.setup_applied for record in self) and set(values) - {"as_of_date"}:
             raise UserError(_("This setup has been applied. Start a new setup to change employee details or policy selection."))
+        values = dict(values)
+        if values.get("employee_id") and any(record.employee_id.id != values["employee_id"] for record in self):
+            employee = self.env["hr.employee"].browse(values["employee_id"]).exists()
+            if not employee:
+                raise UserError(_("Select an existing employee."))
+            employee.check_access("read")
+            for field, value in self._employee_defaults(employee).items():
+                values.setdefault(field, value)
         result = super().write(values)
         self._ensure_setup_manager()
         reset = {}
         if {"policy_id", "company_id", "employee_id"}.intersection(values):
             reset["result_policy_id"] = False
+            reset["reviewed"] = bool(values.get("reviewed", False))
+            reset.update({field: False for field in AUTO_CHECK_FIELDS})
         if "as_of_date" in values or reset:
             reset.update({"allocation_id": False, "allocation_status": False,
                 "allocation_days": 0, "allocation_message": False,
@@ -200,11 +216,8 @@ class DvzPolicySetupWizard(models.TransientModel):
             raise UserError(_("Select exactly one existing active employee."))
         self.employee_id.check_access("write")
         self._check_identity()
-        if not self.joining_date or self.employment_status == "unknown" or (
-                self.employment_status == "permanent" and not (self.paid_eligible_date or self.probation_end_date)):
-            raise UserError(_("Confirm joining date, employment status and (for permanent employees) an actual first-paid date or recorded probation end. The policy specifies no automatic probation duration."))
         if require_review and not self.reviewed:
-            raise UserError(_("Verify the employee details, actual approvers, types and source choices before applying setup."))
+            raise UserError(_("Verify the known employee details, actual approvers, types and source choices before applying setup. Unknown eligibility dates may remain empty."))
         for role, user in ((_("HOD"), self.hod_user_id), (_("HR"), self.hr_user_id),
                            (_("Management"), self.management_user_id)):
             if not user or not user.active or user.share or self.company_id not in user.company_ids:
@@ -275,14 +288,14 @@ class DvzPolicySetupWizard(models.TransientModel):
             raise UserError(_("The employee's setup has changed since this wizard was applied. Start a fresh setup."))
 
     def action_auto_check_employee(self):
-        """Read one selected employee only; never guess probation or silently assign leave.
+        """Refresh candidates from this employee without granting paid eligibility.
 
-        Existing DVZ HR dates are verified input candidates. A contract start is NOT
-        necessarily the original hire date. A contract trial end is a documented
-        probation candidate, but still requires HR review before activation.
+        Odoo 19 stores contract dates on the employee's employment version.
+        Read the current version with the caller's normal HR field access.
         """
-        self.ensure_one()
-        self._ensure_setup_manager()
+        self._lock_setup()
+        if self.setup_applied:
+            raise UserError(_("This setup has been applied. Start a new setup to check employee details again."))
         employee = self.employee_id.exists()
         if not employee or not employee.active:
             raise UserError(_("Select an active employee first."))
@@ -290,87 +303,88 @@ class DvzPolicySetupWizard(models.TransientModel):
         if employee.company_id != self.company_id:
             raise UserError(_("Select an employee in the setup company."))
         messages = []
-        updates = {"auto_checked_employee_id": employee.id, "reviewed": False,
-                   "auto_contract_start": False, "auto_probation_end": False,
-                   "auto_paid_date": False}
+        # Replace earlier candidates, including missing values, so a previous
+        # employee or an earlier check cannot supply this employee's eligibility.
+        updates = {**self._employee_defaults(employee),
+            **{field: False for field in AUTO_CHECK_FIELDS},
+            "auto_checked_employee_id": employee.id, "reviewed": False,
+            "hr_user_id": False, "management_user_id": False}
         if employee.dvz_joining_date:
-            updates["joining_date"] = employee.dvz_joining_date
-            messages.append(_("Joining date: copied from previously verified employee leave field."))
+            messages.append(_("Joining date: copied from the employee's verified leave field."))
         else:
-            messages.append(_("Joining date: missing; confirm from the employee's HR joining record."))
+            messages.append(_("Joining date is missing. Policy assignment is allowed; HR must confirm it before paid leave or an allocation."))
         if employee.dvz_employment_status != "unknown":
-            updates["employment_status"] = employee.dvz_employment_status
             messages.append(_("Employment status: copied from the employee's explicit HR setting."))
         else:
-            messages.append(_("Employment status: unverified; contract state alone does not prove permanent employment."))
+            messages.append(_("Employment status is unconfirmed. Policy assignment is allowed; contract dates alone do not confirm permanent employment."))
         probation_end = employee.dvz_probation_end_date
         if probation_end:
-            updates["probation_end_date"] = probation_end
-            messages.append(_("Probation end: copied from previously verified employee leave field."))
+            messages.append(_("Probation end: copied from the employee's verified leave field."))
         if employee.dvz_paid_eligible_date:
-            updates["paid_eligible_date"] = employee.dvz_paid_eligible_date
-            messages.append(_("Paid-leave eligibility: copied from previously verified employee leave field."))
-        contract_available = "hr.contract" in self.env.registry
-        if contract_available:
-            Contract = self.env["hr.contract"]
-            domain = [("employee_id", "=", employee.id), ("company_id", "=", self.company_id.id)]
-            if "state" in Contract._fields:
-                domain.append(("state", "=", "open"))
+            messages.append(_("First paid leave date: copied from the employee's verified leave field."))
+
+        native_fields = [name for name in ("contract_date_start", "trial_date_end") if name in employee._fields]
+        if native_fields:
             try:
-                contracts = Contract.search(domain, limit=2)
+                # Do not inherit a historical employment-version selection from
+                # the employee form, or elevate access to restricted HR dates.
+                native = employee.with_context(version_id=False).read(native_fields)[0]
             except AccessError:
-                contracts = False
-                messages.append(_("Contract records are not readable by this user. Ask an authorized HR officer to verify dates."))
-            if contracts and len(contracts) == 1:
-                contract = contracts[0]
-                if "date_start" in Contract._fields and contract.date_start:
-                    updates["auto_contract_start"] = contract.date_start
-                    messages.append(_("Contract start %(date)s found. It may differ from original joining date; verify before using it.", date=contract.date_start))
-                if "trial_date_end" in Contract._fields and contract.trial_date_end:
-                    found = contract.trial_date_end
-                    updates["auto_probation_end"] = found
-                    # Do not overwrite a recorded employee value if it disagrees.
-                    if probation_end and probation_end != found:
-                        messages.append(_("CONFLICT: employee probation end differs from the contract trial end %(date)s; HR must resolve it.", date=found))
+                messages.append(_("Native contract and probation dates require HR access. An authorized HR administrator can check them; policy assignment is still available."))
+            else:
+                contract_start = fields.Date.to_date(native.get("contract_date_start"))
+                native_end = fields.Date.to_date(native.get("trial_date_end"))
+                updates["auto_contract_start"] = contract_start
+                updates["auto_probation_end"] = native_end
+                if contract_start:
+                    messages.append(_("Current contract start %(date)s is shown for reference only. It is not assumed to be the original joining date.", date=contract_start))
+                if native_end:
+                    if probation_end and probation_end != native_end:
+                        messages.append(_("CONFLICT: verified leave probation end differs from the current employment record's probation end %(date)s. The verified leave value was retained; HR must review the difference.", date=native_end))
+                    elif not probation_end and employee.dvz_joining_date and native_end < employee.dvz_joining_date:
+                        messages.append(_("CONFLICT: the current employment record's probation end precedes the verified joining date. It was not copied; HR must review the dates."))
                     elif not probation_end:
-                        updates["probation_end_date"] = found
-                        probation_end = found
-                        messages.append(_("Probation end %(date)s found in the running contract; review before confirming.", date=found))
-            elif contracts and len(contracts) > 1:
-                messages.append(_("More than one running contract found. HR must select the correct employment history."))
-            elif contracts is not False:
-                messages.append(_("No unique running contract was found. Existing employee dates were retained."))
+                        probation_end = native_end
+                        updates["probation_end_date"] = native_end
+                        messages.append(_("Probation end %(date)s was found in the current employment record. Review this candidate before applying.", date=native_end))
+                else:
+                    messages.append(_("No probation end is recorded on the current employment version."))
         else:
-            messages.append(_("Contract model is not installed; verification uses the employee record only."))
+            messages.append(_("Native contract-date fields are unavailable; only the employee's verified leave fields were checked."))
+
+        policy = self.policy_id or employee.dvz_leave_policy_id
+        if policy and policy.company_id != self.company_id:
+            raise UserError(_("Select a policy in the employee's company."))
         if probation_end:
-            # Inclusive probation end is a configurable policy choice.
-            inclusive = self.policy_id.probation_end_inclusive if self.policy_id else True
-            proposed = probation_end + timedelta(days=1 if inclusive else 0)
-            updates["auto_paid_date"] = proposed
-            messages.append(_("Possible first paid-leave date: %(date)s, derived from the recorded probation end and policy setting. Confirm permanent status and the correct date before applying.", date=proposed))
-            if (updates.get("employment_status", self.employment_status) == "permanent"
-                    and not (updates.get("paid_eligible_date") or self.paid_eligible_date)):
-                updates["paid_eligible_date"] = proposed
+            inclusive = policy.probation_end_inclusive if policy else True
+            try:
+                proposed = probation_end + timedelta(days=1 if inclusive else 0)
+            except OverflowError:
+                messages.append(_("The recorded probation end cannot be converted to a first paid date. HR must correct the date."))
+            else:
+                updates["auto_paid_date"] = proposed
+                messages.append(_("Possible first paid leave date: %(date)s, derived from the recorded probation end and policy setting. Permanent status must also be confirmed.", date=proposed))
+                if updates["employment_status"] == "permanent" and not updates["paid_eligible_date"]:
+                    updates["paid_eligible_date"] = proposed
         else:
-            messages.append(_("Probation end: no verified date found. No months or days were invented."))
+            messages.append(_("No probation end was found. No probation duration was assumed. Leave unknown eligibility dates empty when assigning the policy."))
         hod = employee.leave_manager_id
         if hod and hod.active and not hod.share:
-            updates["hod_user_id"] = hod.id
-            messages.append(_("HOD: copied from native employee Time Off Approver."))
+            messages.append(_("HOD: copied from the employee's native Time Off approver."))
         else:
+            updates["hod_user_id"] = False
             messages.append(_("HOD: select the actual approving user."))
-        policy = self.policy_id or employee.dvz_leave_policy_id
-        if policy and policy.company_id == self.company_id:
+        if policy:
             if len(policy.hr_user_ids) == 1:
                 updates["hr_user_id"] = policy.hr_user_ids.id
             if len(policy.management_user_ids) == 1:
                 updates["management_user_id"] = policy.management_user_ids.id
-        if not updates.get("hr_user_id") and not self.hr_user_id:
-            messages.append(_("HR approver: select the real HR user; not inferred from access groups."))
-        if not updates.get("management_user_id") and not self.management_user_id:
-            messages.append(_("Management approver: select a real user; not inferred from access groups."))
-        messages.append(_("Annual entitlement: 24 working days as the supplied document states; new joiner proration, existing allocations and approvals are checked at allocation preview."))
-        messages.append(_("REVIEW REQUIRED: automatic inspection does not change employee records, allocate leave, approve requests, or post payroll deductions."))
+        if not updates["hr_user_id"]:
+            messages.append(_("HR approver: select the actual user; no user is inferred from access groups."))
+        if not updates["management_user_id"]:
+            messages.append(_("Management approver: select the actual user; no user is inferred from access groups."))
+        messages.append(_("Allocation preview checks eligibility, configured entitlement, new-joiner proration and existing balances separately from policy assignment."))
+        messages.append(_("Review the refreshed candidates before applying. This check does not change employee records or create an allocation."))
         updates["auto_check_notes"] = "\n".join(messages)
         self._internal_write(updates)
         return self._reopen()

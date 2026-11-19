@@ -6,7 +6,7 @@
             <list decoration-muted="state == 'retired'">
                 <field name="name"/><field name="company_id" groups="base.group_multi_company"/>
                 <field name="version"/><field name="date_from"/><field name="date_to"/>
-                <field name="annual_days"/><field name="state" widget="badge"/>
+                <field name="annual_days"/><field name="is_employee_default" optional="show"/><field name="state" widget="badge"/>
             </list>
         </field>
     </record>
@@ -33,6 +33,8 @@
                     <button name="action_open_setup" type="object" string="Set Up One Employee" class="btn-primary" invisible="state not in ('draft','active')" groups="hr_holidays.group_hr_holidays_manager"/>
                     <button name="action_configure_types" type="object" string="Configure Leave Types" invisible="state != 'draft'" groups="hr_holidays.group_hr_holidays_manager"/>
                     <button name="action_activate" type="object" string="Activate" invisible="state != 'draft'" groups="hr_holidays.group_hr_holidays_manager"/>
+                    <button name="action_use_for_new_employees" type="object" string="Use for New Employees" invisible="state != 'active' or not active or is_employee_default" groups="hr_holidays.group_hr_holidays_manager"/>
+                    <button name="action_stop_automatic_assignment" type="object" string="Stop Automatic Assignment" invisible="not is_employee_default" groups="hr_holidays.group_hr_holidays_manager"/>
                     <button name="action_revision" type="object" string="Create Revision" invisible="state == 'draft'" groups="hr_holidays.group_hr_holidays_manager"/>
                     <button name="action_retire" type="object" string="Retire" invisible="state != 'active'" groups="hr_holidays.group_hr_holidays_manager"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,active,retired"/>
@@ -44,6 +46,10 @@
                     <group>
                         <group><field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/><field name="version" readonly="1"/></group>
                         <group><field name="date_from" readonly="state != 'draft'"/><field name="date_to" readonly="state == 'retired'"/></group>
+                    </group>
+                    <group string="New Employees">
+                        <field name="is_employee_default" readonly="1"/>
+                        <p class="text-muted" colspan="2">Use for New Employees assigns this policy when an employee is saved in this company. Eligibility dates and status can be confirmed later. Assignment creates no paid balance; policy effective dates and paid eligibility are checked when leave or an allocation is requested. Changing this default does not change existing employees.</p>
                     </group>
                     <notebook>
                         <page string="Paid Leave" name="paid_leave">

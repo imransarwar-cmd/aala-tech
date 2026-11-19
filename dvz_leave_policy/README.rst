@@ -1,7 +1,7 @@
 Leave Policy Management
 =======================
 
-Technical name: ``dvz_leave_policy``. Version: ``19.0.4.0.0``.
+Technical name: ``dvz_leave_policy``. Version: ``19.0.5.0.0``.
 Target: **Odoo 19 Community**, using Employees and Time Off.
 
 This version implements the supplied **Leave and Absence Policy**. It contains a
@@ -33,23 +33,44 @@ What the source policy does
   daily rate entered on the settlement. The addon records payment references;
   it does not send money or post payroll deductions.
 
-Set up exactly one existing employee
------------------------------------
+Assign the policy when an employee is created
+--------------------------------------------
+
+Open **Time Off > Configuration > Leave Policies**, configure and activate the
+intended policy, then click **Use for New Employees**. Each company has one
+default. After this selection, saving a new employee assigns that company's
+default policy automatically, including ordinary employee creation and imports.
+An administrator can explicitly select a different policy for an individual.
+
+**Assignment does not require a joining date, confirmed employment status or a
+probation end date.** A new employee may remain **Not Confirmed** with blank
+eligibility dates. No allocation or paid entitlement is created at this step.
+The default affects new records only; existing employees keep their assignments.
+Changing or removing the default is available on the policy form.
+
+An active policy can be assigned before its effective start for onboarding.
+The requested leave dates must still fall within the policy's effective period.
+Before granting paid leave, HR must confirm the original joining date, permanent
+status and either the actual first-paid date or a recorded probation end. A
+probation end passing does not automatically change employment status.
+
+Set up one existing employee
+---------------------------
 
 Open **Time Off > Configuration > Set Up One Employee**, or open the employee's
 **Leave Policy** tab and select **Set Up This Employee**.
 
 1. Select the existing employee and company, then click **Auto-Check Employee**.
-   It reads previously verified joining and probation dates, a unique running
-   contract when ``hr.contract`` is installed and accessible, and the employee's
-   Time Off approver. It reports missing/conflicting records and displays the
-   contract start as a reference (not presumed to be the original hire date).
-   Where the running contract records an explicit trial end, the wizard can
+   It reads the saved leave-eligibility fields, accessible native Odoo 19
+   contract/probation fields and the employee's Time Off approver. It reports
+   missing/conflicting records and displays the contract start as a reference
+   (not presumed to be the original hire date).
+   Where an accessible HR record contains an explicit trial end, the wizard can
    propose a first paid date from the policy's inclusive/end-date setting.
    The source **does not state a probation duration**. None is invented.
-   Confirm the actual employment status, original joining date, recorded
-   probation end and/or paid eligibility date. A probation employee can retain
-   an empty first paid date.
+   Leave unknown employee facts blank or **Not Confirmed**. You can assign the
+   policy now and confirm eligibility later. The date/status checks run before
+   a paid allocation or paid-leave request can succeed.
 2. Confirm the automatically detected HOD and select the actual HR and Management users. HOD becomes the employee's
    native Time Off approver. HR and Management need native Time Off Officer or
    Administrator access. The selected employee cannot approve their own request;
@@ -59,8 +80,9 @@ Open **Time Off > Configuration > Set Up One Employee**, or open the employee's
    selections. Existing types are never reconfigured by setup. An active policy's
    rules, dates, types and approval routes remain unchanged; the selected HR and
    Management users must already belong to those routes.
-4. Review the automatic check notes, employee details, types and unspecified source choices, then check
-   the single verification box. **Save Policy Draft** prepares configuration
+4. Review the automatic check notes, known employee details, types and unspecified
+   source choices, then check the single review box. Missing eligibility details
+   do not prevent assignment. **Save Policy Draft** prepares configuration
    without assigning the employee. **Apply to This Employee** activates a draft
    when valid and assigns the policy only to the selected employee.
 5. The result shows that employee, the prepared policy and the applied status.
@@ -84,8 +106,11 @@ half-day rounding. These choices are visible on the draft. The document gives on
 day's half-day notice but no numeric full-day or WFH notice duration; those values
 start at zero while prior approval remains required.
 
-No probation length or salary rate is invented. Auto-Check does not guess hiring dates from a contract start, determine permanent status from an open contract, allocate leave, post salary deductions, or contact any server outside the installed Odoo database. Use verified employee dates and
-enter the approved daily rate and reference on each year-end settlement. An active
+No probation length or salary rate is invented. Auto-Check does not guess hiring
+dates from a contract start, determine permanent status from a contract, allocate
+leave, post salary deductions, or contact an external server. Use verified
+employee dates and enter the approved daily rate and reference on each year-end
+settlement. An active
 or retired policy retains its rules; use **Create Revision** for later changes.
 
 Requests, WFH updates and corrections

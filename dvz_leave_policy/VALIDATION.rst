@@ -1,113 +1,111 @@
 Validation Record
 =================
 
-Addon: ``dvz_leave_policy``
-
+Addon: dvz_leave_policy
 Display name: Leave Policy Management
-
-Version: ``19.0.3.0.0``
-
+Version: 19.0.5.0.0
 Target: Odoo 19 Community
-
-Checked: 18 November 2026
+Checked: 19 November 2026
 
 Executed checks
 ---------------
-
-* All 14 database-independent annual calculation and eligibility tests passed.
-  They cover the calendar year, configurable entitlement, actual-day and leap-year
-  proration, date basis, rounding, permanent status, verified probation boundaries,
-  missing dates, invalid quantities and the annual entitlement cap.
 * All addon Python files compiled successfully.
+* All 14 database-independent calculation and eligibility tests passed, including
+  permanent status, missing dates, probation boundaries, calendar-year proration,
+  leap years, rounding, finite quantities and annual entitlement limits.
 * The addon imported using the official Odoo 19.0 source and its installed Python
-  dependencies. Seventeen dependency modules and all six ORM test modules also
-  imported. This checks Python/API import compatibility, not database installation.
+  dependencies. The 17 dependency modules, new company/default-assignment models
+  and all seven ORM test modules imported successfully.
 * All 10 XML files passed the official Odoo import RelaxNG schema. Four standalone
-  list/search architectures passed their native view schemas.
-* Static resolution checked 61 external references, 163 view-field references,
-  25 object-button methods and 4 inherited XPath targets.
-* The source preset contains 31 valid fields and 11 valid literal selections.
-  Python factory values match the XML preset.
-* No remaining compilation, import, schema or reference errors were reported.
-* The ZIP integrity, manifest paths and generic naming were checked. It contains
-  the addon source, views, security, preset, migration guards, documentation and
-  tests. Python caches, the source PDF, employee workbooks, credentials and the
-  verification runtime are excluded.
+  list/search architectures passed their official view schemas.
+* Static resolution checked 63 external references, 171 view-field references,
+  29 object-button methods and four inherited XPath targets.
+* The source preset still contains 31 valid fields and 11 valid literal selections.
+  Python factory defaults match the XML preset; entitlement rules did not change.
+* Independent source review checked automatic employee creation, company defaults,
+  explicit administrator assignments, native create permissions, copy behavior,
+  protected inputs/context, assignment without eligibility, paid eligibility
+  enforcement, current native employment-date reads and protected check results.
 
 Database tests supplied, not executed
 ------------------------------------
-
-The addon contains 69 ORM test methods across six modules:
+The seven ORM test modules contain 96 test methods:
 
 * 15 policy and approval-configuration cases.
 * 14 annual allocation and balance-protection cases.
 * 11 leave workflow and authorization cases.
-* 12 one-employee setup cases.
+* 25 one-employee setup and Auto-Check cases.
+* 14 automatic employee-assignment cases.
 * 13 encashment, provenance and settlement-lock cases.
-* 4 WFH commitments and task-delivery cases.
+* Four WFH commitments and task-delivery cases.
 
-These definitions were imported but were **not executed against a database**.
-PostgreSQL startup in this workspace was previously blocked by Unix socket
-creation returning ``PermissionError: [Errno 1] Operation not permitted``.
-No new database or socket attempt was made for this revision.
+New regression definitions cover assigning a policy with missing dates and
+unconfirmed status while still blocking unverified paid leave/allocations;
+company-specific defaults and batches; ordinary HR-officer creation without
+configuration privileges; copied employees; context/input protection; changing
+and removing defaults; lifecycle guards; native probation data and unavailable
+HR permissions; stale check results; and normal wizard Form saves.
 
-No successful database installation, ORM execution, upgrade migration execution,
-concurrency test, browser acceptance test or production deployment is claimed.
-The single-employee workflow has been implemented and its test definitions
-supplied; no real employee has been selected or configured in a live Odoo server.
+These test definitions were imported but were NOT executed against a database.
+PostgreSQL socket creation was unavailable in the earlier validation environment;
+no new database connection or socket-start attempt was made for this revision.
+No successful database installation, ORM test run, upgrade migration, concurrency
+run, browser acceptance test or live employee configuration is claimed.
 
-Scope checked
--------------
+Release contents
+----------------
+The release contains only the addon source, views, security, source preset,
+existing migration guards, documentation and tests. The package excludes Python
+caches, source policy PDFs, employee workbooks, credentials and the Odoo validation
+runtime. ZIP integrity and manifest entries are checked during release packaging.
 
-This revision contains only the supplied leave policy's annual calendar-year
-entitlement, verified eligibility, full/half-day requests, approvals, emergency
-and exception handling, WFH commitments and updates, verified actual-absence
-classification, and full unused-day year-end encashment.
+Behavior under review
+---------------------
+Policy assignment is independent of paid eligibility. Selecting Use for New
+Employees records one active default for that company. Employee creation copies
+it without dates/status requirements or allocation side effects. Choosing another
+default affects future employees only. Installation and upgrade do not pick a
+default or bulk-reassign employees.
 
-The preset creates one generic draft and three linked leave types. The setup
-requires exactly one existing employee, actual approvers and verified employee
-facts. It has no company-wide default. Probation can remain unconfirmed without
-an invented paid-eligibility date.
+The one-employee wizard can assign a policy before HR confirms eligibility.
+Unknown status and missing dates remain explicit; neither a probation duration
+nor a permanent-status decision is invented. Paid request and allocation checks
+retain the source policy rules, including its separately authorized exceptions.
+The operational company default is separate from immutable policy rule versions.
 
-Annual allocation preview/generation checks the selected employee's existing
-overlapping paid balances, including another paid type. Repeated generation
-reuses an exact grant; it does not top up or reinterpret manual balances.
-Generated allocations remain subject to ordinary native approval.
-
-The source does not specify the exact proration formula, rounding, numeric
-full-day/WFH notice, probation length or daily encashment rate. The first three
-are documented configuration choices; employee facts and rates must be verified.
-See ``POLICY_MAPPING.rst``.
-
-Encashment uses all reconciled unused days and a manually approved daily rate.
-LWP classification and payment-reference recording do not post payroll,
-accounting or bank transactions.
+Policy effective dates remain enforced for requests and allocations, allowing
+onboarding before a policy's effective start. A configured inactive or invalid
+company default raises a configuration error instead of silently leaving a new
+employee ungoverned. Default policies must be replaced or the default removed
+before retirement/archive.
 
 Upgrade limits
 --------------
-
-The pre-migration guard stops an automatic upgrade when active/used earlier
-policies, nonannual allocations or settlements depend on removed behavior.
-This prevents a silent reinterpretation of historical balances. Those cases
-need a reviewed migration or a separate extension.
-
-A successful upgrade removes only the two obsolete addon-owned scheduled jobs.
-The legacy standard draft is archived only if it is unused and unassigned.
-No employee balance is automatically migrated.
+The existing 19.0.3.0.0 migration guards remain in the package for upgrades from
+older broad-feature versions. They stop an upgrade when active/used configurations
+or historical balances depend on removed behavior. They do not rewrite balances.
+Upgrading from 19.0.4.0.0 adds the company-default field and UI, removes the wizard's
+eligibility-before-assignment gate and refreshes Auto-Check behavior. It does not
+change existing employee dates, policy assignments or allocation balances.
 
 Staging verification
 --------------------
-
-Use the actual executable, configuration and dedicated Odoo 19 staging database::
+Use the actual executable, configuration and a dedicated Odoo 19 test database::
 
     python3 /path/to/odoo-bin -c /path/to/odoo.conf -d YOUR_TEST_DATABASE \
-        -i dvz_leave_policy --test-enable --test-tags /dvz_leave_policy \
-        --stop-after-init
+        -u dvz_leave_policy --test-enable --test-tags /dvz_leave_policy \
+        --no-http --stop-after-init
 
-Use ``-u dvz_leave_policy`` instead of ``-i`` for an installed copy. Review the
-installation and test results before use on a live database, including any
-third-party customizations.
+Use -i instead of -u for a fresh installation. After upgrading, activate the
+intended reviewed policy, select Use for New Employees and save a test employee
+with missing eligibility dates. Confirm assignment without a paid allocation,
+then verify the actual paid-leave/approval flow after entering verified HR facts.
 
 To run the independent calculations from the addon directory::
 
     python3 -m unittest discover -s tests -p test_engine_offline.py -v
+
+Official platform references used
+---------------------------------
+* https://www.odoo.com/documentation/19.0/developer/reference/orm.html
+* https://www.odoo.com/documentation/19.0/developer/howtos/company.html

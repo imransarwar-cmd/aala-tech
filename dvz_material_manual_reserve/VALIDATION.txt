@@ -1,0 +1,55 @@
+DVZ Manual Material Reservation - Validation
+Version: 19.0.3.0.0
+Date: 19 November 2026
+Runtime: Odoo 19 Community, isolated PostgreSQL test databases.
+
+Fresh installation and an update to the delivered source succeeded.
+28 live workflow checks passed.
+
+PASS all delivered list/form/search views compile
+PASS saved draft creates no stock transfer or movement
+PASS Confirm creates native transfer and reserves 3 available units without delivery
+PASS repeated Confirm creates no duplicate transfer or movement
+PASS confirmed customer cannot be changed
+PASS confirmed product quantity cannot be changed
+PASS confirmed lines cannot be deleted
+PASS confirmed lines cannot be added
+PASS Unreserve and Check Availability update report without changing demand
+PASS picked material cannot be silently unreserved
+PASS Cancel releases native reservations and cancels demand
+PASS no stock leaves confirmed request waiting with zero reserved
+PASS shortage reserves 6 of 8; receipt and recheck complete reservation without over-reserving
+PASS duplicate product request lines retain separate native move attribution
+PASS native reservation supports available lot-tracked stock
+PASS native reservation selects serials with one unit each
+PASS project-only reservation confirms without customer or Sales Order
+PASS quotation reference remains draft and does not acquire duplicate SO delivery links
+PASS default context cannot create confirmed requests or attach an existing transfer
+PASS default request context cannot add lines to confirmed requests
+PASS reserved report quantity cannot be forged through RPC write
+PASS ordinary Inventory user can save, confirm, read report and compile all screens
+PASS non-Inventory user cannot create requests
+PASS unallowed company rejected for ordinary operator
+PASS native partial delivery/backorder preserves links; final delivery no longer counts as reserved
+PASS stored report grouping fields execute
+TOTAL PASSED: 26
+SCENARIO ROLLED BACK; no test business data retained
+
+PASS native customer return preserves request-line link, reduces net delivered5→4, and is ignored by request unreserve
+PASS duplicate request becomes a new draft with copied requested materials and no stock transfers/reservations
+RETURN/COPY QA PASSED; scenario rolled back
+
+UPGRADE FROM PREVIOUS RELEASE
+PASS previous v2 native transfer fixture saved, 2 units reserved, project and quotation references present
+PASS v2 -> v3 upgrade preserves old picking, reserved stock, project, quotation; old wizard retired; new persistent request models available
+
+SCOPE
+Python syntax, Odoo XML import and list/search schemas, native view compilation,
+stock reservation operations, reporting, access controls, company checks, and
+previous-release upgrade were checked. Test scenarios were rolled back and the
+private database server was stopped. The user's live database was not accessed.
+Browser rendering and parallel-load stress testing were not performed.
+
+The report is computed from native stock.move records. Custom business code has
+no direct create/write/unlink calls against stock.move.line or stock.quant. Odoo
+itself manages those records through its native reservation actions.

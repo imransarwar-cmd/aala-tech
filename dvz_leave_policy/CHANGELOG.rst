@@ -1,3 +1,20 @@
+Changelog
+=========
+
+19.0.5.0.0
+-----------
+
+* Separate employee policy assignment from paid-leave eligibility. Missing joining,
+  probation and first-paid dates, or unconfirmed status, no longer block setup.
+* Add one configurable company default selected with Use for New Employees;
+  assign it when a new employee is saved, without creating a leave allocation.
+* Preserve explicit administrator assignments and existing employee records.
+* Keep permanent-status, verified-date and balance checks for paid leave/grants.
+* Read accessible native Odoo 19 probation information during Auto-Check, preserve
+  its permissions, and prevent stale/forged check results or editing applied setup.
+* Add regression cases for assignment, multi-company/access controls, incomplete
+  eligibility and employee copies; retain the source policy's business rules.
+
 19.0.4.0.0
 ------------
 * Add Auto-Check Employee to the one-employee setup wizard.
@@ -7,9 +24,6 @@
 * Prefill the recorded HOD and uniquely assigned policy HR/Management approvers.
 * Display review warnings and prevent unverified automatic activation or grants.
 * Keep no extra business features beyond the supplied Leave and Absence Policy.
-
-Changelog
-=========
 
 19.0.3.0.0
 -----------

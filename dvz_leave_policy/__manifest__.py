@@ -1,7 +1,7 @@
 {
     'name': 'Leave Policy Management',
-    'summary': 'Shared leave policy, one-employee setup, approvals and year-end encashment',
-    'version': '19.0.4.0.0',
+    'summary': 'Configurable leave policy, employee assignment, approvals and year-end encashment',
+    'version': '19.0.5.0.0',
     'category': 'Human Resources/Time Off',
     'author': 'DVZ',
     'license': 'LGPL-3',

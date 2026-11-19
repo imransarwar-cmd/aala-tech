@@ -5,8 +5,9 @@
         <field name="arch" type="xml">
             <form string="Set Up One Employee">
                 <field name="policy_state" invisible="1"/>
-                <div class="alert alert-info" role="alert" invisible="setup_applied">Select one existing employee. Apply activates an unused draft or uses a compatible active policy, and changes only the selected employee's assignment and verified details. Allocation is a separate optional step.</div>
-                <div class="alert alert-success" role="alert" invisible="not setup_applied">Setup is applied to the employee shown below. Open the employee, policy or allocation links to review the result.</div>
+                <div class="alert alert-info" role="alert" invisible="setup_applied">Select one existing employee. Apply activates an unused draft or uses a compatible active policy and assigns it to this employee. Joining and probation dates may remain empty when they are not yet confirmed. Allocation is a separate optional step.</div>
+                <div class="alert alert-success" role="alert" invisible="not setup_applied">The policy is assigned to the employee shown below. Paid leave eligibility and allocations are checked separately.</div>
+                <div class="alert alert-warning" role="alert" invisible="joining_date and employment_status == 'permanent' and (paid_eligible_date or probation_end_date)">Policy assignment is available now. Paid leave and an annual allocation require confirmed permanent status, the verified joining date, and a first paid leave date or recorded probation end. No probation duration is assumed.</div>
                 <group>
                     <group string="Selected Employee">
                         <field name="company_id" readonly="setup_applied"/>
@@ -42,7 +43,7 @@
                         <p class="text-muted">Blank type selections create dedicated types for a draft. Existing types are reused only when already compatible; they are never reconfigured. Active policy rules, dates, types and approval routes remain unchanged.</p>
                     </page>
                     <page string="Automatic Employee Check" name="auto_employee_check">
-                        <div class="alert alert-info" role="alert">Run the check after selecting one employee. It reads existing HR and (when installed) running-contract dates. A contract start may not be the original joining date. No probation duration is invented. Confirm all proposed dates and approvers before applying.</div>
+                        <div class="alert alert-info" role="alert">Run the check after selecting one employee. It refreshes the fields from saved employee details and the current Odoo employment record, subject to your HR access. Unsaved candidates are replaced. Contract start is shown as a reference, not as the original joining date. Review the dates and approvers that are known; missing eligibility dates do not prevent assignment.</div>
                         <button name="action_auto_check_employee" type="object" string="Check Employee and Probation Dates" class="btn-primary" invisible="setup_applied"/>
                         <group>
                             <field name="auto_checked_employee_id" readonly="1"/>
@@ -55,6 +56,7 @@
                     <page string="Review" name="setup_review">
                         <p>The shared policy provides 24 working days per calendar year, prorating new joiners, HOD/HR approvals, one calendar day's half-day notice, WFH responsibilities, verified LWP, Management exceptions and year-end encashment.</p>
                         <p>The source does not state the exact proration/rounding method, full-day or WFH notice duration, or salary rate. Review those choices on the draft. Rates are entered on the settlement, with no payroll posting.</p>
+                        <p>Review the employee details that are known. Leave unconfirmed eligibility dates empty; HR can complete them later on the employee's Leave Policy tab before paid leave is granted.</p>
                         <field name="reviewed" readonly="setup_applied"/>
                     </page>
                     <page string="Optional Employee Allocation" name="setup_allocation" invisible="not setup_applied">

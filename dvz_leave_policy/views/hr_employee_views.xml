@@ -7,6 +7,7 @@
             <xpath expr="//notebook" position="inside">
                 <page string="Leave Policy" name="dvz_leave_policy" groups="hr_holidays.group_hr_holidays_manager,hr.group_hr_manager">
                     <button name="action_dvz_open_policy_setup" type="object" string="Set Up This Employee" class="btn-primary" invisible="not id" groups="hr_holidays.group_hr_holidays_manager"/>
+                    <p class="text-muted">When saved, a new employee receives the company's configured policy. Joining date, employment status and paid eligibility can be confirmed later. Paid leave and allocation remain unavailable until the required eligibility details are verified.</p>
                     <group>
                         <group string="Policy Assignment">
                             <field name="dvz_leave_policy_id" options="{'no_create': True}"/>
