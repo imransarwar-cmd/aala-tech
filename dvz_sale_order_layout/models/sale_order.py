@@ -143,116 +143,97 @@ class SaleOrder(models.Model):
                     )
 
         if view_type in ("list", "tree"):
-            # Avoid brittle inheritance selectors against Studio/customized views:
-            # update the final combined architecture only when anchors exist.
-            # Guarantee exactly one visible Department column immediately after Salesperson.
-            # The actual Department field is the existing Many2many dvz_department_ids.
-            # Remove obsolete dvz_division_id references and insert Department after user_id.
-            user_nodes = arch.xpath(".//field[@name='user_id']")
-            if user_nodes:
-                user_node = user_nodes[0]
-                parent = user_node.getparent()
-                department_field = (
-                    "dvz_department_ids"
-                    if "dvz_department_ids" in self._fields
-                    else "dvz_division_id"
-                )
-                for node in arch.xpath(".//field[@name='dvz_division_id'] | .//field[@name='dvz_department_ids']"):
+            # Build the requested optional list columns in a deterministic order:
+            # Analytic Code first, Department immediately after it.
+            from lxml import etree
+
+            # Detect the actual Department field installed in this database.
+            department_field = (
+                "dvz_department_ids"
+                if "dvz_department_ids" in self._fields
+                else "dvz_division_id"
+            )
+
+            # Remove old/duplicate Department and Analytic Code nodes so the final
+            # architecture contains one copy in the requested position.
+            for field_name in (
+                "dvz_department_ids",
+                "dvz_division_id",
+                "dvz_analytic_code_display",
+                "dvz_project_code",
+            ):
+                for node in arch.xpath(".//field[@name='%s']" % field_name):
                     node_parent = node.getparent()
                     if node_parent is not None:
                         node_parent.remove(node)
-                from lxml import etree
+
+            user_nodes = arch.xpath(".//field[@name='user_id']")
+            if user_nodes:
+                anchor = user_nodes[0]
+                parent = anchor.getparent()
+                insert_at = list(parent).index(anchor) + 1
+                analytic_node = etree.Element(
+                    "field",
+                    name="dvz_analytic_code_display",
+                    string="Analytic Code",
+                    optional="hide",
+                )
                 department_node = etree.Element(
                     "field",
                     name=department_field,
                     string="Department",
                     widget="many2many_tags" if department_field == "dvz_department_ids" else "many2one",
-                    optional="show",
+                    optional="hide",
                 )
-                parent.insert(list(parent).index(user_node) + 1, department_node)
+                parent.insert(insert_at, analytic_node)
+                parent.insert(insert_at + 1, department_node)
 
-            # Ensure the list always contains the three date columns in the requested order.
-            # Some Odoo/custom Sales Order trees already contain date_order (labelled
-            # "Order Date") but do not contain create_date. Relabel existing date_order
-            # and add create_date + validity_date instead of skipping the dates.
-            from lxml import etree
-
-            def keep_one_field(field_name):
+            # Ensure all requested date fields are present in the list but hidden
+            # by default in the optional-columns menu.
+            def keep_or_add_optional(field_name, label, anchor_name=None):
                 nodes = arch.xpath(".//field[@name='%s']" % field_name)
-                if not nodes:
-                    return None
-                first = nodes[0]
-                for duplicate in nodes[1:]:
-                    parent = duplicate.getparent()
-                    if parent is not None:
-                        parent.remove(duplicate)
-                return first
+                if nodes:
+                    node = nodes[0]
+                    for duplicate in nodes[1:]:
+                        dup_parent = duplicate.getparent()
+                        if dup_parent is not None:
+                            dup_parent.remove(duplicate)
+                    node.set("string", label)
+                    node.set("optional", "hide")
+                    return node
 
-            create_node = keep_one_field("create_date")
-            order_node = keep_one_field("date_order")
-            validity_node = keep_one_field("validity_date")
-
-            # Use date_order as the anchor where possible; otherwise place dates
-            # after the order number/name column.
-            anchor = order_node
-            if anchor is None:
-                name_nodes = arch.xpath(".//field[@name='name']")
-                anchor = name_nodes[0] if name_nodes else None
-
-            if anchor is not None:
-                parent = anchor.getparent()
-                if parent is not None:
-                    index = list(parent).index(anchor)
-                    if create_node is None:
-                        create_node = etree.Element(
-                            "field", name="create_date",
-                            string="Creation Date", optional="show"
-                        )
-                    else:
-                        create_node.set("string", "Creation Date")
-                    if order_node is None:
-                        order_node = etree.Element(
-                            "field", name="date_order",
-                            string="SO Date", optional="show"
-                        )
-                    else:
-                        order_node.set("string", "SO Date")
-                    if validity_node is None:
-                        validity_node = etree.Element(
-                            "field", name="validity_date",
-                            string="Expiration Date", optional="show"
-                        )
-                    else:
-                        validity_node.set("string", "Expiration Date")
-
-                    # Remove date nodes before reinserting in exact sequence.
-                    for node in (create_node, order_node, validity_node):
-                        node_parent = node.getparent()
-                        if node_parent is not None:
-                            node_parent.remove(node)
-
-                    parent.insert(index, create_node)
-                    parent.insert(index + 1, order_node)
-                    parent.insert(index + 2, validity_node)
-
-            # Replace the Project Code display with Analytic Code after Department.
-            if not arch.xpath(".//field[@name='dvz_analytic_code_display']"):
-                department_field = (
-                    "dvz_department_ids"
-                    if "dvz_department_ids" in self._fields
-                    else "dvz_division_id"
+                node = etree.Element(
+                    "field",
+                    name=field_name,
+                    string=label,
+                    optional="hide",
                 )
-                anchors = arch.xpath(".//field[@name='%s']" % department_field)
-                if not anchors:
-                    anchors = arch.xpath(".//field[@name='user_id']")
-                if anchors:
-                    from lxml import etree
-                    anchor = anchors[-1]
-                    parent = anchor.getparent()
-                    pos = list(parent).index(anchor) + 1
-                    parent.insert(pos, etree.Element(
-                        "field", name="dvz_analytic_code_display",
-                        string="Analytic Code", optional="show"
-                    ))
+                if anchor_name:
+                    anchors = arch.xpath(".//field[@name='%s']" % anchor_name)
+                    if anchors:
+                        anchor_node = anchors[0]
+                        anchor_parent = anchor_node.getparent()
+                        anchor_parent.insert(
+                            list(anchor_parent).index(anchor_node) + 1,
+                            node,
+                        )
+                        return node
 
+                # Fallback: append to the main list container.
+                containers = arch.xpath(".//list")
+                if containers:
+                    containers[0].append(node)
+                return node
+
+            keep_or_add_optional("create_date", "Creation Date", "name")
+            keep_or_add_optional("date_order", "SO Date", "create_date")
+            keep_or_add_optional("validity_date", "Expiration Date", "date_order")
+
+            # Rename the existing untaxed amount column to VAT only; value unchanged.
+            for node in arch.xpath(".//field[@name='amount_untaxed']"):
+                node.set("string", "VAT")
+                node.set("optional", "hide")
+
+            # Keep Analytic Code before Department after the salesperson.
+            # Other existing columns are retained.
         return arch, view

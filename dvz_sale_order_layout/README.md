@@ -80,3 +80,18 @@ System field is named `system`. This version uses that actual field when present
 inserts it immediately before `system`, and uses the Many2many `dvz_department_ids`
 only if that field is genuinely installed in the registry. The list view uses the
 same detected field after `user_id`. No data or relationships are changed.
+
+## Optional list columns and order (19.0.1.1.0)
+The Sales Order/Quotation list includes Creation Date, SO Date, Expiration Date,
+Analytic Code, Department and the existing amount_untaxed column labelled VAT.
+These added columns are `optional="hide"` so users can enable them from the list
+view optional-columns menu. Analytic Code is positioned immediately before
+Department; Department is immediately after Analytic Code and both follow Salesperson.
+The VAT label changes only the caption; the underlying amount remains untaxed.
+
+## List column visibility update (19.0.1.1.1)
+SO Date, Analytic Code, Department and the existing `amount_untaxed` column labelled
+VAT are visible by default (`optional=show`). Activities fields (`activity_ids`,
+`activity_state`, `activity_date_deadline`) are hidden by default (`optional=hide`).
+Expiration Date remains available as an optional hidden column. The VAT caption still
+maps to the original untaxed amount value; no accounting calculation is changed.
