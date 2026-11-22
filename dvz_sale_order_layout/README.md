@@ -59,3 +59,9 @@ The main form Order Dates group displays Creation Date, SO Date, Expiration Date
 and a second read-only SO Date field immediately after Expiration Date, as requested.
 Both SO Date fields reference the same native `date_order` value; no new stored field
 or database migration is created.
+
+## Form date layout correction (19.0.1.0.7)
+Removed the custom Order Dates section entirely. The form now adds exactly one
+read-only `date_order` field labelled SO Date immediately after the existing
+`validity_date` field. Existing native Creation Date and SO Date fields elsewhere
+in the form are not duplicated or modified.
