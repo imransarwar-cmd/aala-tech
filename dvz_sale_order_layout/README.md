@@ -65,3 +65,10 @@ Removed the custom Order Dates section entirely. The form now adds exactly one
 read-only `date_order` field labelled SO Date immediately after the existing
 `validity_date` field. Existing native Creation Date and SO Date fields elsewhere
 in the form are not duplicated or modified.
+
+## Restore Department before System on form (19.0.1.0.8)
+The form architecture now preserves/reuses the existing `dvz_department_ids`
+Many2many field and places it immediately before the System field (`system_ids`
+or `system_id`). It no longer places Department after Salesperson on the form.
+The list-view behavior remains Department after Salesperson. No Department values
+or relationships are modified.
