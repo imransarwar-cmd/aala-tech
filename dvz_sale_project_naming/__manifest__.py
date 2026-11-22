@@ -1,6 +1,6 @@
 {
     'name': 'SO Project Naming - Salesperson and Division',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.2.2',
     'summary': 'Department-based project naming and filtered Sales systems',
     'category': 'Sales/Sales',
     'author': 'DVZ Customizations',
@@ -11,6 +11,7 @@
         'security/ir.model.access.csv',
         'views/division_views.xml',
         'views/system_master_views.xml',
+        'views/sale_order_list_hide_legacy_division.xml',
         'views/res_users_views.xml',
         # 'views/sale_order_views.xml',
         'views/project_project_views.xml',

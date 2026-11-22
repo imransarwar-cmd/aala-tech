@@ -7,14 +7,18 @@ from odoo.exceptions import AccessError, UserError
 class DvzLeavePolicyAssignment(models.Model):
     _inherit = "dvz.leave.policy"
 
-    is_employee_default = fields.Boolean(
-        string="Assign to New Employees", compute="_compute_is_employee_default",
-        help="This company's newly created employees receive this policy. Joining, probation and paid eligibility may be confirmed later; paid leave remains subject to those checks.")
+    # is_employee_default = fields.Boolean(
+    #     string="Assign to New Employees", compute="_compute_is_employee_default",
+    #     help="This company's newly created employees receive this policy. Joining, probation and paid eligibility may be confirmed later; paid leave remains subject to those checks.")
 
-    @api.depends("company_id.dvz_default_leave_policy_id")
-    def _compute_is_employee_default(self):
-        for policy in self:
-            policy.is_employee_default = policy.company_id.dvz_default_leave_policy_id == policy
+    # @api.depends("company_id.dvz_default_leave_policy_id")
+    # def _compute_is_employee_default(self):
+    #     for policy in self:
+    #         policy.is_employee_default = policy.company_id.dvz_default_leave_policy_id == policy
+
+    is_employee_default = fields.Boolean(
+        string="Assign to New Employees",
+        help="This company's newly created employees receive this policy. Joining, probation and paid eligibility may be confirmed later; paid leave remains subject to those checks.")
 
     def _dvz_lock_default_company(self):
         self.ensure_one()
