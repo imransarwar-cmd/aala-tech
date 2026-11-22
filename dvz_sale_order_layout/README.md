@@ -1,7 +1,7 @@
 # DVZ Sales Order Layout (Odoo 19)
 
 Standalone add-on. Depends on `dvz_sale_project_naming` because it reuses the existing
-`dvz_division_id` Department and replaces the existing `dvz_project_code` list column.
+`dvz_department_ids` Department and replaces the existing `dvz_project_code` list column.
 
 ## Changes
 - List: Creation Date, SO Date (`date_order`), Expiration Date (`validity_date`).
@@ -26,7 +26,7 @@ existing SO analytic field before adding any new relation.
 
 ## List-view Department correction (19.0.1.0.1)
 The final combined Sales Order list architecture now removes any duplicate
-`dvz_division_id` occurrences and inserts exactly one visible `Department`
+`dvz_department_ids` occurrences and inserts exactly one visible `Department`
 column immediately after `user_id` (Salesperson). This does not alter the
 field definition or stored values.
 
@@ -35,3 +35,16 @@ The list view now guarantees Creation Date, SO Date and Expiration Date in that 
 An existing `date_order` field is explicitly relabelled `SO Date`; `create_date` is added
 even when absent from the original Sales Order tree; `validity_date` is added/repositioned
 immediately after it. Duplicate instances are removed from the final list architecture.
+
+## Quotation form parity (19.0.1.0.3)
+Odoo Quotations and confirmed Sales Orders are both `sale.order` records and use the
+same standard form architecture. The final form architecture now guarantees the
+existing Department field `dvz_department_ids` immediately after Salesperson (`user_id`)
+for both states, while retaining the Order Dates and Analytic Code groups.
+
+## Department field correction (19.0.1.0.4)
+The correct existing Department field is `dvz_department_ids` (Many2many), not
+`dvz_division_id` (Many2one). Both the list and form layouts now use
+`dvz_department_ids` with the `many2many_tags` widget immediately after Salesperson.
+Any obsolete `dvz_division_id` occurrence is removed from the final view architecture.
+No field is created, no department relations are changed, and no database data is migrated.

@@ -2,6 +2,8 @@ Offline validation:
 - Python source compiles.
 - XML parses.
 - Manifest parses.
-- No create/write/unlink hooks or accounting computations are introduced.
-- `amount_untaxed` is only relabelled to VAT in the view architecture.
-- Live Odoo registry/view inheritance and analytic relation availability require staging validation.
+- Department view uses existing Many2many field dvz_department_ids.
+- Obsolete dvz_division_id references are removed from final form/list architecture.
+- Department is inserted after user_id with many2many_tags widget.
+- No database relations or accounting calculations are modified.
+- Live Odoo registry/view inheritance and presence of dvz_department_ids in dependency require staging validation.
