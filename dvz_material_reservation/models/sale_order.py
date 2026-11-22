@@ -1,18 +1,10 @@
-from odoo import api, fields, models, _
+from odoo import models, _
 from odoo.exceptions import AccessError, UserError
 from ..policy import INTERNAL_TOKEN
 
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
-
-    dvz_material_reservation_count = fields.Integer(compute='_compute_dvz_reservation_count',
-        string='Material Reservations', compute_sudo=False, groups="stock.group_stock_user,sales_team.group_sale_salesman")
-
-    def _compute_dvz_reservation_count(self):
-        for order in self:
-            order.dvz_material_reservation_count = self.env['dvz.material.reservation'].search_count([
-                ('sale_order_id', '=', order.id)]) if order.id else 0
 
     def _dvz_reservation_project_values(self):
         """Use existing typed links only. Never match project names or create a project."""
@@ -31,7 +23,7 @@ class SaleOrder(models.Model):
             record = self[name]
             if len(record) > 1:
                 note = _('Multiple projects exist on the SO. No project was guessed; select the reservation project explicitly.')
-                return {'project_link_note': note}
+                continue
             if not record:
                 continue
             if field.comodel_name == 'project.project':
@@ -58,6 +50,11 @@ class SaleOrder(models.Model):
                     analytic = project[name]
                     break
         values = {'project_link_note': note}
+        # Copy an explicitly configured existing SO Char field into the
+        # reservation as a reference; do not create or guess project records.
+        reference_field = self.company_id.dvz_reservation_project_reference_field_id
+        if reference_field and reference_field.model == 'sale.order' and reference_field.ttype == 'char':
+            values['project_reference'] = self[reference_field.name] or False
         if project and (not project.company_id or project.company_id == self.company_id):
             values['project_id'] = project.id
         if analytic and (not analytic.company_id or analytic.company_id == self.company_id):
@@ -114,8 +111,19 @@ class SaleOrder(models.Model):
                     'company_id': order.company_id.id, 'warehouse_id': order.warehouse_id.id,
                     **values,
                 })
-            elif not reservation.project_id and not reservation.analytic_account_id:
-                reservation.write(values)
+            elif (
+                (not reservation.project_id and not reservation.analytic_account_id)
+                or (not reservation.project_reference and values.get('project_reference'))
+            ):
+                update_values = {
+                    key: value for key, value in values.items()
+                    if (key == 'project_reference' and not reservation.project_reference)
+                    or (key == 'project_id' and not reservation.project_id)
+                    or (key == 'analytic_account_id' and not reservation.analytic_account_id)
+                    or (key == 'project_link_note' and not reservation.project_link_note)
+                }
+                if update_values:
+                    reservation.write(update_values)
             conflicting = moves.filtered(lambda m: m.dvz_reservation_id and m.dvz_reservation_id != reservation)
             if conflicting:
                 raise UserError(_('Some stock operations already belong to another reservation. Resolve that link before confirming.'))
@@ -130,7 +138,6 @@ class SaleOrder(models.Model):
                     reservation.with_user(self.env.user).sudo()._log_event('reserve',
                         _('Automatic reservation / refresh for confirmed Sales Order %s.', order.name),
                         move, before[move.id], move.dvz_reserved_qty)
-            order.invalidate_recordset(['dvz_material_reservation_count'])
         return True
 
     def action_confirm(self):
@@ -138,23 +145,6 @@ class SaleOrder(models.Model):
         self._dvz_sync_material_reservations()
         return result
 
-    def action_dvz_material_reservations(self):
-        self.ensure_one()
-        self.check_access('read')
-        action = self.env['ir.actions.actions']._for_xml_id('dvz_material_reservation.action_material_reservations')
-        reservations = self.env['dvz.material.reservation'].search([('sale_order_id', '=', self.id)])
-        action.update(domain=[('sale_order_id', '=', self.id)], context={'create': False})
-        if len(reservations) == 1:
-            action.update(views=[(False, 'form')], res_id=reservations.id)
-        return action
-
-    def action_dvz_sync_material_reservations(self):
-        self.env['dvz.material.reservation']._require_operator()
-        self.check_access('write')
-        self._dvz_sync_material_reservations()
-        if len(self) == 1:
-            return self.action_dvz_material_reservations()
-        return True
 
 
 class SaleOrderLine(models.Model):

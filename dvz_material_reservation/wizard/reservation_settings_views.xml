@@ -9,9 +9,10 @@
                     <field name="company_id" readonly="1"/>
                     <field name="automatic"/>
                     <field name="project_field_id" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="project_reference_field_id" options="{'no_create': True, 'no_open': True}"/>
                 </group>
                 <div class="alert alert-info" role="alert">
-                    The optional field mapping reuses an existing SO Project or Analytic Account field. No new project field is added to the SO. If empty, only unambiguous native links or the existing dvz_origin_sale_id link are used. No project is matched by name. This setting affects future confirmations/refreshes, not existing stock retroactively.
+                    The project mapping reuses an existing SO Project or Analytic Account field. The text-reference mapping copies an existing SO Char field into the reservation for reference only. No duplicate project field is added to the SO. If empty, only unambiguous native links or the existing dvz_origin_sale_id link are used. No project is matched by name. This setting affects future confirmations/refreshes, not existing stock retroactively.
                 </div>
                 <footer>
                     <button name="action_save" string="Save" type="object" class="btn-primary"/>

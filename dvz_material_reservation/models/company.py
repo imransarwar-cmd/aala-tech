@@ -16,10 +16,20 @@ class ResCompany(models.Model):
                "('relation', 'in', ['project.project', 'account.analytic.account'])]",
         help='Optional exact existing SO field. The addon adds no duplicate project field on the SO.')
 
-    @api.constrains('dvz_reservation_project_field_id')
+    dvz_reservation_project_reference_field_id = fields.Many2one(
+        'ir.model.fields', string='Existing SO Project Reference (Text)',
+        ondelete='set null',
+        domain="[('model', '=', 'sale.order'), ('ttype', '=', 'char')]",
+        help='Select the existing Sales Order Char field containing the project reference. Its value is copied to the reservation for reference only.',
+    )
+
+    @api.constrains('dvz_reservation_project_field_id', 'dvz_reservation_project_reference_field_id')
     def _check_dvz_project_field(self):
         for company in self:
             field = company.dvz_reservation_project_field_id
             if field and (field.model != 'sale.order' or field.ttype != 'many2one'
                           or field.relation not in ('project.project', 'account.analytic.account')):
                 raise ValidationError(_('Select an existing Sales Order Many2one project or analytic account field.'))
+            reference_field = company.dvz_reservation_project_reference_field_id
+            if reference_field and (reference_field.model != 'sale.order' or reference_field.ttype != 'char'):
+                raise ValidationError(_('Select an existing Sales Order Char field for the project reference.'))

@@ -14,7 +14,7 @@
             <xpath expr="//field[@name='aala_division_ids']" position="replace"/>
             <!-- Hide only the duplicate Division-labelled dvz_division_id
                  that appears before user_id. Keep the Department column. -->
-            <xpath expr="//list/field[@name='dvz_division_id' and @string='Division' and following-sibling::field[@name='user_id']]"
+            <xpath expr="//list/field[@name='dvz_division_id'][following-sibling::field[@name='user_id']]"
                    position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>

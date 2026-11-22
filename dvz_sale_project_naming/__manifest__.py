@@ -1,6 +1,6 @@
 {
     'name': 'SO Project Naming - Salesperson and Division',
-    'version': '19.0.1.2.2',
+    'version': '19.0.1.2.3',
     'summary': 'Department-based project naming and filtered Sales systems',
     'category': 'Sales/Sales',
     'author': 'DVZ Customizations',

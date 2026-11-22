@@ -13,6 +13,7 @@
                 <field name="sale_order_id"/>
                 <field name="partner_id"/>
                 <field name="project_id"/>
+                <field name="project_reference" optional="show"/>
                 <field name="analytic_account_id" optional="show"/>
                 <field name="warehouse_id"/>
                 <field name="create_date" optional="hide"/>
@@ -59,9 +60,9 @@
                             <field name="sale_order_id" invisible="source != 'sale'" readonly="1"/>
                             <field name="partner_id" readonly="stage != 'draft'"/>
                             <field name="delivery_partner_id" readonly="stage != 'draft'"/>
-                            <field name="project_id" options="{'no_create': True}"/>
-                            <field name="analytic_account_id" options="{'no_create': True}"/>
-                            <button name="action_refresh_so_link" type="object" string="Refresh existing SO project link" invisible="source != 'sale'" groups="dvz_material_reservation.group_reservation_operator"/>
+                            <field name="project_id" options="{'no_create': True}" readonly="source == 'sale'"/>
+                            <field name="project_reference" readonly="source == 'sale'" placeholder="Project reference from Sales Order"/>
+                            <field name="analytic_account_id" options="{'no_create': True}" readonly="source == 'sale'"/>
                         </group>
                         <group>
                             <field name="company_id" readonly="stage != 'draft'" groups="base.group_multi_company"/>
@@ -126,7 +127,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="name"/><field name="sale_order_id"/><field name="partner_id"/>
-                <field name="project_id"/><field name="analytic_account_id"/><field name="warehouse_id"/>
+                <field name="project_id"/><field name="project_reference"/><field name="analytic_account_id"/><field name="warehouse_id"/>
                 <filter name="open" string="Open" domain="[('state', 'in', ['draft', 'waiting', 'partial', 'reserved', 'released'])]"/>
                 <filter name="shortages" string="Waiting / Partial" domain="[('state', 'in', ['waiting', 'partial'])]"/>
                 <filter name="released" string="Released" domain="[('state', '=', 'released')]"/>

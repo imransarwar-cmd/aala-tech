@@ -16,7 +16,7 @@ The package has passed Python/XML/package validation and **66 isolated regressio
 - Uses native stock moves/move lines and stock reservation APIs; no second fake quantity table and no direct writes to `stock.quant.reserved_quantity`.
 - Only inventory-tracked products (`is_storable`) and internal-source warehouse stock operations qualify. Services and untracked consumables are excluded.
 - Existing customer, SO, warehouse and typed project/analytic links are reused where unambiguous.
-- New customer-only manual holds require no SO or project. They create a normal **unvalidated outgoing transfer** from the chosen internal source.
+- New customer/project manual holds use the separate **Reservation Register** form. They can be linked to a customer and optional project, with an optional typed Project Reference. They create a normal **unvalidated outgoing transfer** from the chosen internal source.
 - Per-operation release, multi-selection release, release all for a document, and bulk release for filtered project/customer documents.
 - A persistent total reservation limit prevents “Check Availability” and standard `_action_assign` jobs from immediately re-reserving a released quantity.
 - “Set Reservation Target” raises/lowers the total permitted reservation; “Reserve Available” fills only the existing target.
@@ -25,7 +25,7 @@ The package has passed Python/XML/package validation and **66 isolated regressio
 - Standard deliveries and backorders remain Odoo operations. Backorder caps use the remaining allocation, not a duplicate copy of the entire previous limit.
 - No automatic validation, invoice posting, delivery costing, stock valuation, SO locking or payroll changes.
 - Audit entries include actor, time, product, unit, before/after reserved quantities and reason. They cannot be manually edited/deleted through this addon.
-- Smart buttons on the SO, actual Project and Analytic Account. Dedicated register/line views have customer/project/SO/product/location/status filters and grouping. Native Odoo list export is available under your existing export permissions.
+- No buttons or extra fields are added to the Sales Order form. Automatic reservation runs after SO confirmation. Project and Analytic Account reservation views retain their own navigation. Dedicated register/line views have customer/project/SO/product/location/status filters and grouping. Native Odoo list export is available under your existing export permissions.
 
 ## Installation — new addon
 
@@ -58,7 +58,8 @@ Inventory → Configuration → **Reservation Settings** (active company).
 
 - Automatic reservation is enabled by default for future SO confirmations.
 - Turning this option off stops this addon’s automatic register/refresh logic; it does **not** disable Odoo's independent native operation-type reservation setting.
-- **Existing SO Project / Analytic Field** is an optional mapping to a real Many2one field already on `sale.order`. Pick your actual custom field when your database uses a nonstandard name.
+- **Existing SO Project / Analytic Field** maps a real Many2one field already on `sale.order` to a typed Project/Analytic link.
+- **Existing SO Project Reference (Text)** maps your existing Sales Order Char field (for example, a project code/reference) to `project_reference` on the reservation. It is displayed on the reservation list and form for reference only. Select the exact Char field in Reservation Settings; no duplicate field is created on the SO.
 - Without a mapping, the addon checks unambiguous native `project_id`, `analytic_account_id`, `project_ids`, then the already-installed optional naming link `project.project.dvz_origin_sale_id`.
 - A plain text field called `project` is not assumed to identify a `project.project` or `account.analytic.account` record.
 - No project or analytic account is created, no project name is matched, and no duplicate SO project selector is added.
@@ -69,7 +70,7 @@ Inventory → Configuration → **Reservation Settings** (active company).
 
 1. Set the existing SO project/analytic field, customer, warehouse and material lines.
 2. Confirm the SO.
-3. Open its **Material Reservations** smart button.
+3. Open **Inventory → Material Reservations → Reservation Register** and filter by the Sales Order.
 4. Review each operation’s demand, actual reserved quantity, target, shortage and released/on-hold quantity.
 
 The addon reserves **available stock only**. For example, demand 10 and free stock 6 gives Reserved 6 and Waiting for Stock 4; it never claims that all 10 are physically reserved.
@@ -191,3 +192,12 @@ Do not run integration tests against `aala_tech_production`.
 - Native Sales, Project and Analytic Account button-box anchors, and Odoo 19 `res.groups.privilege` security layout.
 
 The module is LGPL-3 licensed. Source and tests are included.
+
+
+## Consolidated package and UI scope
+
+This package contains only the `dvz_material_reservation` addon. The uploaded archive also contained separate `dvz_material_auto_reserve`, `dvz_material_manual_reserve`, `dvz_material_reservation_view`, and `dvz_material_reservation_refs` addons that duplicate or overlap this module's automatic SO confirmation hook, manual reservation form, and reservation register. Do not install those parallel addons for this workflow. If any are already installed, review their dependencies and existing records before uninstalling them; this package does not automatically uninstall other modules.
+
+No button, smart button, or refresh action is added to the Sales Order form. Automatic stock reservation is performed by the existing `sale.order.action_confirm()` hook when the company setting is enabled. Manual customer/project reservations are created from Inventory > Material Reservations > Reservation Register.
+
+The Sales Order project text reference is configured under Inventory > Configuration > Reservation Settings by selecting the exact existing `sale.order` Char field. The selected value is copied into the reservation's `Project Reference` field at confirmation. This is a reference only; the typed Char value does not create or infer a `project.project` record.

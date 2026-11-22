@@ -33,6 +33,7 @@ class MaterialReservation(models.Model):
     analytic_account_id = fields.Many2one('account.analytic.account', string='Analytic Project',
                                           check_company=True, tracking=True, index=True,
                                           ondelete='restrict')
+    project_reference = fields.Char(string='Project Reference', tracking=True, index=True, copy=False)
     project_link_note = fields.Char(string='Project Link Information', readonly=True)
     warehouse_id = fields.Many2one('stock.warehouse', required=True, check_company=True)
     location_id = fields.Many2one('stock.location', string='Manual Hold Source', check_company=True,

@@ -1,6 +1,6 @@
 {
     'name': 'Project & Customer Material Reservations',
-    'version': '19.0.1.0.0',
+    'version': '19.0.2.0.0',
     'summary': 'Reserve real stock for sales orders, projects and customers; release all or a specific quantity.',
     'category': 'Inventory/Inventory',
     'author': 'DVZ',
@@ -14,7 +14,6 @@
         'wizard/reservation_settings_views.xml',
         'views/reservation_views.xml',
         # 'views/stock_move_views.xml',
-        'views/sale_order_views.xml',
         'views/project_views.xml',
         'views/menus.xml',
     ],
