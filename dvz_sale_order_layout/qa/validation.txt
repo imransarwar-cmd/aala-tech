@@ -1,0 +1,7 @@
+Offline validation:
+- Python source compiles.
+- XML parses.
+- Manifest parses.
+- No create/write/unlink hooks or accounting computations are introduced.
+- `amount_untaxed` is only relabelled to VAT in the view architecture.
+- Live Odoo registry/view inheritance and analytic relation availability require staging validation.
