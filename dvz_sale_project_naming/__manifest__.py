@@ -11,7 +11,7 @@
         'security/ir.model.access.csv',
         'views/division_views.xml',
         'views/system_master_views.xml',
-        'views/sale_order_list_hide_legacy_division.xml',
+        # 'views/sale_order_list_hide_legacy_division.xml',
         'views/res_users_views.xml',
         # 'views/sale_order_views.xml',
         'views/project_project_views.xml',
