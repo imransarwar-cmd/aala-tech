@@ -7,3 +7,4 @@ Offline validation:
 - Department is inserted after user_id with many2many_tags widget.
 - No database relations or accounting calculations are modified.
 - Live Odoo registry/view inheritance and presence of dvz_department_ids in dependency require staging validation.
+- Form date group is inserted before the notebook, visible on the main form.

@@ -48,3 +48,14 @@ The correct existing Department field is `dvz_department_ids` (Many2many), not
 `dvz_department_ids` with the `many2many_tags` widget immediately after Salesperson.
 Any obsolete `dvz_division_id` occurrence is removed from the final view architecture.
 No field is created, no department relations are changed, and no database data is migrated.
+
+## Always-visible form dates (19.0.1.0.5)
+Creation Date, SO Date (`date_order`) and Expiration Date (`validity_date`) are now
+inserted in an always-visible Order Dates group on the main Sales Order/Quotation form,
+immediately before the notebook tabs. They are no longer placed only under Other Information.
+
+## Duplicate SO Date after Expiration Date (19.0.1.0.6)
+The main form Order Dates group displays Creation Date, SO Date, Expiration Date,
+and a second read-only SO Date field immediately after Expiration Date, as requested.
+Both SO Date fields reference the same native `date_order` value; no new stored field
+or database migration is created.
