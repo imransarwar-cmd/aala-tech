@@ -72,3 +72,11 @@ Many2many field and places it immediately before the System field (`system_ids`
 or `system_id`). It no longer places Department after Salesperson on the form.
 The list-view behavior remains Department after Salesperson. No Department values
 or relationships are modified.
+
+## Restore the actual Department field before System (19.0.1.0.9)
+Inspection of the original uploaded `dvz_sale_project_naming` source confirms the
+existing Department field on `sale.order` is `dvz_division_id` (Many2one) and the
+System field is named `system`. This version uses that actual field when present,
+inserts it immediately before `system`, and uses the Many2many `dvz_department_ids`
+only if that field is genuinely installed in the registry. The list view uses the
+same detected field after `user_id`. No data or relationships are changed.

@@ -83,38 +83,64 @@ class SaleOrder(models.Model):
                 parent.remove(old_project_code)
 
         if view_type == "form":
-            # Quotation and confirmed Sales Order share the sale.order form model/view.
-            # Ensure Department is present immediately after Salesperson on both.
-            user_nodes = arch.xpath(".//field[@name='user_id']")
-            if user_nodes:
-                user_node = user_nodes[0]
-                parent = user_node.getparent()
-                # The actual Department field is the existing Many2many dvz_department_ids.
-                # Remove the obsolete/incorrect dvz_division_id field from this view.
-                for old_node in arch.xpath(".//field[@name='dvz_division_id']"):
-                    old_parent = old_node.getparent()
-                    if old_parent is not None:
-                        old_parent.remove(old_node)
-                department_nodes = arch.xpath(".//field[@name='dvz_department_ids']")
-                # Keep the first occurrence if it is already in the same group after salesperson.
-                valid = False
-                if department_nodes:
-                    first = department_nodes[0]
-                    if first.getparent() is parent:
-                        valid = list(parent).index(first) == list(parent).index(user_node) + 1
-                if not valid:
-                    for node in department_nodes:
-                        node_parent = node.getparent()
-                        if node_parent is not None:
-                            node_parent.remove(node)
-                    from lxml import etree
-                    department_node = etree.Element(
-                        "field",
-                        name="dvz_department_ids",
-                        string="Department",
-                        widget="many2many_tags",
+            # The original dvz_sale_project_naming module defines Department as
+            # sale.order.dvz_division_id (Many2one) and the System field as "system".
+            # Preserve that existing field and position it immediately before System.
+            from lxml import etree
+
+            department_field = (
+                "dvz_department_ids"
+                if "dvz_department_ids" in self._fields
+                else "dvz_division_id"
+            )
+            # Remove only the alternative/obsolete department field from the final view.
+            alternative_field = (
+                "dvz_division_id"
+                if department_field == "dvz_department_ids"
+                else "dvz_department_ids"
+            )
+            for old_node in arch.xpath(".//field[@name='%s']" % alternative_field):
+                old_parent = old_node.getparent()
+                if old_parent is not None:
+                    old_parent.remove(old_node)
+
+            department_nodes = arch.xpath(
+                ".//field[@name='%s']" % department_field
+            )
+            department_node = department_nodes[0] if department_nodes else etree.Element(
+                "field",
+                name=department_field,
+                string="Department",
+                widget="many2many_tags" if department_field == "dvz_department_ids" else "many2one",
+            )
+            for duplicate in department_nodes[1:]:
+                duplicate_parent = duplicate.getparent()
+                if duplicate_parent is not None:
+                    duplicate_parent.remove(duplicate)
+
+            current_parent = department_node.getparent()
+            if current_parent is not None:
+                current_parent.remove(department_node)
+
+            # Actual System field in dvz_sale_project_naming is named "system".
+            system_nodes = arch.xpath(".//field[@name='system']")
+            if system_nodes:
+                system_node = system_nodes[0]
+                system_parent = system_node.getparent()
+                system_parent.insert(
+                    list(system_parent).index(system_node),
+                    department_node,
+                )
+            else:
+                # Safe fallback if a customization removed the System field.
+                user_nodes = arch.xpath(".//field[@name='user_id']")
+                if user_nodes:
+                    user_node = user_nodes[0]
+                    user_parent = user_node.getparent()
+                    user_parent.insert(
+                        list(user_parent).index(user_node) + 1,
+                        department_node,
                     )
-                    parent.insert(list(parent).index(user_node) + 1, department_node)
 
         if view_type in ("list", "tree"):
             # Avoid brittle inheritance selectors against Studio/customized views:
@@ -126,20 +152,21 @@ class SaleOrder(models.Model):
             if user_nodes:
                 user_node = user_nodes[0]
                 parent = user_node.getparent()
-                for node in arch.xpath(".//field[@name='dvz_division_id']"):
-                    node_parent = node.getparent()
-                    if node_parent is not None:
-                        node_parent.remove(node)
-                for node in arch.xpath(".//field[@name='dvz_department_ids']"):
+                department_field = (
+                    "dvz_department_ids"
+                    if "dvz_department_ids" in self._fields
+                    else "dvz_division_id"
+                )
+                for node in arch.xpath(".//field[@name='dvz_division_id'] | .//field[@name='dvz_department_ids']"):
                     node_parent = node.getparent()
                     if node_parent is not None:
                         node_parent.remove(node)
                 from lxml import etree
                 department_node = etree.Element(
                     "field",
-                    name="dvz_department_ids",
+                    name=department_field,
                     string="Department",
-                    widget="many2many_tags",
+                    widget="many2many_tags" if department_field == "dvz_department_ids" else "many2one",
                     optional="show",
                 )
                 parent.insert(list(parent).index(user_node) + 1, department_node)
@@ -210,7 +237,12 @@ class SaleOrder(models.Model):
 
             # Replace the Project Code display with Analytic Code after Department.
             if not arch.xpath(".//field[@name='dvz_analytic_code_display']"):
-                anchors = arch.xpath(".//field[@name='dvz_department_ids']")
+                department_field = (
+                    "dvz_department_ids"
+                    if "dvz_department_ids" in self._fields
+                    else "dvz_division_id"
+                )
+                anchors = arch.xpath(".//field[@name='%s']" % department_field)
                 if not anchors:
                     anchors = arch.xpath(".//field[@name='user_id']")
                 if anchors:

@@ -1,6 +1,6 @@
 {
     'name': 'DVZ Sales Order Layout',
-    'version': '19.0.1.0.8',
+    'version': '19.0.1.0.9',
     'summary': 'Sales Order list and form layout: Department, Analytic Code and order dates',
     'category': 'Sales/Sales',
     'author': 'DVZ',
